@@ -3,9 +3,13 @@
 use App\Controllers\HomeController;
 use App\Controllers\LoginController;
 use Core\Router\Route;
+use App\Middleware\Authenticate;
 
-// Authentication
-Route::get('/', [HomeController::class, 'index'])->name('root');
-Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('users.login');
-Route::post('/auth/login', [LoginController::class, 'login']);
-Route::post('/auth/logout', [LoginController::class, 'logout'])->name('users.logout');
+Route::get('/', [LoginController::class, 'showLoginForm'])->name('root');
+Route::get('/', [LoginController::class, 'showLoginForm'])->name('users.login');
+Route::post('/', [LoginController::class, 'login'])->name('users.login.post');
+Route::post('/', [LoginController::class, 'logout'])->name('users.logout');
+
+Route::group(['middleware' => Authenticate::class], function () {
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+});

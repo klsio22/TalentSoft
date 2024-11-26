@@ -8,6 +8,7 @@ class User
     public string $email;
     public string $password;
 
+
     public static function attempt(array $credentials): ?self
     {
         if ($credentials['email'] === 'validUser@example.com' && $credentials['password'] === 'validPassword') {

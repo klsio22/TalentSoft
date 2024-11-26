@@ -156,4 +156,11 @@ class Route
     {
         return new RouteWrapperMiddleware($middleware);
     }
-}
+
+    public static function group(array $attributes, \Closure $callback): void
+    {
+        $router = Router::getInstance();
+        $router->addGroup($attributes, $callback);
+    }
+
+  }
