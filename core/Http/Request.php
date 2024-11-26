@@ -37,13 +37,13 @@ class Request
         return $this->params;
     }
 
-    /** @return array<string, string>*/
+    /** @return array<string, string> */
     public function getHeaders(): array
     {
         return $this->headers;
     }
 
-    /** @param mixed[] $params*/
+    /** @param mixed[] $params */
     public function addParams(array $params): void
     {
         $this->params = array_merge($this->params, $params);
@@ -57,5 +57,21 @@ class Request
     public function getParam(string $key, mixed $default = null): mixed
     {
         return $this->params[$key] ?? $default;
+    }
+
+    public function only(array $keys): array
+    {
+        return array_filter(
+            $this->all(),
+            function ($key) use ($keys) {
+                return in_array($key, $keys);
+            },
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    public function all(): array
+    {
+        return $this->params;
     }
 }
