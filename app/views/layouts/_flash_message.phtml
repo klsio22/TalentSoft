@@ -1,5 +1,5 @@
 <?php foreach (\Lib\FlashMessage::get() as $type => $msg) : ?>
-    <div class="alert alert-<?= $type ?> alert-dismissible" role="alert">
+    <div class="alert alert-<?= $type ?> alert-dismissible absolute w-full" role="alert">
         <div><?= $msg ?></div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
