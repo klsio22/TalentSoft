@@ -71,7 +71,13 @@ class Router
         return $controller;
       }
     }
-    throw new HTTPException('URI ' . $request->getUri() . ' not found.', 404);
+    $this->redirectTo404();
+  }
+
+  private function redirectTo404(): void
+  {
+    header('Location: ' . $this->getRoutePathByName('errors.404'));
+    exit;
   }
 
   public static function init(): void
