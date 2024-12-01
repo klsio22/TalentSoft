@@ -10,7 +10,6 @@ class User
   public int $id;
     public string $username;
     public string $password;
-    // Adicione outras propriedades conforme necessário
 
     public function __construct(array $data)
     {
@@ -49,7 +48,13 @@ class User
         return null;
     }
 
-    // Construtor e outros métodos da classe User
+    public static function check(): bool
+    {
+        // Verifique se o usuário está logado, por exemplo, verificando uma sessão
+        return isset($_SESSION['user_id']);
+    }
+
+
     /* public function __construct(array $data)
     {
         foreach ($data as $key => $value) {

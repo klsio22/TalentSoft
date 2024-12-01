@@ -7,10 +7,8 @@ use Core\Database\Database;
 
 Database::migrate();
 
-// Conecta ao banco de dados
 $db = Database::getInstance();
 
-// Dados para popular o banco
 $users = [
     [
         'name' => 'Admin User',
