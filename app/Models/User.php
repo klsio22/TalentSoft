@@ -2,34 +2,58 @@
 
 namespace App\Models;
 
+use Core\Database\Database;
+use PDO;
+
 class User
 {
   public int $id;
-  public string $email;
-  public string $password;
+    public string $username;
+    public string $password;
+    // Adicione outras propriedades conforme necessário
 
-  public static function attempt(array $credentials): ?self
-  {
-    if (isset($credentials['email']) && $credentials['email'] === 'validUser@example.com' && isset($credentials['password']) && $credentials['password'] === 'validPassword') {
-      $user = new self();
-      $user->id = 1;
-      $user->email = $credentials['email'];
-      $user->password = $credentials['password'];
-      return $user;
+    public function __construct(array $data)
+    {
+        $this->id = $data['id'] ?? 0;
+        $this->username = $data['username'] ?? '';
+        $this->password = $data['password'] ?? '';
     }
-    return null;
-  }
 
-  public static function findById(int $id): ?self
-  {
-    // Implementação fictícia para encontrar um usuário pelo ID
-    if ($id === 1) {
-      $user = new self();
-      $user->id = 1;
-      $user->email = 'validUser@example.com';
-      $user->password = 'validPassword';
-      return $user;
+
+    public static function attempt(array $credentials): ?self
+    {
+        $db = Database::getInstance();
+        $query = "SELECT * FROM users WHERE email = :email LIMIT 1";
+        $stmt = $db->prepare($query);
+        $stmt->execute([':email' => $credentials['email']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && password_verify($credentials['password'], $user['password'])) {
+            return new self($user);
+        }
+
+        return null;
     }
-    return null;
-  }
+
+    public static function findById(int $id): ?self
+    {
+        $pdo = Database::getInstance();
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        error_log(print_r($data, true));
+        if ($data) {
+            return new self($data);
+        }
+
+        return null;
+    }
+
+    // Construtor e outros métodos da classe User
+    /* public function __construct(array $data)
+    {
+        foreach ($data as $key => $value) {
+            $this->$key = $value;
+        }
+    } */
 }
