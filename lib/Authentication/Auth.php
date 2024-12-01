@@ -6,6 +6,7 @@ use App\Models\User;
 
 class Auth
 {
+
   public static function login(User $user): void
   {
     $_SESSION['user']['id'] = $user->id;

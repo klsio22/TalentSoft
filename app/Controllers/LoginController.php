@@ -12,9 +12,14 @@ class LoginController extends Controller
 {
   public function showLoginForm(): void
   {
-    if (Auth::check()) {
+    if (Auth::check() && Auth::user()->role !== 'user') {
       $this->redirectTo(route('home'));
     }
+
+    if (Auth::check() && Auth::user()->role === 'admin') {
+      $this->redirectTo(route('home.admin'));
+    }
+
     $this->render('auth/login');
   }
 

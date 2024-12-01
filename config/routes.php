@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\AdminController;
 use App\Controllers\ErrorController;
 use App\Controllers\HomeController;
 use App\Controllers\LoginController;
@@ -14,5 +15,10 @@ Route::middleware('auth')->group(function() {
   Route::get('/', [HomeController::class, 'index'])->name('root');
   Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
+
+Route::middleware('admin')->group(function() {
+  Route::get('/admin-home', [AdminController::class, 'index'])->name('home.admin');
+});
+
 
 Route::get('/404', [ErrorController::class, 'notFound'])->name('errors.404');
