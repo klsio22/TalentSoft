@@ -54,12 +54,4 @@ class User
   {
     return isset($_SESSION['user_id']);
   }
-
-
-  /* public function __construct(array $data)
-    {
-        foreach ($data as $key => $value) {
-            $this->$key = $value;
-        }
-    } */
 }

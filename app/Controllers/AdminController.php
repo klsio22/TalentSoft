@@ -16,7 +16,7 @@ class AdminController extends Controller
 
     if (Auth::check() && Auth::user()->role === 'admin') {
       $this->redirectTo(route('home.admin'));
-      exit;
+      return;
     }
 
     $this->render('auth/admin/login');

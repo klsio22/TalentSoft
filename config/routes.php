@@ -25,7 +25,7 @@ Route::middleware('admin')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-  Route::get('/home', [HomeController::class, 'index'])->name('root');
+  Route::get('/', [HomeController::class, 'index'])->name('root');
   Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
 

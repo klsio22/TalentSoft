@@ -12,8 +12,14 @@ class UserController extends Controller
 {
   public function showLoginForm(): void
   {
-    if (Auth::check() && Auth::user()->role !== 'user') {
+    if (Auth::check() && Auth::user()->role === 'user') {
       $this->redirectTo(route('home'));
+      return;
+    }
+
+    if (Auth::check() && Auth::user()->role === 'admin') {
+      $this->redirectTo(route('home.admin'));
+      return;
     }
 
     $this->render('auth/login');
@@ -25,7 +31,9 @@ class UserController extends Controller
     if (empty($credentials['email']) || empty($credentials['password'])) {
       FlashMessage::danger('Por favor, preencha todos os campos.');
       $this->redirectTo(route('users.login'));
+      return;
     }
+
     $user = User::attempt($credentials);
 
     if ($user) {
