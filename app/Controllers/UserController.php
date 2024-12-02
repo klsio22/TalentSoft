@@ -8,16 +8,12 @@ use Lib\Authentication\Auth;
 use Lib\FlashMessage;
 use App\Models\User;
 
-class LoginController extends Controller
+class UserController extends Controller
 {
   public function showLoginForm(): void
   {
     if (Auth::check() && Auth::user()->role !== 'user') {
       $this->redirectTo(route('home'));
-    }
-
-    if (Auth::check() && Auth::user()->role === 'admin') {
-      $this->redirectTo(route('home.admin'));
     }
 
     $this->render('auth/login');
@@ -47,11 +43,5 @@ class LoginController extends Controller
     Auth::logout();
     FlashMessage::success('Logout realizado com sucesso');
     $this->redirectTo(route('users.login'));
-  }
-
-  protected function redirectTo(string $location): void
-  {
-    header('Location: ' . $location);
-    exit;
   }
 }

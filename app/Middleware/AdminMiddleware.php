@@ -13,7 +13,7 @@ class AdminMiddleware implements Middleware
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             FlashMessage::danger('Você não tem permissão para acessar essa página');
-            $this->redirectTo(route('users.login'));
+            $this->redirectTo(route('home'));
         }
     }
 

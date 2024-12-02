@@ -13,4 +13,9 @@ class HomeController extends Controller
     $title = 'Home';
     $this->render('home/index', compact('title'));
   }
+
+  public function admin(): void
+  {
+    $this->render('home/admin/index');
+  }
 }
