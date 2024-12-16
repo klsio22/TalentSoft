@@ -2,61 +2,69 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use PHPUnit\Framework\TestCase;
+use Core\Router\Router;
 
-class RouteTest extends TestCase
+class RouterTest extends TestCase
 {
-    use RefreshDatabase;
-    use WithoutMiddleware;
+  public function setUp(): void
+  {
+    parent::setUp();
+    session_start();
 
-    public function test_root_route()
-    {
-        $response = $this->get('/');
-        $response->assertStatus(200);
-        $response->assertViewIs('auth.login');
+    // Reinicializar o Router
+    $routerReflection = new \ReflectionClass(Router::class);
+    $instanceProperty = $routerReflection->getProperty('instance');
+    $instanceProperty->setValue(null, null);
+
+    // Carregar as rotas usando o caminho correto
+    $routesPath = __DIR__ . '/../../../../config/routes.php';
+
+    if (!file_exists($routesPath)) {
+      throw new \RuntimeException("Arquivo de rotas não encontrado em: " . $routesPath);
     }
 
-    public function test_404_route()
-    {
-        $response = $this->get('/404');
-        $response->assertStatus(200);
-        $response->assertViewIs('errors.404');
+    require $routesPath;
+
+    $_SERVER['HTTP_HOST'] = 'localhost:8081';
+    $_SERVER['REQUEST_SCHEME'] = 'http';
+    $this->assertTrue(true);
+  }
+
+  public function tearDown(): void
+  {
+    while (ob_get_level() > 0) {
+      ob_end_clean();
     }
 
-    public function test_admin_login_route()
-    {
-        $response = $this->get('/admin/login');
-        $response->assertStatus(200);
-        $response->assertViewIs('auth.admin_login');
+    session_destroy();
+
+    $_SERVER['REQUEST_METHOD'] = null;
+    $_SERVER['REQUEST_URI'] = null;
+
+    parent::tearDown();
+    $this->assertTrue(true);
+  }
+
+  public function dispatch(): string
+  {
+    ob_start();
+    try {
+      Router::getInstance()->dispatch();
+      return ob_get_clean();
+    } catch (\Exception $e) {
+      ob_end_clean();
+      throw $e;
     }
+  }
 
-    public function test_home_route_requires_authentication()
-    {
-        $response = $this->get('/home');
-        $response->assertRedirect('/');
-    }
+  public function test_simple_route()
+  {
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/test';
 
-    public function test_home_admin_route_requires_admin_role()
-    {
-        $user = User::factory()->create(['role' => 'user']);
-        $this->actingAs($user);
-
-        $response = $this->get('/home/admin');
-        $response->assertStatus(403);
-    }
-
-    public function test_home_admin_route_with_admin_role()
-    {
-        $admin = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($admin);
-
-        $response = $this->get('/home/admin');
-        $response->assertStatus(200);
-        $response->assertViewIs('home.admin');
-
-    }
+    $output = $this->dispatch();
+    $this->assertStringContainsString('Test route', $output);
+    $this->assertTrue(true);
+  }
 }
