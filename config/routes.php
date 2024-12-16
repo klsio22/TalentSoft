@@ -20,13 +20,14 @@ Route::post('/admin/login', [AdminController::class, 'login']);
 Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
 Route::middleware('admin')->group(function () {
-    Route::get('/home/admin', [HomeController::class, 'admin'])->name('root');
-    Route::get('/home/admin', [HomeController::class, 'admin'])->name('home.admin');
+  Route::get('/home/admin', [HomeController::class, 'admin'])->name('root');
+  Route::get('/home/admin', [HomeController::class, 'admin'])->name('home.admin');
+  Route::get('/home/register', [AdminController::class, 'showRegisterForm'])->name('register.user');
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('root');
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
+  Route::get('/', [HomeController::class, 'index'])->name('root');
+  Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
 
 

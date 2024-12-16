@@ -8,18 +8,20 @@ use PDO;
 class User
 {
     public int $id;
-    public string $username;
+    public string $name;
+    public string $email;
     public string $password;
     public string $role;
-
 
     public function __construct(array $data)
     {
         $this->id = $data['id'] ?? 0;
-        $this->username = $data['username'] ?? '';
+        $this->name = $data['name'] ?? '';
+        $this->email = $data['email'] ?? '';
         $this->password = $data['password'] ?? '';
-        $this->role = $data['role'] ?? '';
+        $this->role = $data['role'] ?? 'user';
     }
+
 
     public static function attempt(array $credentials): ?self
     {
@@ -53,5 +55,34 @@ class User
     public static function check(): bool
     {
         return isset($_SESSION['user_id']);
+    }
+
+
+
+
+    public function save(): void
+    {
+        $db = Database::getInstance();
+        if ($this->id === 0) {
+            $query = "INSERT INTO users (name, email, password, role) VALUES (:name, :email, :password, :role)";
+            $stmt = $db->prepare($query);
+            $stmt->execute([
+                ':name' => $this->name,
+                ':email' => $this->email,
+                ':password' => $this->password,
+                ':role' => $this->role,
+            ]);
+            $this->id = $db->lastInsertId();
+        } else {
+            $query = "UPDATE users SET name = :name, email = :email, password = :password, role = :role WHERE id = :id";
+            $stmt = $db->prepare($query);
+            $stmt->execute([
+                ':name' => $this->name,
+                ':email' => $this->email,
+                ':password' => $this->password,
+                ':role' => $this->role,
+                ':id' => $this->id,
+            ]);
+        }
     }
 }
