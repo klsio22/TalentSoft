@@ -10,27 +10,27 @@ use Lib\FlashMessage;
 
 class AdminController extends Controller
 {
-    public function showLoginForm(Request $request)
+    public function showLoginForm(): bool
     {
 
         if (Auth::check() && Auth::user()->role === 'admin') {
             $this->redirectTo(route('home.admin'));
-            return;
+            return true;
         }
 
         $this->render('auth/admin/login');
+        return false;
     }
 
-    public function login(Request $request): void
+    public function login(Request $request): bool
     {
         $credentials = $request->only(['email', 'password']);
 
         if (empty($credentials['email']) || empty($credentials['password'])) {
             FlashMessage::danger('Por favor, preencha todos os campos.');
             $this->redirectTo(route('admin.login'));
+            return false;
         }
-
-        echo $credentials['email'];
 
         $user = User::attempt($credentials);
 
@@ -38,16 +38,19 @@ class AdminController extends Controller
             Auth::login($user);
             FlashMessage::success('Login realizado com sucesso');
             $this->redirectTo(route('home.admin'));
+            return true;
         } else {
             FlashMessage::danger('Credenciais inválidas ou você não tem permissão para acessar essa página');
             $this->redirectTo(route('admin.login'));
+            return false;
         }
     }
 
-    public function logout(): void
+    public function logout(): bool
     {
         Auth::logout();
         FlashMessage::success('Logout realizado com sucesso');
         $this->redirectTo(route('admin.login'));
+        return true;
     }
 }
