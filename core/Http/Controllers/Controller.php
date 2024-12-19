@@ -2,9 +2,7 @@
 
 namespace Core\Http\Controllers;
 
-use App\Models\User;
 use Core\Constants\Constants;
-use Lib\Authentication\Auth;
 
 class Controller
 {
