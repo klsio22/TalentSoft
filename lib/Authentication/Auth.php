@@ -6,7 +6,7 @@ use App\Models\User;
 
 class Auth
 {
-    public static function login($user): void
+    public static function login(User $user): void
     {
         $_SESSION['user']['id'] = $user->id;
     }
@@ -17,7 +17,6 @@ class Auth
             $id = $_SESSION['user']['id'];
             return User::findById($id);
         }
-
         return null;
     }
 
