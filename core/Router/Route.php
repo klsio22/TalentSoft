@@ -162,5 +162,4 @@ class Route
         $router = Router::getInstance();
         $router->addGroup($attributes, $callback);
     }
-
-  }
+}

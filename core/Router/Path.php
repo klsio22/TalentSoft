@@ -1,19 +1,24 @@
 <?php
+
 // Core/Router/Path.php
 namespace Core\Router;
 
-class Path {
+class Path
+{
     private string $path;
 
-    public function __construct(string $path) {
+    public function __construct(string $path)
+    {
         $this->path = $path;
     }
 
-    public function join(string $segment): string {
+    public function join(string $segment): string
+    {
         return $this->path . DIRECTORY_SEPARATOR . $segment;
     }
 
-    public function __toString(): string {
+    public function __toString(): string
+    {
         return $this->path;
     }
 }
