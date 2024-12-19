@@ -9,18 +9,17 @@ use Lib\FlashMessage;
 
 class Authenticate implements Middleware
 {
-  public function handle(Request $request): void
-  {
-    if (!Auth::check()) {
-      FlashMessage::danger('Você não tem permissão para acessar essa página');
-      $this->redirectTo(route('users.login'));
+    public function handle(Request $request): void
+    {
+        if (!Auth::check()) {
+            FlashMessage::danger('Você não tem permissão para acessar essa página');
+            $this->redirectTo(route('users.login'));
+        }
     }
-  }
 
-
-  private function redirectTo(string $location): void
-  {
-    header('Location: ' . $location);
-    exit;
-  }
+    private function redirectTo(string $location): void
+    {
+        header('Location: ' . $location);
+        exit;
+    }
 }

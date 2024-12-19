@@ -7,25 +7,21 @@ use App\Controllers\HomeController;
 use App\Controllers\UserController;
 use Core\Router\Route;
 
-/* Routes for authentication user */
-
 Route::get('/', [AuthenticationsController::class, 'showLoginForm'])->name('root');
 Route::get('/login', [AuthenticationsController::class, 'showLoginForm'])->name('users.login');
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout'])->name('users.logout');
 
-/* Routes for authentication admin */
 Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AdminController::class, 'login']);
 Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
 Route::middleware('auth')->group(function () {
-  Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
 
-/* Routes for authenticated admins */
 Route::middleware('admin')->group(function () {
-  Route::get('/home/admin', [HomeController::class, 'admin'])->name('home.admin');
+    Route::get('/home/admin', [HomeController::class, 'admin'])->name('home.admin');
 });
 
 

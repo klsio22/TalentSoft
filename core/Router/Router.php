@@ -11,7 +11,9 @@ class Router
     private $routes = [];
     private $groups = [];
 
-    private function __construct(){}
+    private function __construct()
+    {
+    }
 
     public static function getInstance(): self
     {
