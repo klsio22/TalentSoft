@@ -45,6 +45,21 @@ function test {
    docker compose run --rm php ./vendor/bin/phpunit --color ${TEST_PATH}
 }
 
+function test {
+   TEST_PATH="${@:-tests}"
+   docker compose run --rm php ./vendor/bin/phpunit --color ${TEST_PATH}
+}
+
+function test:debug {
+   TEST_PATH="${@:-tests}"
+   docker compose run --rm php ./vendor/bin/phpunit --debug --color ${TEST_PATH}
+}
+
+function test:html {
+   TEST_PATH="${@:-tests}"
+   docker compose run --rm php ./vendor/bin/phpunit --log-junit ./tests/results.xml ${TEST_PATH}
+}
+
 function phpcs {
    TEST_PATH="${@:-.}"
    docker compose run --rm php ./vendor/bin/phpcs ${TEST_PATH}
