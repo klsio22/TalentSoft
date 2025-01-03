@@ -33,11 +33,16 @@ $ ./run composer install
 ```
 $ docker compose up -d
 ```
-
 ou
 
 ```
 $ ./run up -d
+```
+
+com os logs no terminal
+
+```
+$ ./run up
 ```
 
 #### Create database and tables

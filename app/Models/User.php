@@ -93,4 +93,43 @@ class User
   {
     unset($_SESSION['user_id']);
   }
+
+  public function save(): bool
+  {
+    $db = Database::getInstance();
+
+    if ($this->id === 0) {
+      // Insert
+      $sql = "INSERT INTO users (username, email, password, role) VALUES (:username, :email, :password, :role)";
+      $stmt = $db->prepare($sql);
+      $params = [
+        ':username' => $this->username,
+        ':email' => $this->email,
+        ':password' => password_hash($this->password, PASSWORD_DEFAULT),
+        ':role' => $this->role
+      ];
+    } else {
+      // Update
+      $sql = "UPDATE users SET username = :username, email = :email, role = :role WHERE id = :id";
+      $stmt = $db->prepare($sql);
+      $params = [
+        ':username' => $this->username,
+        ':email' => $this->email,
+        ':role' => $this->role,
+        ':id' => $this->id
+      ];
+    }
+
+    return $stmt->execute($params);
+  }
+
+  public static function create(array $data): ?self
+  {
+    if (self::findByEmail($data['email'])) {
+      return null;
+    }
+
+    $user = new self($data);
+    return $user->save() ? $user : null;
+  }
 }

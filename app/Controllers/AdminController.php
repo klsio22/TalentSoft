@@ -10,7 +10,7 @@ use App\Models\User;
 
 class AdminController extends Controller
 {
-  public function showLoginForm(Request $request)
+  public function showLoginForm()
   {
 
     if (Auth::check() && Auth::user()->role === 'admin') {
@@ -58,7 +58,7 @@ class AdminController extends Controller
       return;
     }
 
-    $this->render('auth/admin/register');
+    $this->render('register/admin/register');
   }
 
   public function register(Request $request): void
@@ -72,13 +72,13 @@ class AdminController extends Controller
     $data = $request->only(['name', 'email', 'password']);
     if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
       FlashMessage::danger('Por favor, preencha todos os campos.');
-      $this->redirectTo(route('admin.register'));
+      $this->redirectTo(route('register.admin'));
       return;
     }
 
     $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
     $user = new User($data);
-    /*  $user->save(); */
+    $user->save();
 
     FlashMessage::success('Usuário cadastrado com sucesso.');
     $this->redirectTo(route('home.admin'));

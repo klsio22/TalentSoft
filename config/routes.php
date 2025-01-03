@@ -16,13 +16,15 @@ Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('adm
 Route::post('/admin/login', [AdminController::class, 'login']);
 Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('user')->group(function () {
   Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
 
 Route::middleware('admin')->group(function () {
   Route::get('/home/admin', [HomeController::class, 'admin'])->name('home.admin');
-});
 
+  Route::get('/admin/register', [AdminController::class, 'showRegisterForm'])->name('register.admin');
+  Route::post('/admin/register', [AdminController::class, 'register'])->name('register.admin.create');
+});
 
 Route::get('/404', [ErrorController::class, 'notFound'])->name('errors.404');
