@@ -10,28 +10,10 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    public function showLoginForm(): void
+    private function validateCredentials(array $credentials): void
     {
-        if (Auth::check() && Auth::user()->role === 'user') {
-            $this->redirectTo(route('home'));
-            return;
-        }
-
-        if (Auth::check() && Auth::user()->role === 'admin') {
-            $this->redirectTo(route('home.admin'));
-            return;
-        }
-
-        $this->render('auth/login');
-    }
-
-    public function login(Request $request): void
-    {
-        $credentials = $request->only(['email', 'password']);
         if (empty($credentials['email']) || empty($credentials['password'])) {
             FlashMessage::danger('Por favor, preencha todos os campos.');
-            $this->redirectTo(route('users.login'));
-            return;
         }
 
         $user = User::attempt($credentials);
@@ -39,9 +21,19 @@ class UserController extends Controller
         if ($user) {
             Auth::login($user);
             FlashMessage::success('Login realizado com sucesso');
-            $this->redirectTo(route('home'));
         } else {
             FlashMessage::danger('Credenciais inválidas');
+        }
+    }
+
+    public function login(Request $request): void
+    {
+        $credentials = $request->only(['email', 'password']);
+
+        $this->validateCredentials($credentials);
+        if (Auth::check()) {
+            $this->redirectTo(route('home'));
+        } else {
             $this->redirectTo(route('users.login'));
         }
     }

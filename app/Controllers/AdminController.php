@@ -2,11 +2,11 @@
 
 namespace App\Controllers;
 
-use App\Models\User;
 use Core\Http\Controllers\Controller;
 use Core\Http\Request;
 use Lib\Authentication\Auth;
 use Lib\FlashMessage;
+use App\Models\User;
 
 class AdminController extends Controller
 {
@@ -78,7 +78,7 @@ class AdminController extends Controller
 
     $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
     $user = new User($data);
-    $user->save();
+    /*  $user->save(); */
 
     FlashMessage::success('Usuário cadastrado com sucesso.');
     $this->redirectTo(route('home.admin'));
