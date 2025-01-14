@@ -17,7 +17,6 @@ class AdminMiddleware implements Middleware
         }
     }
 
-
     private function redirectTo(string $location): void
     {
         header('Location: ' . $location);

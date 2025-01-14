@@ -10,30 +10,19 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    private function validateCredentials(array $credentials): void
+
+    public function login(Request $request): void
     {
-        if (empty($credentials['email']) || empty($credentials['password'])) {
-            FlashMessage::danger('Por favor, preencha todos os campos.');
-        }
+        $credentials = $request->only(['email', 'password']);
 
         $user = User::attempt($credentials);
 
         if ($user) {
             Auth::login($user);
             FlashMessage::success('Login realizado com sucesso');
-        } else {
-            FlashMessage::danger('Credenciais inválidas');
-        }
-    }
-
-    public function login(Request $request): void
-    {
-        $credentials = $request->only(['email', 'password']);
-
-        $this->validateCredentials($credentials);
-        if (Auth::check()) {
             $this->redirectTo(route('home'));
         } else {
+            FlashMessage::danger('Credenciais inválidas');
             $this->redirectTo(route('users.login'));
         }
     }
