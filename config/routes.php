@@ -18,6 +18,7 @@ Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.lo
 
 Route::middleware('user')->group(function () {
   Route::get('/home', [HomeController::class, 'index'])->name('home');
+  Route::get('/users', [UserController::class, 'listUsers'])->name('users.list');
 });
 
 Route::middleware('admin')->group(function () {
@@ -25,6 +26,10 @@ Route::middleware('admin')->group(function () {
 
   Route::get('/admin/register', [AdminController::class, 'showRegisterForm'])->name('register.admin');
   Route::post('/admin/register', [AdminController::class, 'register'])->name('register.admin.create');
+
+  Route::get('/users', [UserController::class, 'listUsers'])->name('users.list');
+  Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
+  /*   Route::post('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update'); */
 });
 
 Route::get('/404', [ErrorController::class, 'notFound'])->name('errors.404');

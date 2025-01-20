@@ -22,43 +22,47 @@ class User
         $this->role = $data['role'] ?? 'user';
     }
 
+
     public static function attempt(array $credentials): ?self
     {
-        $user = null;
+        $result = null;
+
         try {
-            if (empty($credentials['email']) || empty($credentials['password'])) {
-                error_log("Credenciais incompletas");
-            } else {
-                $db = Database::getInstance();
-                $query = "SELECT * FROM users WHERE email = :email LIMIT 1";
-                $stmt = $db->prepare($query);
-                $stmt->execute(['email' => $credentials['email']]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (self::hasValidCredentials($credentials)) {
+                $user = self::findUserByEmail($credentials['email']);
 
-                if ($user) {
-                    $isValidPassword = password_verify($credentials['password'], $user['password']);
-                    error_log(print_r([
+                if ($user && password_verify($credentials['password'], $user['password'])) {
+                    error_log(json_encode([
                         'email' => $credentials['email'],
-                        'usuario_encontrado' => 'sim',
-                        'verificacao_senha' => $isValidPassword ? 'válida' : 'inválida'
-                    ], true));
-
-                    if ($isValidPassword) {
-                        return new self($user);
-                    } else {
-                        error_log("Senha inválida para usuário: " . $credentials['email']);
-                        $user = null;
-                    }
-                } else {
-                    error_log("Usuário não encontrado: " . $credentials['email']);
+                        'encontrado' => true,
+                        'senha_valida' => true
+                    ]));
+                    $result = new self($user);
                 }
             }
         } catch (\Exception $e) {
-            error_log("Erro no login: " . $e->getMessage());
+            error_log("Erro crítico no login: " . $e->getMessage());
         }
-        return $user ? new self($user) : null;
+
+        return $result;
     }
 
+    private static function hasValidCredentials(array $credentials): bool
+    {
+        if (empty($credentials['email']) || empty($credentials['password'])) {
+            error_log("Erro: Credenciais incompletas");
+            return false;
+        }
+        return true;
+    }
+
+    public static function findUserByEmail(string $email): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->execute(['email' => $email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
 
     public static function findById(int $id): ?self
     {

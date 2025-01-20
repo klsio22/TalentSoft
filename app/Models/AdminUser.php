@@ -38,29 +38,7 @@ class AdminUser extends User
         }
 
         $user = new self($data);
-
-        return $user->save() ? $user : null;
-    }
-
-
-    public function save(): bool
-    {
-        $database = Database::getInstance();
-
-        if ($this->id === 0) {
-            $insertQuery = "INSERT INTO users (name, email, password, role) VALUES (:name, :email, :password, :role)";
-            $statement = $database->prepare($insertQuery);
-            $parameters = [
-                ':name' => $this->name,
-                ':email' => $this->email,
-                ':password' => password_hash($this->password, PASSWORD_DEFAULT),
-                ':role' => $this->role
-            ];
-        }
-
-        error_log(print_r($parameters, true));
-        FlashMessage::success('Usuário cadastrado com sucesso.');
-        return $statement->execute($parameters);
+        return $user->saveDates() ? $user : null;
     }
 
     public function updateUser(array $data): bool
@@ -69,7 +47,7 @@ class AdminUser extends User
 
         if ($this->isValidInputData($data) && $this->isEmailAvailable($data['email'])) {
             $this->updateUserData($data);
-            $success = $this->save();
+            $success = $this->saveDates();
 
             if ($success) {
                 FlashMessage::success('Usuário atualizado com sucesso.');
@@ -111,8 +89,6 @@ class AdminUser extends User
         }
     }
 
-
-
     public static function findByEmail(string $email): ?self
     {
         $pdo = Database::getInstance();
@@ -125,5 +101,25 @@ class AdminUser extends User
         }
 
         return null;
+    }
+
+    public function saveDates(): bool
+    {
+        $database = Database::getInstance();
+
+        if ($this->id === 0) {
+            $insertQuery = "INSERT INTO users (name, email, password, role) VALUES (:name, :email, :password, :role)";
+            $statement = $database->prepare($insertQuery);
+            $parameters = [
+                ':name' => $this->name,
+                ':email' => $this->email,
+                ':password' => password_hash($this->password, PASSWORD_DEFAULT),
+                ':role' => $this->role
+            ];
+        }
+
+        error_log(print_r($parameters, true));
+        FlashMessage::success('Usuário cadastrado com sucesso.');
+        return $statement->execute($parameters);
     }
 }

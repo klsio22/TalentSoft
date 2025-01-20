@@ -1,0 +1,41 @@
+<?php
+use Lib\Authentication\Auth;
+?>
+
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">Lista de Usuários</h1>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white shadow-md rounded">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-6 py-3 text-left">Nome</th>
+          <th class="px-6 py-3 text-left">Email</th>
+          <th class="px-6 py-3 text-left">Função</th>
+          <th class="px-6 py-3 text-left">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($users as $user): ?>
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-6 py-4">
+            <?= htmlspecialchars($user->name) ?>
+          </td>
+          <td class="px-6 py-4">
+            <?= htmlspecialchars($user->email) ?>
+          </td>
+          <td class="px-6 py-4">
+            <?= htmlspecialchars($user->role) ?>
+          </td>
+          <td class="px-6 py-4">
+            <?php if (Auth::user()->role === 'admin' || Auth::user()->id === $user->id): ?>
+            <a href="<?= route('users.edit', ['id' => $user->id]) ?>"
+              class="text-blue-600 hover:text-blue-800">Editar</a>
+            <?php endif; ?>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+</div>

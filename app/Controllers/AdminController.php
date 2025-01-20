@@ -75,12 +75,23 @@ class AdminController extends Controller
     }
   }
 
-  public function listUsers(): void
+  public function editUser(Request $request, int $id): void
   {
-    $users = User::all();
+    $user = User::findById($id);
 
-    foreach ($users as $user) {
-      error_log("ID: {$user->id}, Nome: {$user->username}, Email: {$user->email}, Role: {$user->role}");
+    if (!$user) {
+      FlashMessage::danger('Usuário não encontrado.');
+      $this->redirectTo(route('users.list'));
+      return;
     }
+
+    // Verifica permissão
+    if (Auth::user()->role !== 'admin' && Auth::user()->id !== $id) {
+      FlashMessage::danger('Sem permissão para editar este usuário.');
+      $this->redirectTo(route('users.list'));
+      return;
+    }
+
+    $this->render('users.edit', ['user' => $user]);
   }
 }

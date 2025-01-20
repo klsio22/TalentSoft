@@ -6,8 +6,9 @@
       <li>
         <a href="<?= route('home') ?>" class="hover:underline">Home</a>
       </li>
-      <li><a href="profile.php" class="hover:underline">Perfil</a></li>
-      <li><a href="settings.php" class="hover:underline">Configurações</a></li>
+      <li><a href="/" class="hover:underline">Perfil</a></li>
+      <li><a href="/" class="hover:underline">Configurações</a></li>
+      <li><a href="<?= route('users.list') ?>" class=" hover:underline">Listagem de Funcionários</a></li>
       <li>
         <form method="POST" action="<?= route('users.logout') ?>" class="inline">
           <button type="submit" class="hover:underline">Sair</button>
@@ -26,9 +27,10 @@
       <li>
         <a href="<?= route('home.admin') ?>" class="hover:underline">Home</a>
       </li>
-      <li><a href="/profile" class="hover:underline">Perfil</a></li>
-      <li><a href="/settings" class="hover:underline">Configurações</a></li>
-      <li><a href="<?= route('register.admin') ?>" class=" hover:underline">Cadastro de usuários</a></li>
+      <li><a href="/" class="hover:underline">Perfil</a></li>
+      <li><a href="/" class="hover:underline">Configurações</a></li>
+      <li><a href="<?= route('register.admin') ?>" class=" hover:underline">Cadastro de Funcionários</a></li>
+      <li><a href="<?= route('users.list') ?>" class=" hover:underline">Listagem de Funcionários</a></li>
       <li>
         <form method="POST" action="<?= route('admin.logout') ?>" class="inline">
           <button type="submit" class="hover:underline">Sair</button>

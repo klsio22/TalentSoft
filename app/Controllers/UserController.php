@@ -33,4 +33,10 @@ class UserController extends Controller
     FlashMessage::success('Logout realizado com sucesso');
     $this->redirectTo(route('users.login'));
   }
+
+  public function listUsers(): void
+  {
+    $users = User::all();
+    $this->render('users/list', ['users' => $users]);
+  }
 }
