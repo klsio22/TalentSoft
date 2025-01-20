@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Core\Database\Database;
-use Lib\FlashMessage;
 use PDO;
 
 class User
 {
     public int $id;
-    public string $username;
+    public string $name;
     public string $email;
     public string $password;
     public string $role;
@@ -17,7 +16,7 @@ class User
     public function __construct(array $data)
     {
         $this->id = $data['id'] ?? 0;
-        $this->username = $data['username'] ?? '';
+        $this->name = $data['name'] ?? '';
         $this->email = $data['email'] ?? '';
         $this->password = $data['password'] ?? '';
         $this->role = $data['role'] ?? 'user';
@@ -25,18 +24,41 @@ class User
 
     public static function attempt(array $credentials): ?self
     {
-        $db = Database::getInstance();
-        $query = "SELECT * FROM users WHERE email = :email LIMIT 1";
-        $stmt = $db->prepare($query);
-        $stmt->execute([':email' => $credentials['email']]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = null;
+        try {
+            if (empty($credentials['email']) || empty($credentials['password'])) {
+                error_log("Credenciais incompletas");
+            } else {
+                $db = Database::getInstance();
+                $query = "SELECT * FROM users WHERE email = :email LIMIT 1";
+                $stmt = $db->prepare($query);
+                $stmt->execute(['email' => $credentials['email']]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($credentials['password'], $user['password'])) {
-            return new self($user);
+                if ($user) {
+                    $isValidPassword = password_verify($credentials['password'], $user['password']);
+                    error_log(print_r([
+                        'email' => $credentials['email'],
+                        'usuario_encontrado' => 'sim',
+                        'verificacao_senha' => $isValidPassword ? 'válida' : 'inválida'
+                    ], true));
+
+                    if ($isValidPassword) {
+                        return new self($user);
+                    } else {
+                        error_log("Senha inválida para usuário: " . $credentials['email']);
+                        $user = null;
+                    }
+                } else {
+                    error_log("Usuário não encontrado: " . $credentials['email']);
+                }
+            }
+        } catch (\Exception $e) {
+            error_log("Erro no login: " . $e->getMessage());
         }
-
-        return null;
+        return $user ? new self($user) : null;
     }
+
 
     public static function findById(int $id): ?self
     {
@@ -44,20 +66,6 @@ class User
         $query = "SELECT * FROM users WHERE id = :id LIMIT 1";
         $stmt = $db->prepare($query);
         $stmt->execute([':id' => $id]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($data) {
-            return new self($data);
-        }
-
-        return null;
-    }
-
-    public static function findByEmail(string $email): ?self
-    {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email');
-        $stmt->execute(['email' => $email]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($data) {
@@ -94,45 +102,6 @@ class User
     {
         unset($_SESSION['user_id']);
     }
-
-    public function save(): bool
-    {
-        $database = Database::getInstance();
-
-        if ($this->id === 0) {
-            $insertQuery = "INSERT INTO users (name, email, password, role) VALUES (:name, :email, :password, :role)";
-            $statement = $database->prepare($insertQuery);
-            $parameters = [
-                ':name' => $this->username,
-                ':email' => $this->email,
-                ':password' => password_hash($this->password, PASSWORD_DEFAULT),
-                ':role' => $this->role
-            ];
-        } else {
-            $updateQuery = "UPDATE users SET name = :name, email = :email, role = :role WHERE id = :id";
-            $statement = $database->prepare($updateQuery);
-            $parameters = [
-                ':name' => $this->username,
-                ':email' => $this->email,
-                ':role' => $this->role,
-                ':id' => $this->id
-            ];
-        }
-
-        return $statement->execute($parameters);
-    }
-    public static function create(array $data): ?self
-    {
-        if (self::findByEmail($data['email'])) {
-            FlashMessage::danger('Email já cadastrado.');
-            return null;
-        }
-
-        $user = new self($data);
-        FlashMessage::success('Usuário cadastrado com sucesso.');
-        return $user->save() ? $user : null;
-    }
-
 
     public static function all(): array
     {

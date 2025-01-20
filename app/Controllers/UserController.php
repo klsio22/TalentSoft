@@ -11,26 +11,26 @@ use App\Models\User;
 class UserController extends Controller
 {
 
-    public function login(Request $request): void
-    {
-        $credentials = $request->only(['email', 'password']);
+  public function login(Request $request): void
+  {
+    $credentials = $request->only(['email', 'password']);
 
-        $user = User::attempt($credentials);
+    $user = User::attempt($credentials);
 
-        if ($user) {
-            Auth::login($user);
-            FlashMessage::success('Login realizado com sucesso');
-            $this->redirectTo(route('home'));
-        } else {
-            FlashMessage::danger('Credenciais inválidas');
-            $this->redirectTo(route('users.login'));
-        }
+    if ($user) {
+      Auth::login($user);
+      FlashMessage::success('Login realizado com sucesso');
+      $this->redirectTo(route('home'));
+    } else {
+      FlashMessage::danger('Credenciais inválidas ou user não encontrado');
+      $this->redirectTo(route('users.login'));
     }
+  }
 
-    public function logout(): void
-    {
-        Auth::logout();
-        FlashMessage::success('Logout realizado com sucesso');
-        $this->redirectTo(route('users.login'));
-    }
+  public function logout(): void
+  {
+    Auth::logout();
+    FlashMessage::success('Logout realizado com sucesso');
+    $this->redirectTo(route('users.login'));
+  }
 }

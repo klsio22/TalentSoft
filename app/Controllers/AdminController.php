@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\AdminUser;
 use Core\Http\Controllers\Controller;
 use Core\Http\Request;
 use Lib\Authentication\Auth;
@@ -65,27 +66,11 @@ class AdminController extends Controller
     }
 
     $data = $request->only(['name', 'email', 'password']);
-    if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
-      FlashMessage::danger('Por favor, preencha todos os campos.');
-      $this->redirectTo(route('register.admin'));
-      return;
-    }
+    $admin = AdminUser::register($data);
 
-    // Mapear name para username e adicionar role admin
-    $userData = [
-      'username' => $data['name'],
-      'email' => $data['email'],
-      'password' => password_hash($data['password'], PASSWORD_DEFAULT), // Hash da senha
-      'role' => 'admin'
-    ];
-
-    $user = User::create($userData);
-
-    if ($user) {
-      FlashMessage::success('Usuário cadastrado com sucesso.');
+    if ($admin) {
       $this->redirectTo(route('home.admin'));
     } else {
-      FlashMessage::danger('Erro ao cadastrar usuário. Email pode já estar em uso.');
       $this->redirectTo(route('register.admin'));
     }
   }
