@@ -152,4 +152,11 @@ class User
       return false;
     }
   }
+
+  public static function sanitizeData(array $data): array
+  {
+    return array_map(function ($value) {
+      return is_string($value) ? trim($value) : $value;
+    }, $data);
+  }
 }

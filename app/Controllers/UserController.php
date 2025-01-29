@@ -40,7 +40,7 @@ class UserController extends Controller
     $this->render('users/list', ['users' => $users]);
   }
 
-  public function editProfile(Request $request): void
+  public function editProfile(): void
   {
     if (!Auth::check()) {
       FlashMessage::danger('Você precisa estar logado para acessar essa página.');
@@ -65,11 +65,11 @@ class UserController extends Controller
 
     try {
       $user = Auth::user();
-      $data = [
+      $data = User::sanitizeData([
         'id' => $user->id,
         'name' => $request->getData('name'),
         'email' => $request->getData('email')
-      ];
+      ]);
 
       if (User::update($data)) {
         FlashMessage::success('Perfil atualizado com sucesso!');
