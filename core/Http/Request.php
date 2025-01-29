@@ -6,22 +6,23 @@ class Request
 {
   private string $method;
   private string $uri;
-
-  /** @var mixed[] */
-  public array $params;
-  private array $data;
-
-  /** @var array<string, string> */
-  private array $headers;
+  private array $params = [];
+  private array $data = [];
+  private array $headers = [];
 
   public function __construct()
   {
     $this->method = $_REQUEST['_method'] ?? $_SERVER['REQUEST_METHOD'];
     $this->uri = $_SERVER['REQUEST_URI'];
-    $this->params = $_REQUEST;
     $this->headers = function_exists('getallheaders') ? getallheaders() : [];
-    $this->data = array_merge($_GET, $_POST);
-    $this->params = [];
+    $this->data = $this->sanitizeInput(array_merge($_GET, $_POST));
+  }
+
+  private function sanitizeInput(array $input): array
+  {
+    return array_map(function ($value) {
+      return is_string($value) ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value;
+    }, $input);
   }
 
   public function getMethod(): string
@@ -34,57 +35,31 @@ class Request
     return $this->uri;
   }
 
-  /** @return mixed[] */
-  public function getParams(): array
+  public function getData(string $key = null, $default = null)
   {
-    return $this->params;
+    if ($key === null) {
+      return $this->data;
+    }
+    return $this->data[$key] ?? $default;
   }
 
-  /** @return array<string, string> */
-  public function getHeaders(): array
-  {
-    return $this->headers;
-  }
-
-  /** @param mixed[] $params */
   public function addParams(array $params): void
   {
-    $this->params = array_merge($this->params, $params);
+    $this->params = $this->sanitizeInput($params);
   }
 
-  public function acceptJson(): bool
-  {
-    return isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] === 'application/json';
-  }
-
-  public function getParam(string $key, mixed $default = null): mixed
+  public function getParam(string $key, $default = null)
   {
     return $this->params[$key] ?? $default;
   }
 
-  public function setParams(array $params): void
-  {
-    $this->params = $params;
-  }
-
   public function only(array $keys): array
   {
-    return array_filter(
-      $this->all(),
-      function ($key) use ($keys) {
-        return in_array($key, $keys);
-      },
-      ARRAY_FILTER_USE_KEY
-    );
+    return array_intersect_key($this->data, array_flip($keys));
   }
 
-  public function all(): array
+  public function getHeaders(): array
   {
-    return $this->params;
-  }
-
-  public function get(string $key, $default = null)
-  {
-    return $this->data[$key] ?? $default;
+    return $this->headers;
   }
 }

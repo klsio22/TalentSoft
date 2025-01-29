@@ -77,7 +77,7 @@ class AdminController extends Controller
 
   public function editUser(Request $request): void
   {
-    $id = (int) $request->params['id'];
+    $id = (int) $request->getParam('id');
     $user = User::findById($id);
 
     if (!$user) {
@@ -95,26 +95,29 @@ class AdminController extends Controller
     $this->render('users/edit', ['user' => $user]);
   }
 
-  public function updateUser(Request $request, int $id): void
+  public function updateUser(Request $request): void
   {
-    $user = User::findById($id);
+    try {
+      $id = (int) $request->getParam('id');
+      error_log("ID recebido: " . $id);
 
-    if (!$user) {
-      FlashMessage::danger('Usuário não encontrado.');
-      $this->redirectTo(route('users.list'));
-      return;
+      $data = [
+        'id' => $id,
+        'name' => $request->getData('name'),
+        'email' => $request->getData('email')
+      ];
+
+      if (User::update($data)) {
+        FlashMessage::success('Usuário atualizado com sucesso!');
+      } else {
+        FlashMessage::danger('Erro ao atualizar usuário.');
+      }
+
+      $this->redirectTo('/users');
+    } catch (\Exception $e) {
+      error_log("Erro: " . $e->getMessage());
+      FlashMessage::danger('Erro ao processar atualização.');
+      $this->redirectTo('/users');
     }
-
-    // Validação básica
-    $data = $request->only(['name', 'email']);
-    $data['id'] = $id;
-
-    if (User::update($data)) {
-      FlashMessage::success('Usuário atualizado com sucesso!');
-    } else {
-      FlashMessage::danger('Erro ao atualizar usuário.');
-    }
-
-    $this->redirectTo(route('users.list'));
   }
 }

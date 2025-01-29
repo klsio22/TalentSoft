@@ -129,9 +129,24 @@ class User
   {
     try {
       $db = Database::getInstance();
-      $sql = "UPDATE users SET name = ?, email = ? WHERE id = ?";
+
+      error_log("Dados recebidos para update: " . print_r($data, true));
+
+      $sql = "UPDATE users SET name = :name, email = :email WHERE id = :id";
       $stmt = $db->prepare($sql);
-      return $stmt->execute([$data['name'], $data['email'], $data['id']]);
+
+      $params = [
+        ':name' => $data['name'],
+        ':email' => $data['email'],
+        ':id' => (int)$data['id']
+      ];
+
+      error_log("Parâmetros do update: " . print_r($params, true));
+
+      $result = $stmt->execute($params);
+      error_log("Resultado do update: " . ($result ? 'sucesso' : 'falha'));
+
+      return $result;
     } catch (\PDOException $e) {
       error_log("Erro ao atualizar usuário: " . $e->getMessage());
       return false;
