@@ -29,8 +29,9 @@ use Lib\Authentication\Auth;
           </td>
           <td class="px-6 py-4">
             <?php if (Auth::user()->role === 'admin' || Auth::user()->id === $user->id): ?>
-            <a href="<?= route('users.edit', ['id' => $user->id]) ?>"
-              class="text-blue-600 hover:text-blue-800">Editar</a>
+            <a href="/users/<?= $user->id ?>/edit" class="text-blue-600 hover:text-blue-800">
+              Editar
+            </a>
             <?php endif; ?>
           </td>
         </tr>

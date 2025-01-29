@@ -75,7 +75,27 @@ class AdminController extends Controller
     }
   }
 
-  public function editUser(Request $request, int $id): void
+  public function editUser(Request $request): void
+  {
+    $id = (int) $request->params['id'];
+    $user = User::findById($id);
+
+    if (!$user) {
+      FlashMessage::danger('Usuário não encontrado.');
+      $this->redirectTo(route('users.list'));
+      return;
+    }
+
+    if (Auth::user()->role !== 'admin' && Auth::user()->id !== $id) {
+      FlashMessage::danger('Sem permissão para editar este usuário.');
+      $this->redirectTo(route('users.list'));
+      return;
+    }
+
+    $this->render('users/edit', ['user' => $user]);
+  }
+
+  public function updateUser(Request $request, int $id): void
   {
     $user = User::findById($id);
 
@@ -85,13 +105,16 @@ class AdminController extends Controller
       return;
     }
 
-    // Verifica permissão
-    if (Auth::user()->role !== 'admin' && Auth::user()->id !== $id) {
-      FlashMessage::danger('Sem permissão para editar este usuário.');
-      $this->redirectTo(route('users.list'));
-      return;
+    // Validação básica
+    $data = $request->only(['name', 'email']);
+    $data['id'] = $id;
+
+    if (User::update($data)) {
+      FlashMessage::success('Usuário atualizado com sucesso!');
+    } else {
+      FlashMessage::danger('Erro ao atualizar usuário.');
     }
 
-    $this->render('users.edit', ['user' => $user]);
+    $this->redirectTo(route('users.list'));
   }
 }

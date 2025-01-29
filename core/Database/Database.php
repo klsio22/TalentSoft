@@ -86,4 +86,15 @@ class Database
     $sql = file_get_contents(Constants::databasePath()->join('schema.sql'));
     self::getDatabaseConn()->exec($sql);
   }
+
+  public static function execute(string $sql, array $params = []): bool
+  {
+    try {
+      $stmt = self::getInstance()->prepare($sql);
+      return $stmt->execute($params);
+    } catch (\PDOException $e) {
+      error_log("Erro na execução da query: " . $e->getMessage());
+      return false;
+    }
+  }
 }
