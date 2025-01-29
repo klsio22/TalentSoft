@@ -28,7 +28,7 @@ use Lib\Authentication\Auth;
             <?= htmlspecialchars($user->role) ?>
           </td>
           <td class="px-6 py-4">
-            <?php if (Auth::user()->role === 'admin' || Auth::user()->id === $user->id): ?>
+            <?php if (Auth::user()->role === 'admin'): ?>
             <a href="/users/<?= $user->id ?>/edit" class="text-blue-600 hover:text-blue-800">
               Editar
             </a>

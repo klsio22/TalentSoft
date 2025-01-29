@@ -16,9 +16,14 @@ Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('adm
 Route::post('/admin/login', [AdminController::class, 'login']);
 Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
+
+
 Route::middleware('user')->group(function () {
   Route::get('/home', [HomeController::class, 'index'])->name('home');
   Route::get('/users', [UserController::class, 'listUsers'])->name('users.list');
+
+  Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
+  Route::post('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
 });
 
 Route::middleware('admin')->group(function () {
@@ -30,6 +35,9 @@ Route::middleware('admin')->group(function () {
   Route::get('/users', [UserController::class, 'listUsers'])->name('users.list');
   Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
   Route::post('/users/{id}/update', [AdminController::class, 'updateUser'])->name('users.update');
+
+  Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
+  Route::post('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
 });
 
 Route::get('/404', [ErrorController::class, 'notFound'])->name('errors.404');
