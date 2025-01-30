@@ -120,4 +120,30 @@ class AdminController extends Controller
       $this->redirectTo('/users');
     }
   }
+
+
+  public function deleteUser(Request $request): void
+  {
+    try {
+      if (!Auth::check() || Auth::user()->role !== 'admin') {
+        FlashMessage::danger('Sem permissão para deletar usuários.');
+        $this->redirectTo('/users');
+        return;
+      }
+
+      $id = (int) $request->getParam('id');
+
+      if (User::delete($id)) {
+        FlashMessage::success('Usuário deletado com sucesso!');
+      } else {
+        FlashMessage::danger('Erro ao deletar usuário.');
+      }
+
+      $this->redirectTo('/users');
+    } catch (\Exception $e) {
+      error_log("Erro ao deletar: " . $e->getMessage());
+      FlashMessage::danger('Erro ao processar exclusão.');
+      $this->redirectTo('/users');
+    }
+  }
 }

@@ -34,6 +34,8 @@ Route::middleware('admin')->group(function () {
 
   Route::get('/users', [UserController::class, 'listUsers'])->name('users.list');
   Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
+
+  Route::post('/users/{id}/delete', [AdminController::class, 'deleteUser'])->name('users.delete');
   Route::post('/users/{id}/update', [AdminController::class, 'updateUser'])->name('users.update');
 
   Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');

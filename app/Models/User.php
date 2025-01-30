@@ -153,6 +153,19 @@ class User
     }
   }
 
+  public static function delete(int $id): bool
+  {
+    try {
+      $db = Database::getInstance();
+      $sql = "DELETE FROM users WHERE id = :id";
+      $stmt = $db->prepare($sql);
+      return $stmt->execute([':id' => $id]);
+    } catch (\PDOException $e) {
+      error_log("Erro ao deletar usuário: " . $e->getMessage());
+      return false;
+    }
+  }
+
   public static function sanitizeData(array $data): array
   {
     return array_map(function ($value) {

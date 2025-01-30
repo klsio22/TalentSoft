@@ -1,4 +1,5 @@
 <?php
+use App\Models\User;
 use Lib\Authentication\Auth;
 ?>
 
@@ -32,6 +33,11 @@ use Lib\Authentication\Auth;
             <a href="/users/<?= $user->id ?>/edit" class="text-blue-600 hover:text-blue-800">
               Editar
             </a>
+            <?php if (Auth::user()->id !== $user->id): ?>
+            <button onclick="showModal('<?= $user->id ?>')" type="button" class="text-red-600 hover:text-red-800 ml-4">
+              Deletar
+            </button>
+            <?php endif; ?>
             <?php endif; ?>
           </td>
         </tr>
@@ -40,3 +46,45 @@ use Lib\Authentication\Auth;
     </table>
   </div>
 </div>
+
+<!-- Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3 text-center">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        Confirmar exclusão
+      </h3>
+      <div class="mt-2 px-7 py-3">
+        <p class="text-sm text-gray-500">
+          Tem certeza que deseja deletar este usuário?
+        </p>
+      </div>
+      <div class="items-center px-4 py-3">
+        <form id="deleteForm" method="POST" class="flex gap-4 justify-center">
+          <button type="button" onclick="closeModal()"
+            class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+            Cancelar
+          </button>
+          <button type="submit"
+            class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">
+            Deletar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showModal(userId) {
+    const modal = document.getElementById('deleteModal');
+    const form = document.getElementById('deleteForm');
+    form.action = `/users/${userId}/delete`;
+    modal.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.add('hidden');
+  }
+</script>

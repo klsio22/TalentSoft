@@ -2,21 +2,24 @@
 use App\Models\User;
 use Lib\Authentication\Auth;
 
-$isAdmin = Auth::user()->role === 'admin';
+$isAdmin = Auth::check() ? Auth::user()->role === 'admin' : false;
 $bgColor = $isAdmin ? 'bg-blue-700' : 'bg-blue-600';
 $homeRoute = $isAdmin ? route('home.admin') : route('home');
 $logoutRoute = $isAdmin ? route('admin.logout') : route('users.logout');
 
 $navItems = [
     ['route' => $homeRoute, 'text' => 'Home'],
-    ['route' => route('profile.edit'), 'text' => 'Meu Perfil'],
 ];
 
-if ($isAdmin) {
-    $navItems[] = ['route' => route('register.admin'), 'text' => 'Cadastro de Funcionários'];
-}
+if (Auth::check()) {
+    $navItems[] = ['route' => route('profile.edit'), 'text' => 'Meu Perfil'];
 
-$navItems[] = ['route' => route('users.list'), 'text' => 'Listagem de Funcionários'];
+    if ($isAdmin) {
+        $navItems[] = ['route' => route('register.admin'), 'text' => 'Cadastro de Funcionários'];
+    }
+
+    $navItems[] = ['route' => route('users.list'), 'text' => 'Listagem de Funcionários'];
+}
 ?>
 
 <?php if (Auth::check()): ?>
