@@ -6,14 +6,14 @@ use Core\Database\Database;
 
 class RoleSeeder
 {
+
   public static function run(): void
   {
     $db = Database::getInstance();
-
     $roles = [
-      ['name' => 'Super User', 'description' => 'Acesso total ao sistema'],
-      ['name' => 'RH Admin', 'description' => 'Administração de RH'],
-      ['name' => 'Employee', 'description' => 'Funcionário padrão']
+      ['name' => 'admin', 'description' => 'Acesso total ao sistema'],
+      ['name' => 'rh', 'description' => 'Administração de RH'],
+      ['name' => 'user', 'description' => 'Funcionário padrão']
     ];
 
     foreach ($roles as $role) {

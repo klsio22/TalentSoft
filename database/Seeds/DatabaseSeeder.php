@@ -48,8 +48,9 @@ class DatabaseSeeder
     self::migrate();
     self::cleanTables();
 
-    // Chama os seeders individuais
-    RoleSeeder::run(); // Inserindo roles
-    EmployeeSeeder::run(); // Inserindo employees
+    RoleSeeder::run(); // Deve rodar primeiro
+    EmployeeSeeder::run();
+
+    echo "Database semeado com sucesso!\n";
   }
 }

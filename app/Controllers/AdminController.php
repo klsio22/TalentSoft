@@ -11,6 +11,7 @@ use App\Models\User;
 
 class AdminController extends Controller
 {
+
   public function showLoginForm()
   {
 
@@ -25,8 +26,14 @@ class AdminController extends Controller
   public function login(Request $request): void
   {
     $credentials = $request->only(['email', 'password']);
+    error_log("Tentativa de login admin com: " . print_r($credentials, true));
 
     $user = User::attempt($credentials);
+    error_log("Usuário retornado: " . ($user ? "sim" : "não"));
+
+    if ($user) {
+      error_log("Role do usuário: " . $user->role);
+    }
 
     if ($user && $user->role === 'admin') {
       Auth::login($user);
@@ -37,7 +44,6 @@ class AdminController extends Controller
       $this->redirectTo(route('admin.login'));
     }
   }
-
   public function logout(): void
   {
     Auth::logout();

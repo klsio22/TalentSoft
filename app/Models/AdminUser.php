@@ -92,7 +92,13 @@ class AdminUser extends User
   public static function findByEmail(string $email): ?self
   {
     $pdo = Database::getInstance();
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email');
+    $stmt = $pdo->prepare("
+          SELECT e.*, r.name as role
+          FROM employees e
+          JOIN roles r ON e.role_id = r.id
+          WHERE e.email = :email
+          LIMIT 1
+      ");
     $stmt->execute(['email' => $email]);
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -102,24 +108,27 @@ class AdminUser extends User
 
     return null;
   }
-
   public function saveDates(): bool
   {
     $database = Database::getInstance();
 
     if ($this->id === 0) {
-      $insertQuery = "INSERT INTO users (name, email, password, role) VALUES (:name, :email, :password, :role)";
-      $statement = $database->prepare($insertQuery);
-      $parameters = [
+      $sql = "INSERT INTO employees (
+              name, email, password, role_id,
+              cpf, status
+          ) VALUES (
+              :name, :email, :password,
+              (SELECT id FROM roles WHERE name = 'admin'),
+              :cpf, 'Active'
+          )";
+
+      $statement = $database->prepare($sql);
+      return $statement->execute([
         ':name' => $this->name,
         ':email' => $this->email,
         ':password' => password_hash($this->password, PASSWORD_DEFAULT),
-        ':role' => $this->role
-      ];
+        ':cpf' => '000.000.000-00'
+      ]);
     }
-
-    error_log(print_r($parameters, true));
-    FlashMessage::success('Usuário cadastrado com sucesso.');
-    return $statement->execute($parameters);
   }
 }

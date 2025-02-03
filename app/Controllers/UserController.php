@@ -78,8 +78,8 @@ class UserController extends Controller
         FlashMessage::danger('Erro ao atualizar perfil.');
         $this->redirectTo(route('profile.edit'));
       }
-    } catch (\Exception $e) {
-      error_log("Erro: " . $e->getMessage());
+    } catch (\Exception $error) {
+      error_log("Erro: " . $error->getMessage());
       FlashMessage::danger('Erro ao processar atualização.');
       $this->redirectTo(route('profile.edit'));
     }

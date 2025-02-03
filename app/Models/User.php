@@ -31,13 +31,17 @@ class User
       if (self::hasValidCredentials($credentials)) {
         $user = self::findUserByEmail($credentials['email']);
 
-        if ($user && password_verify($credentials['password'], $user['password'])) {
-          error_log(json_encode([
-            'email' => $credentials['email'],
-            'encontrado' => true,
-            'senha_valida' => true
-          ]));
-          $result = new self($user);
+        // Debug para verificar os dados retornados
+        error_log("Dados do usuário encontrado: " . print_r($user, true));
+
+        if ($user) {
+          $passwordValid = password_verify($credentials['password'], $user['password']);
+          error_log("Senha válida: " . ($passwordValid ? 'sim' : 'não'));
+
+          if ($passwordValid) {
+            error_log("Role do usuário: " . $user['role']);
+            $result = new self($user);
+          }
         }
       }
     } catch (\Exception $e) {
@@ -59,22 +63,38 @@ class User
   public static function findUserByEmail(string $email): ?array
   {
     $db = Database::getInstance();
-    $stmt = $db->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+    $stmt = $db->prepare("
+          SELECT
+              e.id,
+              e.name,
+              e.email,
+              e.password,
+              e.role_id,
+              r.name as role
+          FROM employees e
+          JOIN roles r ON e.role_id = r.id
+          WHERE e.email = :email
+          LIMIT 1
+      ");
+
     $stmt->execute(['email' => $email]);
-    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    error_log("Resultado da busca por email: " . print_r($result, true));
+    return $result ?: null;
   }
 
   public static function findById(?int $id): ?self
   {
-    if (!$id) {
-      error_log("ID inválido ou nulo fornecido");
-      return null;
-    }
 
     try {
       $db = Database::getInstance();
-      $query = "SELECT * FROM users WHERE id = :id LIMIT 1";
-      $stmt = $db->prepare($query);
+      $stmt = $db->prepare("
+              SELECT e.*, r.name as role
+              FROM employees e
+              JOIN roles r ON e.role_id = r.id
+              WHERE e.id = :id
+              LIMIT 1
+          ");
       $stmt->execute([':id' => $id]);
       $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -83,6 +103,16 @@ class User
       error_log("Erro ao buscar usuário: " . $e->getMessage());
       return null;
     }
+  }
+
+  public function isAdmin(): bool
+  {
+    return $this->role === 'admin';
+  }
+
+  public function getRole(): string
+  {
+    return $this->role_name ?? 'user';
   }
 
   public static function check(): bool
@@ -98,10 +128,7 @@ class User
     return null;
   }
 
-  public function isAdmin(): bool
-  {
-    return $this->role === 'admin';
-  }
+
 
   public static function login(self $user): void
   {
@@ -116,15 +143,17 @@ class User
   public static function all(): array
   {
     $db = Database::getInstance();
-    $query = "SELECT * FROM users";
-    $stmt = $db->query($query);
+    $stmt = $db->query("
+          SELECT e.*, r.name as role
+          FROM employees e
+          JOIN roles r ON e.role_id = r.id
+      ");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     return array_map(function ($user) {
       return new self($user);
     }, $users);
   }
-
   public static function update(array $data): bool
   {
     try {
@@ -132,7 +161,7 @@ class User
 
       error_log("Dados recebidos para update: " . print_r($data, true));
 
-      $sql = "UPDATE users SET name = :name, email = :email WHERE id = :id";
+      $sql = "UPDATE employees SET name = :name, email = :email WHERE id = :id";
       $stmt = $db->prepare($sql);
 
       $params = [
@@ -157,7 +186,7 @@ class User
   {
     try {
       $db = Database::getInstance();
-      $sql = "DELETE FROM users WHERE id = :id";
+      $sql = "DELETE FROM employees WHERE id = :id";
       $stmt = $db->prepare($sql);
       return $stmt->execute([':id' => $id]);
     } catch (\PDOException $e) {
