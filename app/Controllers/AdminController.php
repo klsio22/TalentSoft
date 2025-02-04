@@ -71,12 +71,44 @@ class AdminController extends Controller
       return;
     }
 
-    $data = $request->only(['name', 'email', 'password']);
-    $admin = AdminUser::register($data);
+    $data = $request->only([
+      'name',
+      'email',
+      'password',
+      'cpf',
+      'phone',
+      'birth_date',
+      'salary',
+      'address_street',
+      'address_number',
+      'address_complement',
+      'address_neighborhood',
+      'address_city',
+      'address_state',
+      'address_zipcode',
+      'nationality',
+      'marital_status',
+      'notes'
+    ]);
 
-    if ($admin) {
-      $this->redirectTo(route('home.admin'));
-    } else {
+    error_log("Dados recebidos no controller: " . print_r($data, true));
+
+    try {
+      $admin = AdminUser::register($data);
+
+      FlashMessage::success('Usuário criado com sucesso', $admin);
+
+      if ($admin) {
+        FlashMessage::success('Usuário cadastrado com sucesso!');
+        $this->redirectTo(route('home.admin'));
+      } else {
+        FlashMessage::danger('Erro ao cadastrar usuário.');
+        error_log("Erro no cadastro: " . print_r($admin, true));
+        $this->redirectTo(route('register.admin'));
+      }
+    } catch (\Exception $e) {
+      error_log("Erro no registro: " . $e->getMessage());
+      FlashMessage::danger('Erro ao processar cadastro.');
       $this->redirectTo(route('register.admin'));
     }
   }

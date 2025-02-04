@@ -11,15 +11,54 @@ class User
   public string $name;
   public string $email;
   public string $password;
+  public string $cpf;
+  public ?string $phone;
+  public ?string $birthDate;
+  public ?float $salary;
+  public ?string $addressStreet;
+  public ?string $addressNumber;
+  public ?string $addressComplement;
+  public ?string $addressNeighborhood;
+  public ?string $addressCity;
+  public ?string $addressState;
+  public ?string $addressZipcode;
+  public ?string $nationality;
+  public ?string $maritalStatus;
+  public ?string $notes;
   public string $role;
+  public int $roleId;
 
   public function __construct(array $data)
   {
+    // Dados principais
     $this->id = $data['id'] ?? 0;
     $this->name = $data['name'] ?? '';
     $this->email = $data['email'] ?? '';
     $this->password = $data['password'] ?? '';
+    $this->cpf = $data['cpf'] ?? '';
+
+    // Dados pessoais
+    $this->phone = $data['phone'] ?? null;
+    $this->birthDate = $data['birth_date'] ?? null;
+    $this->salary = isset($data['salary']) ? (float)$data['salary'] : null;
+
+    // Endereço
+    $this->addressStreet = $data['address_street'] ?? '';
+    $this->addressNumber = $data['address_number'] ?? '';
+    $this->addressComplement = $data['address_complement'] ?? '';
+    $this->addressNeighborhood = $data['address_neighborhood'] ?? '';
+    $this->addressCity = $data['address_city'] ?? '';
+    $this->addressState = $data['address_state'] ?? '';
+    $this->addressZipcode = $data['address_zipcode'] ?? '';
+
+    // Informações adicionais
+    $this->nationality = $data['nationality'] ?? 'Brasileiro';
+    $this->maritalStatus = $this->validateMaritalStatus($data['marital_status'] ?? 'Single');
+    $this->notes = $data['notes'] ?? '';
+
+    // Permissões
     $this->role = $data['role'] ?? 'user';
+    $this->roleId = $data['role_id'] ?? 3;
   }
 
 
@@ -127,9 +166,6 @@ class User
     }
     return null;
   }
-
-
-
   public static function login(self $user): void
   {
     $_SESSION['user_id'] = $user->id;
@@ -181,7 +217,6 @@ class User
       return false;
     }
   }
-
   public static function delete(int $id): bool
   {
     try {
@@ -194,11 +229,17 @@ class User
       return false;
     }
   }
-
   public static function sanitizeData(array $data): array
   {
     return array_map(function ($value) {
       return is_string($value) ? trim($value) : $value;
     }, $data);
+  }
+
+
+  private function validateMaritalStatus(?string $status): ?string
+  {
+    $validStatus = ['Single', 'Married', 'Divorced', 'Widowed'];
+    return in_array($status, $validStatus) ? $status : 'Single';
   }
 }
