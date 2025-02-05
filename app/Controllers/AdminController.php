@@ -112,25 +112,31 @@ class AdminController extends Controller
       $this->redirectTo(route('register.admin'));
     }
   }
-
   public function editUser(Request $request): void
   {
-    $id = (int) $request->getParam('id');
-    $user = User::findById($id);
+    try {
+      $id = (int) $request->getParam('id');
+      $user = User::findById($id);
 
-    if (!$user) {
-      FlashMessage::danger('Usuário não encontrado.');
+      if (!$user) {
+        FlashMessage::danger('Usuário não encontrado.');
+        $this->redirectTo(route('users.list'));
+        return;
+      }
+
+      if (Auth::user()->role !== 'admin') {
+        FlashMessage::danger('Sem permissão para editar este usuário.');
+        $this->redirectTo(route('users.list'));
+        return;
+      }
+
+      error_log("Editando usuário: " . json_encode($user));
+      $this->render('users/edit', ['user' => $user]);
+    } catch (\Exception $e) {
+      error_log("Erro ao editar: " . $e->getMessage());
+      FlashMessage::danger('Erro ao carregar usuário.');
       $this->redirectTo(route('users.list'));
-      return;
     }
-
-    if (Auth::user()->role !== 'admin' && Auth::user()->id !== $id) {
-      FlashMessage::danger('Sem permissão para editar este usuário.');
-      $this->redirectTo(route('users.list'));
-      return;
-    }
-
-    $this->render('users/edit', ['user' => $user]);
   }
 
   public function updateUser(Request $request): void
@@ -162,6 +168,7 @@ class AdminController extends Controller
 
   public function deleteUser(Request $request): void
   {
+    error_log("ID recebido: " . $request->getParam('id'));
     try {
       if (!Auth::check() || Auth::user()->role !== 'admin') {
         FlashMessage::danger('Sem permissão para deletar usuários.');

@@ -30,7 +30,7 @@ use Lib\Authentication\Auth;
           </td>
           <td class="px-6 py-4">
             <?php if (Auth::user()->role === 'admin'): ?>
-            <a href="/users/<?= $user->id ?>/edit" class="text-blue-600 hover:text-blue-800">
+            <a href="/<?= $user->id ?>/edit" class="text-blue-600 hover:text-blue-800">
               Editar
             </a>
             <?php if (Auth::user()->id !== $user->id): ?>
@@ -79,7 +79,7 @@ use Lib\Authentication\Auth;
   function showModal(userId) {
     const modal = document.getElementById('deleteModal');
     const form = document.getElementById('deleteForm');
-    form.action = `/users/${userId}/delete`;
+    form.action = `/${userId}/delete`;
     modal.classList.remove('hidden');
   }
 

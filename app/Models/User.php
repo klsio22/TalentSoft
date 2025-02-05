@@ -222,6 +222,7 @@ class User
     try {
       $db = Database::getInstance();
       $sql = "DELETE FROM employees WHERE id = :id";
+      error_log("SQL para deletar usuário: " . $sql);
       $stmt = $db->prepare($sql);
       return $stmt->execute([':id' => $id]);
     } catch (\PDOException $e) {
