@@ -198,37 +198,6 @@ class User
     }, $data);
   }
 
-
-  public static function update(array $data): bool
-  {
-    try {
-      $db = Database::getInstance();
-
-      error_log("Dados recebidos para update: " . print_r($data, true));
-
-      $sql = "UPDATE employees SET name = :name, email = :email WHERE id = :id";
-      $stmt = $db->prepare($sql);
-
-      $params = [
-        ':name' => $data['name'],
-        ':email' => $data['email'],
-        ':id' => (int)$data['id']
-      ];
-
-      error_log("Parâmetros do update: " . print_r($params, true));
-
-      $result = $stmt->execute($params);
-      error_log("Resultado do update: " . ($result ? 'sucesso' : 'falha'));
-
-      return $result;
-    } catch (\PDOException $e) {
-      error_log("Erro ao atualizar usuário: " . $e->getMessage());
-      return false;
-    }
-  }
-
-
-
   private function validateMaritalStatus(?string $status): ?string
   {
     $validStatus = ['Single', 'Married', 'Divorced', 'Widowed'];

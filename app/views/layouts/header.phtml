@@ -6,18 +6,22 @@ $isAdmin = Auth::check() ? Auth::user()->role === 'admin' : false;
 $bgColor = $isAdmin ? 'bg-blue-700' : 'bg-blue-600';
 $homeRoute = $isAdmin ? route('home.admin') : route('home');
 $logoutRoute = $isAdmin ? route('admin.logout') : route('users.logout');
+$profileRoute = $isAdmin ? route('profile.edit') : route('profile.view');
 
 $navItems = [
     ['route' => $homeRoute, 'text' => 'Home'],
 ];
 
 if (Auth::check()) {
-    $navItems[] = ['route' => route('profile.edit'), 'text' => 'Meu Perfil'];
+    // Adiciona Meu Perfil (rota diferente baseada no tipo de usuário)
+    $navItems[] = ['route' => $profileRoute, 'text' => 'Meu Perfil'];
 
+    // Itens específicos para admin
     if ($isAdmin) {
         $navItems[] = ['route' => route('register.admin'), 'text' => 'Cadastro de Funcionários'];
     }
 
+    // Item comum para todos
     $navItems[] = ['route' => route('users.list'), 'text' => 'Listagem de Funcionários'];
 }
 ?>

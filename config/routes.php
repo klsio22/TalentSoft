@@ -32,11 +32,8 @@ Route::middleware('user')->group(function () {
   Route::get('/home', [HomeController::class, 'index'])->name('home');
   Route::get('/users', [UserController::class, 'listUsers'])->name('users.list');
 
-  // Perfil do usuário
-  Route::group(['prefix' => '/profile'], function () {
-    Route::get('/edit', [UserController::class, 'editProfile'])->name('profile.edit');
-    Route::post('/update', [UserController::class, 'updateProfile'])->name('profile.update');
-  });
+  // Perfil do Usuário
+  Route::get('/profile', [UserController::class, 'viewProfile'])->name('profile.view');
 });
 
 // Rotas protegidas para Administradores

@@ -55,33 +55,15 @@ class UserController extends Controller
     ]);
   }
 
-  public function updateProfile(Request $request): void
+  public function viewProfile(): void
   {
     if (!Auth::check()) {
-      FlashMessage::danger('Você precisa estar logado para acessar essa página.');
+      FlashMessage::danger('Você precisa estar logado.');
       $this->redirectTo(route('users.login'));
       return;
     }
 
-    try {
-      $user = Auth::user();
-      $data = User::sanitizeData([
-        'id' => $user->id,
-        'name' => $request->getData('name'),
-        'email' => $request->getData('email')
-      ]);
-
-      if (User::update($data)) {
-        FlashMessage::success('Perfil atualizado com sucesso!');
-        $this->redirectTo(route('home'));
-      } else {
-        FlashMessage::danger('Erro ao atualizar perfil.');
-        $this->redirectTo(route('profile.edit'));
-      }
-    } catch (\Exception $error) {
-      error_log("Erro: " . $error->getMessage());
-      FlashMessage::danger('Erro ao processar atualização.');
-      $this->redirectTo(route('profile.edit'));
-    }
+    $user = Auth::user();
+    $this->render('profile/view', ['user' => $user]);
   }
 }
