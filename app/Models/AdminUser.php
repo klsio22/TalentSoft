@@ -201,4 +201,89 @@ class AdminUser extends User
 
     return null;
   }
+
+  public static function update(array $data): bool
+  {
+    try {
+      $db = Database::getInstance();
+      error_log("Dados recebidos para update: " . print_r($data, true));
+
+      if (!isset($data['id'])) {
+        error_log("ID não fornecido para atualização");
+        return false;
+      }
+
+      // Buscar dados existentes
+      $currentUser = self::findById($data['id']);
+      if (!$currentUser) {
+        error_log("Usuário não encontrado com ID: " . $data['id']);
+        return false;
+      }
+
+      $params = [
+        ':name' => $data['name'] ?? $currentUser->name,
+        ':email' => $data['email'] ?? $currentUser->email,
+        ':cpf' => $data['cpf'] ?? $currentUser->cpf,
+        ':phone' => $data['phone'] ?? $currentUser->phone,
+        ':birth_date' => $data['birth_date'] ?? $currentUser->birthDate,
+        ':salary' => $data['salary'] ?? $currentUser->salary,
+        ':address_street' => $data['address_street'] ?? $currentUser->addressStreet,
+        ':address_number' => $data['address_number'] ?? $currentUser->addressNumber,
+        ':address_complement' => $data['address_complement'] ?? $currentUser->addressComplement,
+        ':address_neighborhood' => $data['address_neighborhood'] ?? $currentUser->addressNeighborhood,
+        ':address_city' => $data['address_city'] ?? $currentUser->addressCity,
+        ':address_state' => $data['address_state'] ?? $currentUser->addressState,
+        ':address_zipcode' => $data['address_zipcode'] ?? $currentUser->addressZipcode,
+        ':nationality' => $data['nationality'] ?? $currentUser->nationality,
+        ':marital_status' => self::validateMaritalStatus($data['marital_status'] ?? $currentUser->maritalStatus),
+        ':notes' => $data['notes'] ?? $currentUser->notes,
+        ':id' => (int)$data['id']
+      ];
+
+      $sql = "UPDATE employees SET
+                name = :name,
+                email = :email,
+                cpf = :cpf,
+                phone = :phone,
+                birth_date = :birth_date,
+                salary = :salary,
+                address_street = :address_street,
+                address_number = :address_number,
+                address_complement = :address_complement,
+                address_neighborhood = :address_neighborhood,
+                address_city = :address_city,
+                address_state = :address_state,
+                address_zipcode = :address_zipcode,
+                nationality = :nationality,
+                marital_status = :marital_status,
+                notes = :notes
+                WHERE id = :id";
+
+      $stmt = $db->prepare($sql);
+      $result = $stmt->execute($params);
+
+      error_log("Resultado do update: " . ($result ? "sucesso" : "falha"));
+      return $result;
+    } catch (\PDOException $e) {
+      error_log("Erro no banco de dados: " . $e->getMessage());
+      return false;
+    } catch (\Exception $e) {
+      error_log("Erro geral: " . $e->getMessage());
+      return false;
+    }
+  }
+
+  public static function delete(int $id): bool
+  {
+    try {
+      $db = Database::getInstance();
+      $sql = "DELETE FROM employees WHERE id = :id";
+      error_log("SQL para deletar usuário: " . $sql);
+      $stmt = $db->prepare($sql);
+      return $stmt->execute([':id' => $id]);
+    } catch (\PDOException $e) {
+      error_log("Erro ao deletar usuário: " . $e->getMessage());
+      return false;
+    }
+  }
 }

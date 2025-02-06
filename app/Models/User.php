@@ -190,6 +190,15 @@ class User
       return new self($user);
     }, $users);
   }
+
+  public static function sanitizeData(array $data): array
+  {
+    return array_map(function ($value) {
+      return is_string($value) ? trim($value) : $value;
+    }, $data);
+  }
+
+
   public static function update(array $data): bool
   {
     try {
@@ -217,25 +226,7 @@ class User
       return false;
     }
   }
-  public static function delete(int $id): bool
-  {
-    try {
-      $db = Database::getInstance();
-      $sql = "DELETE FROM employees WHERE id = :id";
-      error_log("SQL para deletar usuário: " . $sql);
-      $stmt = $db->prepare($sql);
-      return $stmt->execute([':id' => $id]);
-    } catch (\PDOException $e) {
-      error_log("Erro ao deletar usuário: " . $e->getMessage());
-      return false;
-    }
-  }
-  public static function sanitizeData(array $data): array
-  {
-    return array_map(function ($value) {
-      return is_string($value) ? trim($value) : $value;
-    }, $data);
-  }
+
 
 
   private function validateMaritalStatus(?string $status): ?string

@@ -44,6 +44,7 @@ class AdminController extends Controller
       $this->redirectTo(route('admin.login'));
     }
   }
+
   public function logout(): void
   {
     Auth::logout();
@@ -145,23 +146,45 @@ class AdminController extends Controller
       $id = (int) $request->getParam('id');
       error_log("ID recebido: " . $id);
 
+      if ($id <= 0) {
+        FlashMessage::danger('ID inválido');
+        $this->redirectTo(route('users.list'));
+        return;
+      }
+
       $data = [
         'id' => $id,
         'name' => $request->getData('name'),
-        'email' => $request->getData('email')
+        'email' => $request->getData('email'),
+        'cpf' => $request->getData('cpf'),
+        'phone' => $request->getData('phone'),
+        'birth_date' => $request->getData('birth_date'),
+        'salary' => $request->getData('salary'),
+        'address_street' => $request->getData('address_street'),
+        'address_number' => $request->getData('address_number'),
+        'address_complement' => $request->getData('address_complement'),
+        'address_neighborhood' => $request->getData('address_neighborhood'),
+        'address_city' => $request->getData('address_city'),
+        'address_state' => $request->getData('address_state'),
+        'address_zipcode' => $request->getData('address_zipcode'),
+        'nationality' => $request->getData('nationality'),
+        'marital_status' => $request->getData('marital_status'),
+        'notes' => $request->getData('notes')
       ];
 
-      if (User::update($data)) {
+      error_log("Dados para atualização: " . print_r($data, true));
+
+      if (AdminUser::update($data)) {
         FlashMessage::success('Usuário atualizado com sucesso!');
+        $this->redirectTo(route('users.list'));
       } else {
         FlashMessage::danger('Erro ao atualizar usuário.');
+        $this->render('users/edit', ['user' => (object)$data]);
       }
-
-      $this->redirectTo('/users');
     } catch (\Exception $e) {
-      error_log("Erro: " . $e->getMessage());
+      error_log("Erro na atualização: " . $e->getMessage());
       FlashMessage::danger('Erro ao processar atualização.');
-      $this->redirectTo('/users');
+      $this->redirectTo(route('users.list'));
     }
   }
 
@@ -172,23 +195,23 @@ class AdminController extends Controller
     try {
       if (!Auth::check() || Auth::user()->role !== 'admin') {
         FlashMessage::danger('Sem permissão para deletar usuários.');
-        $this->redirectTo('/users');
+        $this->redirectTo(route('users.list'));
         return;
       }
 
       $id = (int) $request->getParam('id');
 
-      if (User::delete($id)) {
+      if (AdminUser::delete($id)) {
         FlashMessage::success('Usuário deletado com sucesso!');
       } else {
         FlashMessage::danger('Erro ao deletar usuário.');
       }
 
-      $this->redirectTo('/users');
+      $this->redirectTo(route('users.list'));
     } catch (\Exception $e) {
       error_log("Erro ao deletar: " . $e->getMessage());
       FlashMessage::danger('Erro ao processar exclusão.');
-      $this->redirectTo('/users');
+      $this->redirectTo(route('users.list'));
     }
   }
 }
