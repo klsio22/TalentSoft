@@ -12,10 +12,6 @@ class Database
 {
   private static ?PDO $instance = null;
 
-
-  private function __construct() {} // Construtor privado
-
-
   public static function getDatabaseConn(): PDO
   {
     $user = $_ENV['DB_USERNAME'];
@@ -61,7 +57,11 @@ class Database
           [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
         );
       } catch (PDOException $e) {
-        throw new Exception("Erro de conexão: " . $e->getMessage());
+        throw new DatabaseException(
+          "Erro ao conectar com o banco de dados: " . $e->getMessage(),
+          $e->getCode(),
+          $e
+        );
       }
     }
 

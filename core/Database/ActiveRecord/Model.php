@@ -116,7 +116,7 @@ abstract class Model
 
     public function hasErrors(): bool
     {
-        return empty($this->errors);
+        return !empty($this->errors);
     }
 
     public function errors(string $index = null): string | null
@@ -133,7 +133,7 @@ abstract class Model
         $this->errors[$index] = $value;
     }
 
-    public abstract function validates(): void;
+    public function validates(): void {}
 
     /* ------------------- DATABASE METHODS ------------------- */
     public function save(): bool
