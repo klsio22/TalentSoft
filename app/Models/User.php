@@ -7,89 +7,200 @@ use PDO;
 
 class User
 {
-    public int $id;
-    public string $username;
-    public string $email;
-    public string $password;
-    public string $role;
+  public int $id;
+  public string $name;
+  public string $email;
+  public string $password;
+  public string $cpf;
+  public ?string $phone;
+  public ?string $birthDate;
+  public ?float $salary;
+  public ?string $addressStreet;
+  public ?string $addressNumber;
+  public ?string $addressComplement;
+  public ?string $addressNeighborhood;
+  public ?string $addressCity;
+  public ?string $addressState;
+  public ?string $addressZipcode;
+  public ?string $nationality;
+  public ?string $maritalStatus;
+  public ?string $notes;
+  public string $role;
+  public int $roleId;
 
-    public function __construct(array $data)
-    {
-        $this->id = $data['id'] ?? 0;
-        $this->username = $data['username'] ?? '';
-        $this->email = $data['email'] ?? '';
-        $this->password = $data['password'] ?? '';
-        $this->role = $data['role'] ?? '';
-    }
+  public function __construct(array $data)
+  {
+    // Dados principais
+    $this->id = $data['id'] ?? 0;
+    $this->name = $data['name'] ?? '';
+    $this->email = $data['email'] ?? '';
+    $this->password = $data['password'] ?? '';
+    $this->cpf = $data['cpf'] ?? '';
 
-    public static function attempt(array $credentials): ?self
-    {
-        $db = Database::getInstance();
-        $query = "SELECT * FROM users WHERE email = :email LIMIT 1";
-        $stmt = $db->prepare($query);
-        $stmt->execute([':email' => $credentials['email']]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Dados pessoais
+    $this->phone = $data['phone'] ?? null;
+    $this->birthDate = $data['birth_date'] ?? null;
+    $this->salary = isset($data['salary']) ? (float)$data['salary'] : null;
 
-        if ($user && password_verify($credentials['password'], $user['password'])) {
-            return new self($user);
+    // Endereço
+    $this->addressStreet = $data['address_street'] ?? '';
+    $this->addressNumber = $data['address_number'] ?? '';
+    $this->addressComplement = $data['address_complement'] ?? '';
+    $this->addressNeighborhood = $data['address_neighborhood'] ?? '';
+    $this->addressCity = $data['address_city'] ?? '';
+    $this->addressState = $data['address_state'] ?? '';
+    $this->addressZipcode = $data['address_zipcode'] ?? '';
+
+    // Informações adicionais
+    $this->nationality = $data['nationality'] ?? 'Brasileiro';
+    $this->maritalStatus = $this->validateMaritalStatus($data['marital_status'] ?? 'Single');
+    $this->notes = $data['notes'] ?? '';
+
+    // Permissões
+    $this->role = $data['role'] ?? 'user';
+    $this->roleId = $data['role_id'] ?? 3;
+  }
+
+
+  public static function attempt(array $credentials): ?self
+  {
+    $result = null;
+
+    try {
+      if (self::hasValidCredentials($credentials)) {
+        $user = self::findUserByEmail($credentials['email']);
+
+        // Debug para verificar os dados retornados
+        error_log("Dados do usuário encontrado: " . print_r($user, true));
+
+        if ($user) {
+          $passwordValid = password_verify($credentials['password'], $user['password']);
+          error_log("Senha válida: " . ($passwordValid ? 'sim' : 'não'));
+
+          if ($passwordValid) {
+            error_log("Role do usuário: " . $user['role']);
+            $result = new self($user);
+          }
         }
-
-        return null;
+      }
+    } catch (\Exception $e) {
+      error_log("Erro crítico no login: " . $e->getMessage());
     }
 
-    public static function findById(int $id): ?self
-    {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id');
-        $stmt->execute(['id' => $id]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result;
+  }
 
-        if ($data) {
-            return new self($data);
-        }
-
-        return null;
+  private static function hasValidCredentials(array $credentials): bool
+  {
+    if (empty($credentials['email']) || empty($credentials['password'])) {
+      error_log("Erro: Credenciais incompletas");
+      return false;
     }
+    return true;
+  }
 
-    public static function findByEmail(string $email): ?self
-    {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email');
-        $stmt->execute(['email' => $email]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+  public static function findUserByEmail(string $email): ?array
+  {
+    $db = Database::getInstance();
+    $stmt = $db->prepare("
+          SELECT
+              e.id,
+              e.name,
+              e.email,
+              e.password,
+              e.role_id,
+              r.name as role
+          FROM employees e
+          JOIN roles r ON e.role_id = r.id
+          WHERE e.email = :email
+          LIMIT 1
+      ");
 
-        if ($data) {
-            return new self($data);
-        }
+    $stmt->execute(['email' => $email]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    error_log("Resultado da busca por email: " . print_r($result, true));
+    return $result ?: null;
+  }
 
-        return null;
+  public static function findById(?int $id): ?self
+  {
+
+    try {
+      $db = Database::getInstance();
+      $stmt = $db->prepare("
+              SELECT e.*, r.name as role
+              FROM employees e
+              JOIN roles r ON e.role_id = r.id
+              WHERE e.id = :id
+              LIMIT 1
+          ");
+      $stmt->execute([':id' => $id]);
+      $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      return $data ? new self($data) : null;
+    } catch (\PDOException $e) {
+      error_log("Erro ao buscar usuário: " . $e->getMessage());
+      return null;
     }
+  }
 
-    public static function check(): bool
-    {
-        return isset($_SESSION['user_id']);
-    }
+  public function isAdmin(): bool
+  {
+    return $this->role === 'admin';
+  }
 
-    public static function current(): ?self
-    {
-        if (self::check()) {
-            return self::findById($_SESSION['user_id']);
-        }
-        return null;
-    }
+  public function getRole(): string
+  {
+    return $this->role_name ?? 'user';
+  }
 
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
+  public static function check(): bool
+  {
+    return isset($_SESSION['user_id']);
+  }
 
-    public static function login(self $user): void
-    {
-        $_SESSION['user_id'] = $user->id;
+  public static function current(): ?self
+  {
+    if (self::check()) {
+      return self::findById($_SESSION['user_id']);
     }
+    return null;
+  }
+  public static function login(self $user): void
+  {
+    $_SESSION['user_id'] = $user->id;
+  }
 
-    public static function logout(): void
-    {
-        unset($_SESSION['user_id']);
-    }
+  public static function logout(): void
+  {
+    unset($_SESSION['user_id']);
+  }
+
+  public static function all(): array
+  {
+    $db = Database::getInstance();
+    $stmt = $db->query("
+          SELECT e.*, r.name as role
+          FROM employees e
+          JOIN roles r ON e.role_id = r.id
+      ");
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return array_map(function ($user) {
+      return new self($user);
+    }, $users);
+  }
+
+  public static function sanitizeData(array $data): array
+  {
+    return array_map(function ($value) {
+      return is_string($value) ? trim($value) : $value;
+    }, $data);
+  }
+
+  private function validateMaritalStatus(?string $status): ?string
+  {
+    $validStatus = ['Single', 'Married', 'Divorced', 'Widowed'];
+    return in_array($status, $validStatus) ? $status : 'Single';
+  }
 }

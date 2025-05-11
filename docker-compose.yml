@@ -31,8 +31,12 @@ services:
       MYSQL_USER: "$DB_USERNAME"
       MYSQL_PASSWORD: "$DB_PASSWORD"
       MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - dbdata:/var/lib/mysql
+    ports:
+      - 8884:3306
+      - 8885:33060
     networks:
       - app-network
 

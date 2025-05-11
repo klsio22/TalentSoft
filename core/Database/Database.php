@@ -12,10 +12,6 @@ class Database
 {
   private static ?PDO $instance = null;
 
-
-  private function __construct() {} // Construtor privado
-
-
   public static function getDatabaseConn(): PDO
   {
     $user = $_ENV['DB_USERNAME'];
@@ -61,7 +57,11 @@ class Database
           [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
         );
       } catch (PDOException $e) {
-        throw new Exception("Erro de conexão: " . $e->getMessage());
+        throw new DatabaseException(
+          "Erro ao conectar com o banco de dados: " . $e->getMessage(),
+          $e->getCode(),
+          $e
+        );
       }
     }
 
@@ -85,5 +85,16 @@ class Database
   {
     $sql = file_get_contents(Constants::databasePath()->join('schema.sql'));
     self::getDatabaseConn()->exec($sql);
+  }
+
+  public static function execute(string $sql, array $params = []): bool
+  {
+    try {
+      $stmt = self::getInstance()->prepare($sql);
+      return $stmt->execute($params);
+    } catch (\PDOException $e) {
+      error_log("Erro na execução da query: " . $e->getMessage());
+      return false;
+    }
   }
 }

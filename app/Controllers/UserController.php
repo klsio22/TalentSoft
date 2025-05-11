@@ -10,38 +10,60 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    private function validateCredentials(array $credentials): void
-    {
-        if (empty($credentials['email']) || empty($credentials['password'])) {
-            FlashMessage::danger('Por favor, preencha todos os campos.');
-        }
 
-        $user = User::attempt($credentials);
+  public function login(Request $request): void
+  {
+    $credentials = $request->only(['email', 'password']);
 
-        if ($user) {
-            Auth::login($user);
-            FlashMessage::success('Login realizado com sucesso');
-        } else {
-            FlashMessage::danger('Credenciais inválidas');
-        }
+    $user = User::attempt($credentials);
+
+    if ($user) {
+      Auth::login($user);
+      FlashMessage::success('Login realizado com sucesso');
+      $this->redirectTo(route('home'));
+    } else {
+      FlashMessage::danger('Credenciais inválidas ou user não encontrado');
+      $this->redirectTo(route('users.login'));
+    }
+  }
+
+  public function logout(): void
+  {
+    Auth::logout();
+    FlashMessage::success('Logout realizado com sucesso');
+    $this->redirectTo(route('users.login'));
+  }
+
+  public function listUsers(): void
+  {
+    $users = User::all();
+    $this->render('users/list', ['users' => $users]);
+  }
+
+  public function editProfile(): void
+  {
+    if (!Auth::check()) {
+      FlashMessage::danger('Você precisa estar logado para acessar essa página.');
+      $this->redirectTo(route('users.login'));
+      return;
     }
 
-    public function login(Request $request): void
-    {
-        $credentials = $request->only(['email', 'password']);
+    $user = Auth::user();
+    $this->render('users/edit', [
+      'user' => $user,
+      'isProfile' => true
+    ]);
+  }
 
-        $this->validateCredentials($credentials);
-        if (Auth::check()) {
-            $this->redirectTo(route('home'));
-        } else {
-            $this->redirectTo(route('users.login'));
-        }
+  public function viewProfile(): void
+  {
+    if (!Auth::check()) {
+      FlashMessage::danger('Você precisa estar logado.');
+      $this->redirectTo(route('users.login'));
+      return;
     }
 
-    public function logout(): void
-    {
-        Auth::logout();
-        FlashMessage::success('Logout realizado com sucesso');
-        $this->redirectTo(route('users.login'));
-    }
+    $user = Auth::user();
+    $this->render('profile/view', ['user' => $user]);
+  }
 }
