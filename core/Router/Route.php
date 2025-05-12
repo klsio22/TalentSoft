@@ -14,21 +14,12 @@ class Route
      */
     private array $middlewares = [];
 
-    private string $method;
-    private string $uri;
-    private string $controllerName;
-    private string $actionName;
-
     public function __construct(
-        string $method,
-        string $uri,
-        string $controllerName,
-        string $actionName
+        private string $method,
+        private string $uri,
+        private string $controllerName,
+        private string $actionName
     ) {
-        $this->method = $method;
-        $this->uri = $uri;
-        $this->controllerName = $controllerName;
-        $this->actionName = $actionName;
     }
 
     public function name(string $name): void
@@ -155,11 +146,5 @@ class Route
     public static function middleware(string $middleware): RouteWrapperMiddleware
     {
         return new RouteWrapperMiddleware($middleware);
-    }
-
-    public static function group(array $attributes, \Closure $callback): void
-    {
-        $router = Router::getInstance();
-        $router->addGroup($attributes, $callback);
     }
 }

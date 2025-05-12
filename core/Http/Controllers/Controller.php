@@ -2,16 +2,33 @@
 
 namespace Core\Http\Controllers;
 
+use App\Models\User;
 use Core\Constants\Constants;
+use Lib\Authentication\Auth;
 
 class Controller
 {
     protected string $layout = 'application';
 
+    protected ?User $current_user = null;
 
-  /**
-   * @param array<string, mixed> $data
-   */
+    public function __construct()
+    {
+        $this->current_user = Auth::user();
+    }
+
+    public function currentUser(): ?User
+    {
+        if ($this->current_user === null) {
+            $this->current_user = Auth::user();
+        }
+
+        return $this->current_user;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
     protected function render(string $view, array $data = []): void
     {
         extract($data);
@@ -21,9 +38,9 @@ class Controller
     }
 
 
-  /**
-   * @param array<string, mixed> $data
-   */
+    /**
+     * @param array<string, mixed> $data
+     */
     protected function renderJson(string $view, array $data = []): void
     {
         extract($data);

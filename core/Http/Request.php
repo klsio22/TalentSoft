@@ -4,62 +4,58 @@ namespace Core\Http;
 
 class Request
 {
-  private string $method;
-  private string $uri;
-  private array $params = [];
-  private array $data = [];
-  private array $headers = [];
+    private string $method;
+    private string $uri;
 
-  public function __construct()
-  {
-    $this->method = $_REQUEST['_method'] ?? $_SERVER['REQUEST_METHOD'];
-    $this->uri = $_SERVER['REQUEST_URI'];
-    $this->headers = function_exists('getallheaders') ? getallheaders() : [];
-    $this->data = $this->sanitizeInput(array_merge($_GET, $_POST));
-  }
+    /** @var mixed[] */
+    private array $params;
 
-  private function sanitizeInput(array $input): array
-  {
-    return array_map(function ($value) {
-      return is_string($value) ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value;
-    }, $input);
-  }
+    /** @var array<string, string> */
+    private array $headers;
 
-  public function getMethod(): string
-  {
-    return $this->method;
-  }
-
-  public function getUri(): string
-  {
-    return $this->uri;
-  }
-
-  public function getData(string $key = null, $default = null)
-  {
-    if ($key === null) {
-      return $this->data;
+    public function __construct()
+    {
+        $this->method = $_REQUEST['_method'] ?? $_SERVER['REQUEST_METHOD'];
+        $this->uri = $_SERVER['REQUEST_URI'];
+        $this->params = $_REQUEST;
+        $this->headers = function_exists('getallheaders') ? getallheaders() : [];
     }
-    return $this->data[$key] ?? $default;
-  }
 
-  public function addParams(array $params): void
-  {
-    $this->params = $this->sanitizeInput($params);
-  }
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
 
-  public function getParam(string $key, $default = null)
-  {
-    return $this->params[$key] ?? $default;
-  }
+    public function getUri(): string
+    {
+        return $this->uri;
+    }
 
-  public function only(array $keys): array
-  {
-    return array_intersect_key($this->data, array_flip($keys));
-  }
+    /** @return mixed[] */
+    public function getParams(): array
+    {
+        return $this->params;
+    }
 
-  public function getHeaders(): array
-  {
-    return $this->headers;
-  }
+    /** @return array<string, string>*/
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    /** @param mixed[] $params*/
+    public function addParams(array $params): void
+    {
+        $this->params = array_merge($this->params, $params);
+    }
+
+    public function acceptJson(): bool
+    {
+        return (isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] === 'application/json');
+    }
+
+    public function getParam(string $key, mixed $default = null): mixed
+    {
+        return $this->params[$key] ?? $default;
+    }
 }

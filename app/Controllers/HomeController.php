@@ -3,18 +3,12 @@
 namespace App\Controllers;
 
 use Core\Http\Controllers\Controller;
-use Core\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index(Request $request): void
+    public function index(): void
     {
-        $title = 'Home';
+        $title = 'Home Page';
         $this->render('home/index', compact('title'));
-    }
-
-    public function admin(): void
-    {
-        $this->render('home/admin/index');
     }
 }
