@@ -9,72 +9,21 @@ use PDOStatement;
 
 class Paginator
 {
-    /**
-     * @var int
-     */
-    private $totalOfRegisters = 0;
-    /**
-     * @var int
-     */
-    private $totalOfPages = 0;
-    /**
-     * @var int
-     */
-    private $totalOfRegistersOfPage = 0;
-    /**
-     * @var int
-     */
-    private $offset = 0;
-    /**
-     * @var array
-     */
-    private $registers = [];
-
-    /**
-     * @var string
-     */
-    private $class;
-    /**
-     * @var int
-     */
-    private $page;
-    /**
-     * @var int
-     */
-    private $per_page;
-    /**
-     * @var string
-     */
-    private $table;
-    /**
-     * @var array
-     */
-    private $attributes;
-    /**
-     * @var array
-     */
-    private $conditions;
-    /**
-     * @var string|null
-     */
-    private $route;
+    private int $totalOfRegisters = 0;
+    private int $totalOfPages = 0;
+    private int $totalOfRegistersOfPage = 0;
+    private int $offset = 0;
+    private array $registers = [];
 
     public function __construct(
-        $class,
-        $page,
-        $per_page,
-        $table,
-        $attributes,
-        $conditions = [],
-        $route = null
+        private string $class,
+        private int $page,
+        private int $per_page,
+        private string $table,
+        private array $attributes,
+        private array $conditions = [],
+        private ?string $route = null
     ) {
-        $this->class = $class;
-        $this->page = $page;
-        $this->per_page = $per_page;
-        $this->table = $table;
-        $this->attributes = $attributes;
-        $this->conditions = $conditions;
-        $this->route = $route;
         $this->loadTotals();
         $this->loadRegisters();
     }

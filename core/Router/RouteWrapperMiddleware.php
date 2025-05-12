@@ -7,11 +7,9 @@ use Core\Http\Middleware\Middleware;
 
 class RouteWrapperMiddleware
 {
-    private string $name;
-
-    public function __construct(string $name)
-    {
-        $this->name = $name;
+    public function __construct(
+        private string $name
+    ) {
     }
 
     public function group(callable $callback): void

@@ -2,205 +2,60 @@
 
 namespace App\Models;
 
-use Core\Database\Database;
-use PDO;
+use Lib\Validations;
+use Core\Database\ActiveRecord\Model;
 
-class User
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string $encrypted_password
+ * @property string $avatar_name
+ */
+class User extends Model
 {
-  public int $id;
-  public string $name;
-  public string $email;
-  public string $password;
-  public string $cpf;
-  public ?string $phone;
-  public ?string $birthDate;
-  public ?float $salary;
-  public ?string $addressStreet;
-  public ?string $addressNumber;
-  public ?string $addressComplement;
-  public ?string $addressNeighborhood;
-  public ?string $addressCity;
-  public ?string $addressState;
-  public ?string $addressZipcode;
-  public ?string $nationality;
-  public ?string $maritalStatus;
-  public ?string $notes;
-  public string $role;
-  public int $roleId;
+    protected static string $table = 'users';
+    protected static array $columns = ['name', 'email', 'encrypted_password', 'avatar_name'];
 
-  public function __construct(array $data)
-  {
-    // Dados principais
-    $this->id = $data['id'] ?? 0;
-    $this->name = $data['name'] ?? '';
-    $this->email = $data['email'] ?? '';
-    $this->password = $data['password'] ?? '';
-    $this->cpf = $data['cpf'] ?? '';
+    protected ?string $password = null;
+    protected ?string $password_confirmation = null;
 
-    // Dados pessoais
-    $this->phone = $data['phone'] ?? null;
-    $this->birthDate = $data['birth_date'] ?? null;
-    $this->salary = isset($data['salary']) ? (float)$data['salary'] : null;
+    public function validates(): void
+    {
+        Validations::notEmpty('name', $this);
+        Validations::notEmpty('email', $this);
 
-    // Endereço
-    $this->addressStreet = $data['address_street'] ?? '';
-    $this->addressNumber = $data['address_number'] ?? '';
-    $this->addressComplement = $data['address_complement'] ?? '';
-    $this->addressNeighborhood = $data['address_neighborhood'] ?? '';
-    $this->addressCity = $data['address_city'] ?? '';
-    $this->addressState = $data['address_state'] ?? '';
-    $this->addressZipcode = $data['address_zipcode'] ?? '';
+        Validations::uniqueness('email', $this);
 
-    // Informações adicionais
-    $this->nationality = $data['nationality'] ?? 'Brasileiro';
-    $this->maritalStatus = $this->validateMaritalStatus($data['marital_status'] ?? 'Single');
-    $this->notes = $data['notes'] ?? '';
-
-    // Permissões
-    $this->role = $data['role'] ?? 'user';
-    $this->roleId = $data['role_id'] ?? 3;
-  }
-
-
-  public static function attempt(array $credentials): ?self
-  {
-    $result = null;
-
-    try {
-      if (self::hasValidCredentials($credentials)) {
-        $user = self::findUserByEmail($credentials['email']);
-
-        // Debug para verificar os dados retornados
-        error_log("Dados do usuário encontrado: " . print_r($user, true));
-
-        if ($user) {
-          $passwordValid = password_verify($credentials['password'], $user['password']);
-          error_log("Senha válida: " . ($passwordValid ? 'sim' : 'não'));
-
-          if ($passwordValid) {
-            error_log("Role do usuário: " . $user['role']);
-            $result = new self($user);
-          }
+        if ($this->newRecord()) {
+            Validations::passwordConfirmation($this);
         }
-      }
-    } catch (\Exception $e) {
-      error_log("Erro crítico no login: " . $e->getMessage());
     }
 
-    return $result;
-  }
+    public function authenticate(string $password): bool
+    {
+        if ($this->encrypted_password == null) {
+            return false;
+        }
 
-  private static function hasValidCredentials(array $credentials): bool
-  {
-    if (empty($credentials['email']) || empty($credentials['password'])) {
-      error_log("Erro: Credenciais incompletas");
-      return false;
+        return password_verify($password, $this->encrypted_password);
     }
-    return true;
-  }
 
-  public static function findUserByEmail(string $email): ?array
-  {
-    $db = Database::getInstance();
-    $stmt = $db->prepare("
-          SELECT
-              e.id,
-              e.name,
-              e.email,
-              e.password,
-              e.role_id,
-              r.name as role
-          FROM employees e
-          JOIN roles r ON e.role_id = r.id
-          WHERE e.email = :email
-          LIMIT 1
-      ");
-
-    $stmt->execute(['email' => $email]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    error_log("Resultado da busca por email: " . print_r($result, true));
-    return $result ?: null;
-  }
-
-  public static function findById(?int $id): ?self
-  {
-
-    try {
-      $db = Database::getInstance();
-      $stmt = $db->prepare("
-              SELECT e.*, r.name as role
-              FROM employees e
-              JOIN roles r ON e.role_id = r.id
-              WHERE e.id = :id
-              LIMIT 1
-          ");
-      $stmt->execute([':id' => $id]);
-      $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      return $data ? new self($data) : null;
-    } catch (\PDOException $e) {
-      error_log("Erro ao buscar usuário: " . $e->getMessage());
-      return null;
+    public static function findByEmail(string $email): User | null
+    {
+        return User::findBy(['email' => $email]);
     }
-  }
 
-  public function isAdmin(): bool
-  {
-    return $this->role === 'admin';
-  }
+    public function __set(string $property, mixed $value): void
+    {
+        parent::__set($property, $value);
 
-  public function getRole(): string
-  {
-    return $this->role_name ?? 'user';
-  }
-
-  public static function check(): bool
-  {
-    return isset($_SESSION['user_id']);
-  }
-
-  public static function current(): ?self
-  {
-    if (self::check()) {
-      return self::findById($_SESSION['user_id']);
+        if (
+            $property === 'password' &&
+            $this->newRecord() &&
+            $value !== null && $value !== ''
+        ) {
+            $this->encrypted_password = password_hash($value, PASSWORD_DEFAULT);
+        }
     }
-    return null;
-  }
-  public static function login(self $user): void
-  {
-    $_SESSION['user_id'] = $user->id;
-  }
-
-  public static function logout(): void
-  {
-    unset($_SESSION['user_id']);
-  }
-
-  public static function all(): array
-  {
-    $db = Database::getInstance();
-    $stmt = $db->query("
-          SELECT e.*, r.name as role
-          FROM employees e
-          JOIN roles r ON e.role_id = r.id
-      ");
-    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    return array_map(function ($user) {
-      return new self($user);
-    }, $users);
-  }
-
-  public static function sanitizeData(array $data): array
-  {
-    return array_map(function ($value) {
-      return is_string($value) ? trim($value) : $value;
-    }, $data);
-  }
-
-  private function validateMaritalStatus(?string $status): ?string
-  {
-    $validStatus = ['Single', 'Married', 'Divorced', 'Widowed'];
-    return in_array($status, $validStatus) ? $status : 'Single';
-  }
 }
