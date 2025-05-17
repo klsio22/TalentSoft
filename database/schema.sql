@@ -1,13 +1,125 @@
-SET foreign_key_checks = 0;
+SET
+  foreign_key_checks = 0;
 
-DROP TABLE IF EXISTS users;
+-- Tabela de papéis/roles
+DROP TABLE IF EXISTS Roles;
 
-CREATE TABLE users (
+CREATE TABLE
+  Roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT
+  );
+
+-- Tabela de funcionários
+DROP TABLE IF EXISTS Employees;
+
+CREATE TABLE
+  Employees (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(50) UNIQUE NOT NULL,
-    encrypted_password VARCHAR(255) NOT NULL,
-    avatar_name VARCHAR(65)
-);
+    cpf VARCHAR(14) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    birth_date DATE,
+    role_id INT NOT NULL,
+    salary DECIMAL(10, 2),
+    hire_date DATE NOT NULL,
+    status ENUM ('Active', 'Inactive') DEFAULT 'Active',
+    address VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(2),
+    zipcode VARCHAR(10),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    FOREIGN KEY (role_id) REFERENCES Roles (id)
+  );
 
-SET foreign_key_checks = 1;
+-- Tabela de credenciais de usuários
+DROP TABLE IF EXISTS UserCredentials;
+
+CREATE TABLE
+  UserCredentials (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (employee_id) REFERENCES Employees (id)
+  );
+
+-- Tabela de projetos
+DROP TABLE IF EXISTS Projects;
+
+CREATE TABLE
+  Projects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_date DATE,
+    end_date DATE,
+    status ENUM ('In Progress', 'Completed', 'Canceled') DEFAULT 'In Progress'
+  );
+
+-- Tabela de relacionamento entre funcionários e projetos
+DROP TABLE IF EXISTS Employee_Projects;
+
+CREATE TABLE
+  Employee_Projects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT NOT NULL,
+    project_id INT NOT NULL,
+    role VARCHAR(100),
+    FOREIGN KEY (employee_id) REFERENCES Employees (id),
+    FOREIGN KEY (project_id) REFERENCES Projects (id)
+  );
+
+-- Tabela de notificações para funcionários
+DROP TABLE IF EXISTS Notifications;
+
+CREATE TABLE
+  Notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT NOT NULL,
+    type ENUM (
+      'Registration',
+      'Termination',
+      'Project',
+      'Approval'
+    ) NOT NULL,
+    message TEXT NOT NULL,
+    sent_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM ('Read', 'Unread') DEFAULT 'Unread',
+    FOREIGN KEY (employee_id) REFERENCES Employees (id)
+  );
+
+-- Tabela de aprovações
+DROP TABLE IF EXISTS Approvals;
+
+CREATE TABLE
+  Approvals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT NOT NULL,
+    project_id INT NULL,
+    type ENUM ('Hire', 'Termination', 'Project', 'Other') NOT NULL,
+    status ENUM ('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    approval_date TIMESTAMP NULL,
+    FOREIGN KEY (employee_id) REFERENCES Employees (id),
+    FOREIGN KEY (project_id) REFERENCES Projects (id)
+  );
+
+-- Inserir papéis padrão
+INSERT INTO
+  Roles (name, description)
+VALUES
+  (
+    'admin',
+    'Administrador com acesso completo ao sistema'
+  ),
+  (
+    'hr',
+    'Recursos humanos com acesso a funções de RH'
+  ),
+  ('user', 'Usuário comum com acesso limitado');
+
+SET
+  foreign_key_checks = 1;

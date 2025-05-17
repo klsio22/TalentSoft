@@ -2,7 +2,7 @@
 
 namespace Core\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Employee;
 use Core\Constants\Constants;
 use Lib\Authentication\Auth;
 
@@ -10,14 +10,14 @@ class Controller
 {
     protected string $layout = 'application';
 
-    protected ?User $current_user = null;
+    protected ?Employee $current_user = null;
 
     public function __construct()
     {
         $this->current_user = Auth::user();
     }
 
-    public function currentUser(): ?User
+    public function currentUser(): ?Employee
     {
         if ($this->current_user === null) {
             $this->current_user = Auth::user();

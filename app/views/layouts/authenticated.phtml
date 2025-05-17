@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentSoft -
+        <?= $title ?>
+    </title>
+    <script src="/assets/js/application.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="/assets/css/application.css">
+
+    <link rel="apple-touch-icon" href="/assets/images/defaults/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/defaults/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/defaults/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/defaults/favicon-16x16.png">
+    <link rel="manifest" href="/assets/images/defaults/site.webmanifest">
+    <link rel="icon" href="/assets/images/defaults/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <nav class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="text-xl font-bold">TalentSoft</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span>Olá,
+                    <?= $this->currentUser()->name ?>
+                </span>
+                <a href="<?= route('auth.logout') ?>"
+                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Sair</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-6 px-4">
+        <?php require '_flash_message.phtml'; ?>
+
+        <header class="mb-6">
+            <h1 class="text-2xl font-bold">
+                <?= $title ?>
+            </h1>
+        </header>
+
+        <?php require $view ?>
+    </main>
+</body>
+
+</html>
