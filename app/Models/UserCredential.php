@@ -17,7 +17,7 @@ class UserCredential extends Model
     protected static array $columns = ['employee_id', 'password_hash', 'last_updated'];
 
     protected ?string $password = null;
-    protected ?string $password_confirmation = null;
+    protected ?string $passwordConfirmation = null;
 
     public function validates(): void
     {

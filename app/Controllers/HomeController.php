@@ -9,7 +9,6 @@ class HomeController extends Controller
 {
     public function index(): void
     {
-        // Se o usuário já estiver logado, redireciona para a página inicial adequada
         if (Auth::check()) {
             if (Auth::isAdmin()) {
                 $this->redirectTo(route('admin.home'));

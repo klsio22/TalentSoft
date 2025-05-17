@@ -25,17 +25,13 @@ class Notification extends Model
         Validations::notEmpty('message', $this);
     }
 
-    /**
-     * Obtém o funcionário associado a esta notificação
-     */
+
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'employee_id')->get();
     }
 
-    /**
-     * Marca a notificação como lida
-     */
+
     public function markAsRead(): bool
     {
         $this->status = 'Read';

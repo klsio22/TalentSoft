@@ -18,7 +18,7 @@ class User extends Model
     protected static array $columns = ['name', 'email', 'encrypted_password', 'avatar_name'];
 
     protected ?string $password = null;
-    protected ?string $password_confirmation = null;
+    protected ?string $passwordConfirmation = null;
 
     public function validates(): void
     {

@@ -14,15 +14,11 @@ class HRController extends Controller
     {
         parent::__construct();
 
-        // Verifica se o usuário está logado e é um usuário de RH
         if (!Auth::check() || !Auth::isHR()) {
             $this->redirectTo(route('auth.login'));
         }
     }
 
-    /**
-     * Página inicial do RH
-     */
     public function home(): void
     {
         $title = 'Área de Recursos Humanos';

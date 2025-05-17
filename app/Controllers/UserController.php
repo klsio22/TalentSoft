@@ -14,15 +14,11 @@ class UserController extends Controller
     {
         parent::__construct();
 
-        // Verifica se o usuário está logado e é um usuário comum
         if (!Auth::check() || !Auth::isUser()) {
             $this->redirectTo(route('auth.login'));
         }
     }
 
-    /**
-     * Página inicial do usuário comum
-     */
     public function home(): void
     {
         $title = 'Área do Usuário';
