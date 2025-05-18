@@ -9,7 +9,6 @@ use Core\Database\Database;
 
 Database::migrate();
 
-// Garantir que os papéis padrão existam
 $adminRole = Role::findByName('admin');
 $hrRole = Role::findByName('hr');
 $userRole = Role::findByName('user');
@@ -32,7 +31,6 @@ if (!$userRole) {
     $userRole->save();
 }
 
-// Criar funcionários para teste com emails solicitados
 echo "Criando usuário administrador Klesio...\n";
 $admin = Employee::findByEmail('klesio@admin.com');
 if (!$admin) {
@@ -46,7 +44,6 @@ if (!$admin) {
     ]);
     $admin->save();
 
-    // Criar credencial para admin
     $adminCredential = new UserCredential([
         'employee_id' => $admin->id,
         'password' => '123456',
@@ -68,7 +65,6 @@ if (!$hr) {
     ]);
     $hr->save();
 
-    // Criar credencial para RH
     $hrCredential = new UserCredential([
         'employee_id' => $hr->id,
         'password' => '123456',
@@ -90,7 +86,6 @@ if (!$user) {
     ]);
     $user->save();
 
-    // Criar credencial para usuário comum
     $userCredential = new UserCredential([
         'employee_id' => $user->id,
         'password' => '123456',

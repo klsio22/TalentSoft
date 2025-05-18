@@ -23,9 +23,6 @@ class Project extends Model
         Validations::notEmpty('name', $this);
     }
 
-    /**
-     * Obtém os funcionários associados ao projeto
-     */
     public function employees()
     {
         return $this->BelongsToMany(
@@ -36,9 +33,6 @@ class Project extends Model
         );
     }
 
-    /**
-     * Obtém as aprovações do projeto
-     */
     public function approvals()
     {
         return $this->hasMany(Approval::class, 'project_id');

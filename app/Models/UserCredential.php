@@ -29,17 +29,11 @@ class UserCredential extends Model
         }
     }
 
-    /**
-     * Obtém o funcionário associado a esta credencial
-     */
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'employee_id')->get();
     }
 
-    /**
-     * Define a senha e gera o hash
-     */
     public function __set(string $property, mixed $value): void
     {
         parent::__set($property, $value);
@@ -52,9 +46,6 @@ class UserCredential extends Model
         }
     }
 
-    /**
-     * Autentica a credencial com a senha fornecida
-     */
     public function authenticate(string $password): bool
     {
         if ($this->password_hash === null || $this->password_hash === '') {

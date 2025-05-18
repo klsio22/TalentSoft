@@ -43,25 +43,17 @@ class Employee extends Model
         Validations::uniqueness('cpf', $this);
     }
 
-    /**
-     * Obtém a credencial do funcionário
-     */
+
     public function credential()
     {
         return $this->hasMany(UserCredential::class, 'employee_id')->get()[0] ?? null;
     }
 
-    /**
-     * Obtém o papel do funcionário
-     */
     public function role()
     {
         return $this->belongsTo(Role::class, 'role_id')->get();
     }
 
-    /**
-     * Obtém os projetos do funcionário
-     */
     public function projects()
     {
         return $this->BelongsToMany(
@@ -72,57 +64,37 @@ class Employee extends Model
         );
     }
 
-    /**
-     * Obtém as notificações do funcionário
-     */
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'employee_id');
     }
 
-    /**
-     * Obtém as aprovações do funcionário
-     */
     public function approvals()
     {
         return $this->hasMany(Approval::class, 'employee_id');
     }
 
-    /**
-     * Encontra um funcionário por email
-     */
     public static function findByEmail(string $email): ?Employee
     {
         return self::findBy(['email' => $email]);
     }
 
-    /**
-     * Verifica se o funcionário é admin
-     */
     public function isAdmin(): bool
     {
         return $this->role()->name === 'admin';
     }
 
-    /**
-     * Verifica se o funcionário é de recursos humanos
-     */
     public function isHR(): bool
     {
         return $this->role()->name === 'hr';
     }
 
-    /**
-     * Verifica se o funcionário é um usuário comum
-     */
+
     public function isUser(): bool
     {
         return $this->role()->name === 'user';
     }
 
-    /**
-     * Autentica o funcionário com a senha fornecida
-     */
     public function authenticate(string $password): bool
     {
         $credential = $this->credential();
