@@ -20,17 +20,13 @@ class Role extends Model
         Validations::notEmpty('name', $this);
     }
 
-    /**
-     * Obtém todos os funcionários associados a este papel
-     */
+
     public function employees()
     {
         return $this->hasMany(Employee::class, 'role_id');
     }
 
-    /**
-     * Encontra um papel por nome
-     */
+
     public static function findByName(string $name): ?Role
     {
         return self::findBy(['name' => $name]);

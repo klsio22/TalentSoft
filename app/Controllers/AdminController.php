@@ -8,7 +8,7 @@ use Lib\Authentication\Auth;
 
 class AdminController extends Controller
 {
-    protected string $layout = 'authenticated';
+    protected string $layout = 'application';
 
     public function __construct()
     {
@@ -23,6 +23,10 @@ class AdminController extends Controller
     {
         $title = 'Painel do Administrador';
         $employee = Auth::user();
+
+        if (isset($_GET['welcome']) && $_GET['welcome'] === 'true') {
+            \Lib\FlashMessage::info('Bem-vindo ao painel de administração!');
+        }
 
         $this->render('admin/home', compact('title', 'employee'));
     }

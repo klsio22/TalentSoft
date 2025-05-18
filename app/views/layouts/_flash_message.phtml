@@ -1,0 +1,20 @@
+<?php foreach (\Lib\FlashMessage::get() as $type => $msg) : ?>
+<div
+  class="fixed top-0 left-0 w-full p-4 <?= $type === 'success' ? 'bg-green-500' : ($type === 'danger' ? 'bg-red-500' : 'bg-yellow-500') ?> text-white flex justify-between items-center text-2xl flash-message">
+  <div class="text-center w-full">
+    <?= $msg ?>
+  </div>
+  <button type="button" class="text-white" onclick="this.parentElement.style.display='none';"
+    aria-label="Close">&times;</button>
+</div>
+<?php endforeach; ?>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      document.querySelectorAll('.flash-message').forEach(function (element) {
+        element.style.display = 'none';
+      });
+    }, 3000);
+  });
+</script>

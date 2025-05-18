@@ -8,7 +8,7 @@ use Lib\Authentication\Auth;
 
 class UserController extends Controller
 {
-    protected string $layout = 'authenticated';
+    protected string $layout = 'application';
 
     public function __construct()
     {
@@ -23,6 +23,10 @@ class UserController extends Controller
     {
         $title = 'Área do Usuário';
         $employee = Auth::user();
+
+        if (isset($_GET['profile']) && $_GET['profile'] === 'updated') {
+            \Lib\FlashMessage::success('Seu perfil foi atualizado com sucesso!');
+        }
 
         $this->render('user/home', compact('title', 'employee'));
     }

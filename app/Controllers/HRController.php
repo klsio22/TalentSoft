@@ -3,12 +3,11 @@
 namespace App\Controllers;
 
 use Core\Http\Controllers\Controller;
-use Core\Http\Request;
 use Lib\Authentication\Auth;
 
 class HRController extends Controller
 {
-    protected string $layout = 'authenticated';
+    protected string $layout = 'application';
 
     public function __construct()
     {
@@ -23,6 +22,10 @@ class HRController extends Controller
     {
         $title = 'Área de Recursos Humanos';
         $employee = Auth::user();
+
+        if (isset($_GET['notification']) && $_GET['notification'] === 'true') {
+            \Lib\FlashMessage::warning('Você tem novas solicitações pendentes de aprovação.');
+        }
 
         $this->render('hr/home', compact('title', 'employee'));
     }

@@ -22,7 +22,6 @@ class HomeController extends Controller
             }
         }
 
-        // Se não estiver logado, exibe a página inicial pública
         $title = 'TalentSoft - Sistema de Gestão de Talentos';
         $this->render('home/index', compact('title'));
     }

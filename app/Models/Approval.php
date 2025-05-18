@@ -25,17 +25,12 @@ class Approval extends Model
         Validations::notEmpty('type', $this);
     }
 
-    /**
-     * Obtém o funcionário associado a esta aprovação
-     */
+
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'employee_id')->get();
     }
 
-    /**
-     * Obtém o projeto associado a esta aprovação (se houver)
-     */
     public function project()
     {
         if ($this->project_id === null) {
@@ -45,9 +40,7 @@ class Approval extends Model
         return $this->belongsTo(Project::class, 'project_id')->get();
     }
 
-    /**
-     * Aprova a solicitação
-     */
+
     public function approve(): bool
     {
         $this->status = 'Approved';
@@ -55,9 +48,7 @@ class Approval extends Model
         return $this->save();
     }
 
-    /**
-     * Rejeita a solicitação
-     */
+
     public function reject(): bool
     {
         $this->status = 'Rejected';
