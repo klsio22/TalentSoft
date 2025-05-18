@@ -26,8 +26,9 @@ class Notification extends Model
     }
 
 
-    public function employee()
+    public function employee(): ?Employee
     {
+        /** @var Employee|null */
         return $this->belongsTo(Employee::class, 'employee_id')->get();
     }
 

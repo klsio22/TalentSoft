@@ -26,17 +26,19 @@ class Approval extends Model
     }
 
 
-    public function employee()
+    public function employee(): ?Employee
     {
+        /** @var Employee|null */
         return $this->belongsTo(Employee::class, 'employee_id')->get();
     }
 
-    public function project()
+    public function project(): ?Project
     {
         if ($this->project_id === null) {
             return null;
         }
 
+        /** @var Project|null */
         return $this->belongsTo(Project::class, 'project_id')->get();
     }
 

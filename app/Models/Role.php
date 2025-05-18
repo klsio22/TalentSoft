@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Core\Database\ActiveRecord\HasMany;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
@@ -21,7 +22,7 @@ class Role extends Model
     }
 
 
-    public function employees()
+    public function employees(): HasMany
     {
         return $this->hasMany(Employee::class, 'role_id');
     }

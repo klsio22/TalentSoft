@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Core\Database\ActiveRecord\BelongsToMany;
+use Core\Database\ActiveRecord\HasMany;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
@@ -44,17 +46,19 @@ class Employee extends Model
     }
 
 
-    public function credential()
+    public function credential(): ?UserCredential
     {
+        /** @var UserCredential|null */
         return $this->hasMany(UserCredential::class, 'employee_id')->get()[0] ?? null;
     }
 
-    public function role()
+    public function role(): ?Role
     {
+        /** @var Role|null */
         return $this->belongsTo(Role::class, 'role_id')->get();
     }
 
-    public function projects()
+    public function projects(): BelongsToMany
     {
         return $this->BelongsToMany(
             Project::class,
@@ -64,12 +68,12 @@ class Employee extends Model
         );
     }
 
-    public function notifications()
+    public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class, 'employee_id');
     }
 
-    public function approvals()
+    public function approvals(): HasMany
     {
         return $this->hasMany(Approval::class, 'employee_id');
     }

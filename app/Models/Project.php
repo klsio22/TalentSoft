@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Core\Database\ActiveRecord\BelongsToMany;
+use Core\Database\ActiveRecord\HasMany;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
@@ -23,7 +25,7 @@ class Project extends Model
         Validations::notEmpty('name', $this);
     }
 
-    public function employees()
+    public function employees(): BelongsToMany
     {
         return $this->BelongsToMany(
             Employee::class,
@@ -33,7 +35,7 @@ class Project extends Model
         );
     }
 
-    public function approvals()
+    public function approvals(): HasMany
     {
         return $this->hasMany(Approval::class, 'project_id');
     }
