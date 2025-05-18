@@ -65,7 +65,7 @@ function phpcbf {
 }
 
 function phpstan {
-  TEST_PATH="${@:-}"
+  TEST_PATH="${@:-app}"
   docker compose run --rm php ./vendor/bin/phpstan analyse --memory-limit 1G ${TEST_PATH}
 }
 
