@@ -15,7 +15,6 @@ class UserTest extends TestCase
     {
         parent::setUp();
 
-        // Garantir que a tabela 'users' exista
         $this->createUsersTable();
 
         $this->user = new User([
@@ -35,9 +34,6 @@ class UserTest extends TestCase
         $this->user2->save();
     }
 
-    /**
-     * Cria a tabela 'users' caso não exista
-     */
     private function createUsersTable(): void
     {
         $sql = "
@@ -112,7 +108,6 @@ class UserTest extends TestCase
             'name' => 'User 3',
             'email' => 'fulano3@example.com',
             'password' => '123456',
-            'password_confirmation' => '1234567'
         ]);
 
         $this->assertFalse($user->isValid());

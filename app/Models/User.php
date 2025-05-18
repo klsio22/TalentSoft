@@ -18,8 +18,10 @@ class User extends Model
     protected static array $columns = ['name', 'email', 'encrypted_password', 'avatar_name'];
 
     protected ?string $password = null;
+    /**
+     * @var null|string Password confirmation for validation
+     */
     protected ?string $passwordConfirmation = null;
-    protected ?string $password_confirmation = null;
 
     public function validates(): void
     {
@@ -49,6 +51,12 @@ class User extends Model
 
     public function __set(string $property, mixed $value): void
     {
+        // Se estiver tentando definir password_confirmation, redirecione para passwordConfirmation
+        if ($property === 'password_confirmation') {
+            $this->passwordConfirmation = $value;
+            return;
+        }
+
         parent::__set($property, $value);
 
         if (
@@ -58,12 +66,15 @@ class User extends Model
         ) {
             $this->encrypted_password = password_hash($value, PASSWORD_DEFAULT);
         }
+    }
 
-        // Sincronizar entre passwordConfirmation e password_confirmation
-        if ($property === 'passwordConfirmation') {
-            $this->password_confirmation = $value;
-        } elseif ($property === 'password_confirmation') {
-            $this->passwordConfirmation = $value;
+    public function __get(string $property): mixed
+    {
+        // Se estiver tentando acessar password_confirmation, retorne passwordConfirmation
+        if ($property === 'password_confirmation') {
+            return $this->passwordConfirmation;
         }
+
+        return parent::__get($property);
     }
 }

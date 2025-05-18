@@ -17,8 +17,10 @@ class UserCredential extends Model
     protected static array $columns = ['employee_id', 'password_hash', 'last_updated'];
 
     protected ?string $password = null;
+    /**
+     * @var null|string Password confirmation for validation
+     */
     protected ?string $passwordConfirmation = null;
-    protected ?string $password_confirmation = null;
 
     public function validates(): void
     {
@@ -38,6 +40,12 @@ class UserCredential extends Model
 
     public function __set(string $property, mixed $value): void
     {
+        // Se estiver tentando definir password_confirmation, redirecione para passwordConfirmation
+        if ($property === 'password_confirmation') {
+            $this->passwordConfirmation = $value;
+            return;
+        }
+
         parent::__set($property, $value);
 
         if (
@@ -46,13 +54,16 @@ class UserCredential extends Model
         ) {
             $this->password_hash = password_hash($value, PASSWORD_DEFAULT);
         }
+    }
 
-        // Sincronizar entre passwordConfirmation e password_confirmation
-        if ($property === 'passwordConfirmation') {
-            $this->password_confirmation = $value;
-        } elseif ($property === 'password_confirmation') {
-            $this->passwordConfirmation = $value;
+    public function __get(string $property): mixed
+    {
+        // Se estiver tentando acessar password_confirmation, retorne passwordConfirmation
+        if ($property === 'password_confirmation') {
+            return $this->passwordConfirmation;
         }
+
+        return parent::__get($property);
     }
 
     public function authenticate(string $password): bool
