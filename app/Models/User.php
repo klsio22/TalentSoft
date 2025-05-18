@@ -19,6 +19,7 @@ class User extends Model
 
     protected ?string $password = null;
     protected ?string $passwordConfirmation = null;
+    protected ?string $password_confirmation = null;
 
     public function validates(): void
     {
@@ -56,6 +57,13 @@ class User extends Model
             $value !== null && $value !== ''
         ) {
             $this->encrypted_password = password_hash($value, PASSWORD_DEFAULT);
+        }
+
+        // Sincronizar entre passwordConfirmation e password_confirmation
+        if ($property === 'passwordConfirmation') {
+            $this->password_confirmation = $value;
+        } elseif ($property === 'password_confirmation') {
+            $this->passwordConfirmation = $value;
         }
     }
 }

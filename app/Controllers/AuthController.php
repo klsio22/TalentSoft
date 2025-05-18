@@ -10,7 +10,6 @@ use Lib\FlashMessage;
 
 class AuthController extends Controller
 {
-
     public function loginForm(): void
     {
         if (Auth::check()) {

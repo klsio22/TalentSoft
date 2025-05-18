@@ -48,8 +48,10 @@ class Database
 
     public static function migrate(): void
     {
+        // Carregar e executar o esquema principal
         $sql = file_get_contents(Constants::databasePath()->join('schema.sql'));
         self::getDatabaseConn()->exec($sql);
+
     }
 
     public static function exec(string $sql): void

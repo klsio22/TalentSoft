@@ -27,7 +27,7 @@ CREATE TABLE
     status ENUM ('Active', 'Inactive') DEFAULT 'Active',
     address VARCHAR(255),
     city VARCHAR(100),
-    state VARCHAR(2),
+    state VARCHAR(100),
     zipcode VARCHAR(10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     notes TEXT,
