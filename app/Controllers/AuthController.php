@@ -10,9 +10,7 @@ use Lib\FlashMessage;
 
 class AuthController extends Controller
 {
-    /**
-     * Exibe o formulário de login
-     */
+
     public function loginForm(): void
     {
         if (Auth::check()) {
@@ -24,9 +22,6 @@ class AuthController extends Controller
         $this->render('auth/login', compact('title'));
     }
 
-    /**
-     * Realiza o login do usuário
-     */
     public function login(Request $request): void
     {
         $email = $request->getParam('email');
@@ -52,9 +47,7 @@ class AuthController extends Controller
         $this->redirectToHome();
     }
 
-    /**
-     * Realiza o logout do usuário
-     */
+
     public function logout(): void
     {
         Auth::logout();
@@ -62,9 +55,6 @@ class AuthController extends Controller
         $this->redirectTo(route('auth.login'));
     }
 
-    /**
-     * Redireciona o usuário para sua página inicial com base no papel
-     */
     private function redirectToHome(): void
     {
         if (Auth::isAdmin()) {

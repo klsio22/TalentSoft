@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use Core\Http\Controllers\Controller;
-use Core\Http\Request;
 use Lib\Authentication\Auth;
 
 class UserController extends Controller
