@@ -1,0 +1,75 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-blue-50 p-6 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-blue-800 mb-2">Meus Projetos</h3>
+        <p class="text-3xl font-bold mb-4">--</p>
+        <p class="text-sm text-gray-600">Projetos que você está participando.</p>
+    </div>
+
+    <div class="bg-purple-50 p-6 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-purple-800 mb-2">Notificações</h3>
+        <p class="text-3xl font-bold mb-4">--</p>
+        <p class="text-sm text-gray-600">Notificações não lidas.</p>
+    </div>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow mb-8">
+    <h2 class="text-xl font-bold mb-4">Minhas Informações</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <p class="text-gray-600 mb-1">Nome:</p>
+            <p class="font-medium">
+                <?= $employee->name ?>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-gray-600 mb-1">Email:</p>
+            <p class="font-medium">
+                <?= $employee->email ?>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-gray-600 mb-1">CPF:</p>
+            <p class="font-medium">
+                <?= $employee->cpf ?>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-gray-600 mb-1">Data de Contratação:</p>
+            <p class="font-medium">
+                <?= $employee->hire_date ?>
+            </p>
+        </div>
+
+        <div>
+            <p class="text-gray-600 mb-1">Função:</p>
+            <p class="font-medium">
+                <?= $employee->role()->name ?>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow">
+    <h2 class="text-xl font-bold mb-4">Recursos Disponíveis</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
+            <h3 class="font-semibold mb-2">Meus Projetos</h3>
+            <p class="text-sm text-gray-600">Visualizar projetos em que estou alocado.</p>
+        </div>
+
+        <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
+            <h3 class="font-semibold mb-2">Notificações</h3>
+            <p class="text-sm text-gray-600">Gerenciar minhas notificações.</p>
+        </div>
+
+        <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
+            <h3 class="font-semibold mb-2">Editar Perfil</h3>
+            <p class="text-sm text-gray-600">Atualizar informações do perfil.</p>
+        </div>
+    </div>
+</div>

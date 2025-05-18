@@ -43,7 +43,7 @@ class RouterTest extends TestCase
     {
         $this->expectException(\Error::class);
         /** @phpstan-ignore-next-line */
-        $r = new Router();
+        new Router();
     }
 
     public function test_should_be_possible_to_add_route_to_router(): void

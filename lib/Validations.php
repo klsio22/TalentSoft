@@ -18,7 +18,12 @@ class Validations
 
     public static function passwordConfirmation($obj)
     {
-        if ($obj->password !== $obj->password_confirmation) {
+        // Usar password_confirmation se disponível, caso contrário usar passwordConfirmation
+        $confirmationValue = property_exists($obj, 'password_confirmation') && $obj->password_confirmation !== null ?
+            $obj->password_confirmation :
+            ($obj->passwordConfirmation ?? null);
+
+        if ($obj->password !== $confirmationValue) {
             $obj->addError('password', 'as senhas devem ser idênticas!');
             return false;
         }

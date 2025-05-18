@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models\Users;
 
 use App\Models\User;
+use Core\Database\Database;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -13,6 +14,8 @@ class UserTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->createUsersTable();
 
         $this->user = new User([
             'name' => 'User 1',
@@ -29,6 +32,20 @@ class UserTest extends TestCase
             'password_confirmation' => '123456'
         ]);
         $this->user2->save();
+    }
+
+    private function createUsersTable(): void
+    {
+        $sql = "
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            encrypted_password VARCHAR(255),
+            avatar_name VARCHAR(255)
+        )";
+
+        Database::exec($sql);
     }
 
     public function test_should_create_new_user(): void
@@ -91,7 +108,6 @@ class UserTest extends TestCase
             'name' => 'User 3',
             'email' => 'fulano3@example.com',
             'password' => '123456',
-            'password_confirmation' => '1234567'
         ]);
 
         $this->assertFalse($user->isValid());

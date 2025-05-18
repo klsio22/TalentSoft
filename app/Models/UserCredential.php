@@ -2,20 +2,19 @@
 
 namespace App\Models;
 
-use Lib\Validations;
 use Core\Database\ActiveRecord\Model;
+use Lib\Validations;
 
 /**
  * @property int $id
- * @property string $name
- * @property string $email
- * @property string $encrypted_password
- * @property string $avatar_name
+ * @property int $employee_id
+ * @property string $password_hash
+ * @property string $last_updated
  */
-class User extends Model
+class UserCredential extends Model
 {
-    protected static string $table = 'users';
-    protected static array $columns = ['name', 'email', 'encrypted_password', 'avatar_name'];
+    protected static string $table = 'UserCredentials';
+    protected static array $columns = ['employee_id', 'password_hash', 'last_updated'];
 
     protected ?string $password = null;
     /**
@@ -25,28 +24,21 @@ class User extends Model
 
     public function validates(): void
     {
-        Validations::notEmpty('name', $this);
-        Validations::notEmpty('email', $this);
+        Validations::notEmpty('employee_id', $this);
+        Validations::notEmpty('password_hash', $this);
 
-        Validations::uniqueness('email', $this);
-
-        if ($this->newRecord()) {
+        if ($this->password !== null && $this->password !== '') {
             Validations::passwordConfirmation($this);
         }
     }
 
-    public function authenticate(string $password): bool
+    /**
+     * @return Employee|null
+     */
+    public function employee(): ?Employee
     {
-        if ($this->encrypted_password == null) {
-            return false;
-        }
-
-        return password_verify($password, $this->encrypted_password);
-    }
-
-    public static function findByEmail(string $email): User | null
-    {
-        return User::findBy(['email' => $email]);
+        $result = $this->belongsTo(Employee::class, 'employee_id')->get();
+        return $result instanceof Employee ? $result : null;
     }
 
     public function __set(string $property, mixed $value): void
@@ -61,10 +53,9 @@ class User extends Model
 
         if (
             $property === 'password' &&
-            $this->newRecord() &&
             $value !== null && $value !== ''
         ) {
-            $this->encrypted_password = password_hash($value, PASSWORD_DEFAULT);
+            $this->password_hash = password_hash($value, PASSWORD_DEFAULT);
         }
     }
 
@@ -76,5 +67,14 @@ class User extends Model
         }
 
         return parent::__get($property);
+    }
+
+    public function authenticate(string $password): bool
+    {
+        if ($this->password_hash === null || $this->password_hash === '') {
+            return false;
+        }
+
+        return password_verify($password, $this->password_hash);
     }
 }

@@ -8,21 +8,27 @@ use Codeception\Module;
 
 class LoginHelper extends Module
 {
+    /**
+     * @return \Codeception\Module\WebDriver
+     */
+    protected function getWebDriver(): \Codeception\Module\WebDriver
+    {
+        /** @var \Codeception\Module\WebDriver */
+        return $this->getModule('WebDriver');
+    }
+
     public function login(string $username, string $password): void
     {
-        /** @var \Tests\Support\AcceptanceTester $page */
-        $page = $this->getModule('WebDriver');
+        $page = $this->getWebDriver();
         $page->amOnPage('/login');
-        $page->fillField('user[email]', $username);
-        $page->fillField('user[password]', $password);
+        $page->fillField('email', $username);
+        $page->fillField('password', $password);
         $page->click('Entrar');
     }
 
     public function logout(): void
     {
-        /** @var \Tests\Support\AcceptanceTester $page */
-        $page = $this->getModule('WebDriver');
-        $page->click('fulano@example.com');
+        $page = $this->getWebDriver();
         $page->click('Sair');
     }
 }
