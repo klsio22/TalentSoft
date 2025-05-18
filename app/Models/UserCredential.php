@@ -37,7 +37,8 @@ class UserCredential extends Model
      */
     public function employee(): ?Employee
     {
-        return $this->belongsTo(Employee::class, 'employee_id')->get();
+        $result = $this->belongsTo(Employee::class, 'employee_id')->get();
+        return $result instanceof Employee ? $result : null;
     }
 
     public function __set(string $property, mixed $value): void

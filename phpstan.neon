@@ -17,4 +17,4 @@ parameters:
     - '#Access to protected property App\\Models\\User::\$password.#'
     #- '#Access to an undefined property Core\\Database\\ActiveRecord\\Model::\$[a-zA-Z0-9_]+.#'
     - '#Call to an undefined method ReflectionType::getName\(\).#'
-    - '#Method App\\Models\\([a-zA-Z0-9_]+)::(employee|project|role|belongsTo|hasMany)\(\) should return App\\Models\\([a-zA-Z0-9_\|]+)(\\|null)? but returns Core\\Database\\ActiveRecord\\Model.#'
+    - '#PHPDoc tag @var with type Tests\\Support\\AcceptanceTester is not subtype of native type Codeception\\Module#'

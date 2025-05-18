@@ -58,7 +58,8 @@ class Employee extends Model
      */
     public function role(): ?Role
     {
-        return $this->belongsTo(Role::class, 'role_id')->get();
+        $result = $this->belongsTo(Role::class, 'role_id')->get();
+        return $result instanceof Role ? $result : null;
     }
 
     public function projects(): BelongsToMany

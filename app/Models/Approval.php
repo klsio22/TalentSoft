@@ -31,7 +31,8 @@ class Approval extends Model
      */
     public function employee(): ?Employee
     {
-        return $this->belongsTo(Employee::class, 'employee_id')->get();
+        $result = $this->belongsTo(Employee::class, 'employee_id')->get();
+        return $result instanceof Employee ? $result : null;
     }
 
     /**
@@ -43,7 +44,8 @@ class Approval extends Model
             return null;
         }
 
-        return $this->belongsTo(Project::class, 'project_id')->get();
+        $result = $this->belongsTo(Project::class, 'project_id')->get();
+        return $result instanceof Project ? $result : null;
     }
 
 
