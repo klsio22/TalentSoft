@@ -10,7 +10,6 @@ class LoginHelper extends Module
 {
     public function login(string $username, string $password): void
     {
-        /** @var \Tests\Support\AcceptanceTester $page */
         $page = $this->getModule('WebDriver');
         $page->amOnPage('/login');
         $page->fillField('email', $username);
@@ -20,7 +19,6 @@ class LoginHelper extends Module
 
     public function logout(): void
     {
-        /** @var \Tests\Support\AcceptanceTester $page */
         $page = $this->getModule('WebDriver');
         $page->click('Sair');
     }
