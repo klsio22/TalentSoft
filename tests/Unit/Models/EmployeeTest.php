@@ -52,7 +52,8 @@ class EmployeeTest extends TestCase
         ]);
 
         $this->assertTrue($employee->save());
-        $this->assertNotNull($employee->id);
+        // O ID é atribuído durante o salvamento bem-sucedido
+        $this->assertGreaterThan(0, $employee->id);
 
         $foundEmployee = Employee::findById($employee->id);
         $this->assertNotNull($foundEmployee);

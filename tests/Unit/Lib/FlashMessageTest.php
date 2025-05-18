@@ -94,7 +94,7 @@ class FlashMessageTest extends TestCase
 
         $messages = FlashMessage::get();
 
-        $this->assertIsArray($messages);
+        // Verificamos que existem mensagens e que foram limpas da sessão
         $this->assertNotEmpty($messages);
         $this->assertEmpty($_SESSION['flash_messages']);
     }

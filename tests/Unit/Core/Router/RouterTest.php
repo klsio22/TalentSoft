@@ -42,7 +42,8 @@ class RouterTest extends TestCase
     public function test_should_not_be_able_to_instantiate_router(): void
     {
         $this->expectException(\Error::class);
-        $r = new Router();
+        /** @phpstan-ignore-next-line */
+        new Router();
     }
 
     public function test_should_be_possible_to_add_route_to_router(): void

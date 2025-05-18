@@ -48,13 +48,16 @@ class Employee extends Model
 
     public function credential(): ?UserCredential
     {
-        /** @var UserCredential|null */
-        return $this->hasMany(UserCredential::class, 'employee_id')->get()[0] ?? null;
+        /** @var array<int, UserCredential> $credentials */
+        $credentials = $this->hasMany(UserCredential::class, 'employee_id')->get();
+        return $credentials[0] ?? null;
     }
 
+    /**
+     * @return Role|null
+     */
     public function role(): ?Role
     {
-        /** @var Role|null */
         return $this->belongsTo(Role::class, 'role_id')->get();
     }
 

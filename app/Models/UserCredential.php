@@ -32,9 +32,11 @@ class UserCredential extends Model
         }
     }
 
+    /**
+     * @return Employee|null
+     */
     public function employee(): ?Employee
     {
-        /** @var Employee|null */
         return $this->belongsTo(Employee::class, 'employee_id')->get();
     }
 
