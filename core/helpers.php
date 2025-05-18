@@ -21,3 +21,38 @@ if (!function_exists('route')) {
         return Router::getInstance()->getRoutePathByName($name, $params);
     }
 }
+
+if (!function_exists('csrf_token')) {
+    /**
+     * Gera ou retorna um token CSRF para proteção de formulários
+     * @return string
+     */
+    function csrf_token(): string
+    {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
+        return $_SESSION['csrf_token'];
+    }
+}
+
+if (!function_exists('csrf_check')) {
+    /**
+     * Verifica se o token CSRF enviado é válido
+     * @param string $token Token enviado pelo formulário
+     * @return bool
+     */
+    function csrf_check(string $token): bool
+    {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+
+        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+    }
+}

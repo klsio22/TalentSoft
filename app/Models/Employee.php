@@ -85,18 +85,18 @@ class Employee extends Model
 
     public function isAdmin(): bool
     {
-        return $this->role()->name === 'admin';
+        return strtolower($this->role()->name) === 'admin';
     }
 
     public function isHR(): bool
     {
-        return $this->role()->name === 'hr';
+        return strtolower($this->role()->name) === 'hr';
     }
 
 
     public function isUser(): bool
     {
-        return $this->role()->name === 'user';
+        return strtolower($this->role()->name) === 'user';
     }
 
     public function authenticate(string $password): bool

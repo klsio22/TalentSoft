@@ -25,6 +25,14 @@ class AuthController extends Controller
     {
         $email = $request->getParam('email');
         $password = $request->getParam('password');
+        $token = $request->getParam('_token');
+
+        // Verificar o token CSRF
+        if (!csrf_check($token)) {
+            FlashMessage::danger('Erro de validação do formulário');
+            $this->redirectTo(route('auth.login'));
+            return;
+        }
 
         if (empty($email) || empty($password)) {
             FlashMessage::danger('Email e senha são obrigatórios');
