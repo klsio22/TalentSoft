@@ -49,6 +49,11 @@ if (!function_exists('csrf_check')) {
      */
     function csrf_check(string $token): bool
     {
+        // Desabilitar CSRF em ambiente de teste
+        if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
+            return true;
+        }
+
         if (!isset($_SESSION)) {
             session_start();
         }

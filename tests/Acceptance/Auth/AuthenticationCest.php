@@ -72,6 +72,8 @@ class AuthenticationCest extends BaseAcceptanceCest
         $I->click('Entrar');
         $I->seeInCurrentUrl('/user');
 
+        // Espera a mensagem flash desaparecer antes de clicar em Sair
+        $I->wait(2.5);
         $I->click('Sair');
         $I->seeInCurrentUrl('/login');
         $I->see('Logout realizado com sucesso');

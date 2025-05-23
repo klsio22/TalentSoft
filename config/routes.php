@@ -15,6 +15,6 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
 Route::get('/admin', [AdminController::class, 'home'])->name('admin.home');
 
-Route::get('/rh', [HRController::class, 'home'])->name('hr.home');
+Route::get('/hr', [HRController::class, 'home'])->name('hr.home');
 
 Route::get('/user', [UserController::class, 'home'])->name('user.home');

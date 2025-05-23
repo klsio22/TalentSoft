@@ -51,6 +51,8 @@ class FlashMessagesCest extends BaseAcceptanceCest
         $I->click('Entrar');
         $I->seeInCurrentUrl('/user');
 
+        // Espera a mensagem flash desaparecer antes de clicar em Sair
+        $I->wait(2.5); // Espera 2.5 segundos para a mensagem flash desaparecer
         // Fazer logout
         $I->click('Sair');
 

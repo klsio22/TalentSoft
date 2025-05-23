@@ -2,12 +2,12 @@ actor: AcceptanceTester
 modules:
   enabled:
     - WebDriver:
-        url: "http://web:8080"
+        url: "http://web:80" # This should be the URL of your application
         browser: chrome
         host: selenium # This refers to the Selenium hub in Docker
         port: 4444 # Default port for Selenium Hub
         window_size: false
         capabilities:
           chromeOptions:
-            args: ["--headless", "--no-sandbox", "--disable-dev-shm-usage"]
+            args: ["--headless", "--no-sandbox", "--disable-dev-shm-usage", "--disable-web-security", "--allow-running-insecure-content", "--disable-features=VizDisplayCompositor", "--host-resolver-rules=MAP web:8080 web:8080"]
     - \Tests\Support\Helper\LoginHelper

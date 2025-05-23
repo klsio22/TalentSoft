@@ -13,8 +13,11 @@ class HRController extends Controller
     {
         parent::__construct();
 
-        if (!Auth::check() || !Auth::isHR()) {
+        if (!Auth::check()) {
             $this->redirectTo(route('auth.login'));
+        } elseif (!Auth::isHR() && !Auth::isAdmin()) {
+            \Lib\FlashMessage::danger('Acesso negado');
+            $this->redirectTo(route('user.home'));
         }
     }
 

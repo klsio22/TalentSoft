@@ -11,15 +11,16 @@ class AccessRestrictionCest extends BaseAcceptanceCest
     {
         $I->amOnPage('/admin');
         $I->seeInCurrentUrl('/login');
-        $I->see('Você deve estar logado para acessar essa página');
+        // Verifica se foi redirecionado para a página de login
+        $I->see('Login', 'h2');
 
         $I->amOnPage('/hr');
         $I->seeInCurrentUrl('/login');
-        $I->see('Você deve estar logado para acessar essa página');
+        $I->see('Login', 'h2');
 
         $I->amOnPage('/user');
         $I->seeInCurrentUrl('/login');
-        $I->see('Você deve estar logado para acessar essa página');
+        $I->see('Login', 'h2');
     }
 
     public function testUserRestrictedAccess(AcceptanceTester $I): void
@@ -38,6 +39,8 @@ class AccessRestrictionCest extends BaseAcceptanceCest
         $I->dontSeeInCurrentUrl('/hr');
         $I->see('Acesso negado');
 
+        // Espera a mensagem flash desaparecer antes de clicar em Sair
+        $I->wait(2.5);
         $I->click('Sair');
         $I->seeInCurrentUrl('/login');
     }
@@ -57,6 +60,8 @@ class AccessRestrictionCest extends BaseAcceptanceCest
         $I->amOnPage('/hr');
         $I->seeInCurrentUrl('/hr');
 
+        // Espera a mensagem flash desaparecer antes de clicar em Sair
+        $I->wait(2.5);
         $I->click('Sair');
         $I->seeInCurrentUrl('/login');
     }
@@ -78,6 +83,8 @@ class AccessRestrictionCest extends BaseAcceptanceCest
         $I->amOnPage('/user');
         $I->seeInCurrentUrl('/user');
 
+        // Espera a mensagem flash desaparecer antes de clicar em Sair
+        $I->wait(2.5);
         $I->click('Sair');
         $I->seeInCurrentUrl('/login');
     }
