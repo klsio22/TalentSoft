@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Acceptance;
 
 use App\Models\Employee;
@@ -9,9 +11,33 @@ use Core\Database\Database;
 use Core\Env\EnvLoader;
 use Tests\Support\AcceptanceTester;
 
+/**
+ * Classe Base para Testes de Aceitação
+ *
+ * Esta classe fornece a estrutura base para todos os testes de aceitação
+ * da aplicação TalentSoft. Ela é responsável por:
+ * - Configurar o ambiente de teste
+ * - Inicializar e popular o banco de dados
+ * - Limpar os dados após cada teste
+ *
+ * @author TalentSoft Team
+ * @package Tests\Acceptance
+ */
 class BaseAcceptanceCest
 {
-    public function setUp(): void
+    /** Senha padrão para todos os usuários de teste */
+    private const DEFAULT_PASSWORD = '123456';
+
+    /**
+     * Método executado antes de cada teste
+     *
+     * Prepara o ambiente de teste criando e populando o banco de dados
+     * com dados necessários para os testes de aceitação.
+     *
+     * @param AcceptanceTester $page Instância do testador de aceitação
+     * @return void
+     */
+    public function _before(AcceptanceTester $page): void
     {
         EnvLoader::init();
         Database::create();
@@ -19,20 +45,46 @@ class BaseAcceptanceCest
         $this->populateTestData();
     }
 
-    public function tearDown(): void
+    /**
+     * Método executado após cada teste
+     *
+     * Limpa o ambiente de teste removendo o banco de dados
+     * para garantir isolamento entre os testes.
+     *
+     * @param AcceptanceTester $page Instância do testador de aceitação
+     * @return void
+     */
+    public function _after(AcceptanceTester $page): void
     {
         Database::drop();
     }
 
+    /**
+     * Popula o banco de dados com dados de teste
+     *
+     * Cria roles (perfis) e usuários necessários para execução
+     * dos testes de aceitação da aplicação.
+     *
+     * @return void
+     */
     private function populateTestData(): void
     {
-        $adminRole = new Role(['name' => 'admin', 'description' => 'Administrador com acesso completo ao sistema']);
+        $adminRole = new Role([
+            'name' => 'admin',
+            'description' => 'Administrador com acesso completo ao sistema'
+        ]);
         $adminRole->save();
 
-        $hrRole = new Role(['name' => 'hr', 'description' => 'Recursos humanos com acesso a funções de RH']);
+        $hrRole = new Role([
+            'name' => 'hr',
+            'description' => 'Recursos humanos com acesso a funções de RH'
+        ]);
         $hrRole->save();
 
-        $userRole = new Role(['name' => 'user', 'description' => 'Usuário comum com acesso limitado']);
+        $userRole = new Role([
+            'name' => 'user',
+            'description' => 'Usuário comum com acesso limitado'
+        ]);
         $userRole->save();
 
         $admin = new Employee([
@@ -47,8 +99,8 @@ class BaseAcceptanceCest
 
         $adminCredential = new UserCredential([
             'employee_id' => $admin->id,
-            'password' => '123456',
-            'password_confirmation' => '123456'
+            'password' => self::DEFAULT_PASSWORD,
+            'password_confirmation' => self::DEFAULT_PASSWORD
         ]);
         $adminCredential->save();
 
@@ -64,8 +116,8 @@ class BaseAcceptanceCest
 
         $hrCredential = new UserCredential([
             'employee_id' => $hr->id,
-            'password' => '123456',
-            'password_confirmation' => '123456'
+            'password' => self::DEFAULT_PASSWORD,
+            'password_confirmation' => self::DEFAULT_PASSWORD
         ]);
         $hrCredential->save();
 
@@ -81,8 +133,8 @@ class BaseAcceptanceCest
 
         $userCredential = new UserCredential([
             'employee_id' => $user->id,
-            'password' => '123456',
-            'password_confirmation' => '123456'
+            'password' => self::DEFAULT_PASSWORD,
+            'password_confirmation' => self::DEFAULT_PASSWORD
         ]);
         $userCredential->save();
     }
