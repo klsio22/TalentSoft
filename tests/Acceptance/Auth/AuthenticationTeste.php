@@ -7,73 +7,73 @@ use Tests\Support\AcceptanceTester;
 
 class AuthenticationTeste extends BaseAcceptanceTeste
 {
-    public function testLoginPageAccess(AcceptanceTester $I): void
+    public function testLoginPageAccess(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->see('Login');
-        $I->seeElement('input[name=email]');
-        $I->seeElement('input[name=password]');
-        $I->seeElement('button[type=submit]');
+        $tester->amOnPage('/login');
+        $tester->see('Login');
+        $tester->seeElement('input[name=email]');
+        $tester->seeElement('input[name=password]');
+        $tester->seeElement('button[type=submit]');
     }
 
-    public function testAdminLogin(AcceptanceTester $I): void
+    public function testAdminLogin(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'klesio@admin.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'klesio@admin.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
 
-        $I->seeInCurrentUrl('/admin');
-        $I->see('Olá, Klesio Nascimento');
-        $I->see('Sair');
+        $tester->seeInCurrentUrl('/admin');
+        $tester->see('Olá, Klesio Nascimento');
+        $tester->see('Sair');
     }
 
-    public function testHRLogin(AcceptanceTester $I): void
+    public function testHRLogin(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'caio@rh.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'caio@rh.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
 
-        $I->seeInCurrentUrl('/hr');
-        $I->see('Olá, Caio Silva');
-        $I->see('Sair');
+        $tester->seeInCurrentUrl('/hr');
+        $tester->see('Olá, Caio Silva');
+        $tester->see('Sair');
     }
 
-    public function testUserLogin(AcceptanceTester $I): void
+    public function testUserLogin(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'flavio@user.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'flavio@user.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
 
-        $I->seeInCurrentUrl('/user');
-        $I->see('Olá, Flavio Santos');
-        $I->see('Sair');
+        $tester->seeInCurrentUrl('/user');
+        $tester->see('Olá, Flavio Santos');
+        $tester->see('Sair');
     }
 
-    public function testInvalidLogin(AcceptanceTester $I): void
+    public function testInvalidLogin(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'usuario@invalido.com');
-        $I->fillField('password', 'senhaerrada');
-        $I->click('Entrar');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'usuario@invalido.com');
+        $tester->fillField('password', 'senhaerrada');
+        $tester->click('Entrar');
 
-        $I->seeInCurrentUrl('/login');
-        $I->see('Email ou senha incorretos');
+        $tester->seeInCurrentUrl('/login');
+        $tester->see('Email ou senha incorretos');
     }
 
-    public function testLogout(AcceptanceTester $I): void
+    public function testLogout(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'flavio@user.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
-        $I->seeInCurrentUrl('/user');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'flavio@user.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
+        $tester->seeInCurrentUrl('/user');
 
-        $I->wait(2.5);
-        $I->click('Sair');
-        $I->seeInCurrentUrl('/login');
-        $I->see('Logout realizado com sucesso');
+        $tester->wait(2.5);
+        $tester->click('Sair');
+        $tester->seeInCurrentUrl('/login');
+        $tester->see('Logout realizado com sucesso');
     }
 }

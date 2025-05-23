@@ -11,7 +11,7 @@ use Tests\Support\AcceptanceTester;
 
 class BaseAcceptanceTeste
 {
-    public function _before(AcceptanceTester $page): void
+    public function before(): void
     {
         EnvLoader::init();
         Database::create();
@@ -19,7 +19,7 @@ class BaseAcceptanceTeste
         $this->populateTestData();
     }
 
-    public function _after(AcceptanceTester $page): void
+    public function after(): void
     {
         Database::drop();
     }

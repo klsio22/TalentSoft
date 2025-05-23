@@ -7,64 +7,64 @@ use Tests\Support\AcceptanceTester;
 
 class FlashMessagesTeste extends BaseAcceptanceTeste
 {
-    public function testSuccessLoginMessage(AcceptanceTester $I): void
+    public function testSuccessLoginMessage(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'flavio@user.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'flavio@user.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
 
-        $I->see('Login realizado com sucesso');
-        $I->seeElement('.flash-message.success');
+        $tester->see('Login realizado com sucesso');
+        $tester->seeElement('.flash-message.success');
     }
 
-    public function testErrorLoginMessage(AcceptanceTester $I): void
+    public function testErrorLoginMessage(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'email@invalido.com');
-        $I->fillField('password', 'senhaerrada');
-        $I->click('Entrar');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'email@invalido.com');
+        $tester->fillField('password', 'senhaerrada');
+        $tester->click('Entrar');
 
-        $I->see('Email ou senha incorretos');
-        $I->seeElement('.flash-message.danger');
+        $tester->see('Email ou senha incorretos');
+        $tester->seeElement('.flash-message.danger');
     }
 
-    public function testLogoutMessage(AcceptanceTester $I): void
+    public function testLogoutMessage(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'flavio@user.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
-        $I->seeInCurrentUrl('/user');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'flavio@user.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
+        $tester->seeInCurrentUrl('/user');
 
-        $I->wait(2.5);
-        $I->click('Sair');
+        $tester->wait(2.5);
+        $tester->click('Sair');
 
-        $I->see('Logout realizado com sucesso');
-        $I->seeElement('.flash-message.success');
+        $tester->see('Logout realizado com sucesso');
+        $tester->seeElement('.flash-message.success');
     }
 
-    public function testAccessDeniedMessage(AcceptanceTester $I): void
+    public function testAccessDeniedMessage(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'flavio@user.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'flavio@user.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
 
-        $I->amOnPage('/admin');
+        $tester->amOnPage('/admin');
 
-        $I->see('Acesso negado');
-        $I->seeElement('.flash-message.danger');
+        $tester->see('Acesso negado');
+        $tester->seeElement('.flash-message.danger');
     }
 
-    public function testFlashMessageAutoFade(AcceptanceTester $I): void
+    public function testFlashMessageAutoFade(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'flavio@user.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'flavio@user.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
 
-        $I->seeElement('.flash-message.auto-fade');
-        $I->seeElement('.flash-message .close-btn');
+        $tester->seeElement('.flash-message.auto-fade');
+        $tester->seeElement('.flash-message .close-btn');
     }
 }
