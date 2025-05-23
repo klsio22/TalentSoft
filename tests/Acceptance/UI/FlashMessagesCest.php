@@ -2,10 +2,10 @@
 
 namespace Tests\Acceptance\UI;
 
-use Tests\Acceptance\BaseAcceptanceTeste;
+use Tests\Acceptance\BaseAcceptanceCest;
 use Tests\Support\AcceptanceTester;
 
-class FlashMessagesTeste extends BaseAcceptanceTeste
+class FlashMessagesCest extends BaseAcceptanceCest
 {
     public function testSuccessLoginMessage(AcceptanceTester $tester): void
     {

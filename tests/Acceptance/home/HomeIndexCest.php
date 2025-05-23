@@ -2,10 +2,10 @@
 
 namespace Tests\Acceptance\home;
 
-use Tests\Acceptance\BaseAcceptanceTeste;
+use Tests\Acceptance\BaseAcceptanceCest;
 use Tests\Support\AcceptanceTester;
 
-class HomeIndexTeste extends BaseAcceptanceTeste
+class HomeIndexCest extends BaseAcceptanceCest
 {
     public function seeHomePage(AcceptanceTester $page): void
     {

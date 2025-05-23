@@ -8,7 +8,7 @@ use App\Models\UserCredential;
 use Core\Database\Database;
 use PHPUnit\Framework\TestCase;
 
-class EmployeeCustomTest extends TestCase
+class EmployeeCest extends TestCase
 {
     protected function setUp(): void
     {

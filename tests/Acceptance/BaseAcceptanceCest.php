@@ -9,9 +9,9 @@ use Core\Database\Database;
 use Core\Env\EnvLoader;
 use Tests\Support\AcceptanceTester;
 
-class BaseAcceptanceTeste
+class BaseAcceptanceCest
 {
-    public function before(): void
+    public function setUp(): void
     {
         EnvLoader::init();
         Database::create();
@@ -19,7 +19,7 @@ class BaseAcceptanceTeste
         $this->populateTestData();
     }
 
-    public function after(): void
+    public function tearDown(): void
     {
         Database::drop();
     }

@@ -2,10 +2,10 @@
 
 namespace Tests\Acceptance\Auth;
 
-use Tests\Acceptance\BaseAcceptanceTeste;
+use Tests\Acceptance\BaseAcceptanceCest;
 use Tests\Support\AcceptanceTester;
 
-class AuthenticationTeste extends BaseAcceptanceTeste
+class AuthenticationCest extends BaseAcceptanceCest
 {
     public function testLoginPageAccess(AcceptanceTester $tester): void
     {
