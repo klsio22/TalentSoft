@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
-use Tests\Support;
-
 /**
  * Classe AcceptanceTester - Ator para Testes de Aceitação
  *
