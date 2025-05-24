@@ -28,6 +28,7 @@ namespace Tests\Support;
  * @method void click(string $button) Clica em um botão ou link
  * @method void see(string $text, string $selector = NULL) Verifica se um texto está visível
  * @method void seeInCurrentUrl(string $url) Verifica se a URL atual contém o texto especificado
+ * @method void dontSeeInCurrentUrl(string $url) Verifica se a URL atual NÃO contém o texto especificado
  * @method void seeElement(string $selector) Verifica se um elemento CSS existe na página
  * @method void wait(float $timeout) Aguarda um tempo específico em segundos
  *
