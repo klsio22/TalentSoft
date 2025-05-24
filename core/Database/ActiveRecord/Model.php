@@ -63,8 +63,11 @@ abstract class Model
                 'Core\Database\ActiveRecord\BelongsToMany'
             ];
 
-            if ($returnType !== null && in_array($returnType->getName(), $allowedTypes)) {
-                return $this->$method()->get();
+            if ($returnType !== null) {
+                $typeName = $returnType instanceof \ReflectionNamedType ? $returnType->getName() : (string) $returnType;
+                if (in_array($typeName, $allowedTypes)) {
+                    return $this->$method()->get();
+                }
             }
         }
 
@@ -303,7 +306,7 @@ abstract class Model
         $attributes = implode(', ', static::$columns);
 
         $sql = <<<SQL
-            SELECT id, {$attributes} FROM {$table} WHERE 
+            SELECT id, {$attributes} FROM {$table} WHERE
         SQL;
 
         $sqlConditions = array_map(function ($column) {

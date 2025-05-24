@@ -6,17 +6,13 @@ parameters:
     - core
     - tests
 
-  scanDirectories:
-    - tests/Support/_generated
-
   excludePaths:
     - app/views/*
     - tests/Acceptance/_output/*
+    - tests/Support/_generated/*
     - tests/Support/Data/*
-    - tests/Support/_generated/AcceptanceTesterActions.php (?)
 
   ignoreErrors:
     - '#Unsafe usage of new static\(\)\.#'
-    - '#Access to protected property App\\Models\\User::\$password.#'
-    #- '#Access to an undefined property Core\\Database\\ActiveRecord\\Model::\$[a-zA-Z0-9_]+.#'
-    - '#Call to an undefined method ReflectionType::getName\(\).#'
+
+
