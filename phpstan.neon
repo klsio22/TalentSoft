@@ -13,7 +13,7 @@ parameters:
     - app/views/*
     - tests/Acceptance/_output/*
     - tests/Support/Data/*
-    - tests/Support/_generated/AcceptanceTesterActions.php
+    - tests/Support/_generated/AcceptanceTesterActions.php (?)
 
   ignoreErrors:
     - '#Unsafe usage of new static\(\)\.#'
