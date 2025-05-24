@@ -41,7 +41,7 @@ namespace Tests\Support;
  */
 class AcceptanceTester extends \Codeception\Actor
 {
-    use _generated\AcceptanceTesterActions;
+    use \Tests\Support\_generated\AcceptanceTesterActions;
 
     /**
      * Área para definir ações personalizadas do testador
