@@ -23,10 +23,10 @@ jobs:
       - name: PHPUnit Units test
         run: ./run test tests/Unit
 
-      - name: PHPUnit Browser tests
+      - name: Codeception Browser tests
         run: |
           ./run up -d
-          ./run test tests/Browser
+          ./run test:browser
 
   code_quality:
     name: Code Quality Check
