@@ -13,7 +13,10 @@ class UserController extends Controller
     {
         parent::__construct();
 
-        if (!Auth::check() || !Auth::isUser()) {
+        if (!Auth::check()) {
+            $this->redirectTo(route('auth.login'));
+        } elseif (!Auth::isUser() && !Auth::isHR() && !Auth::isAdmin()) {
+            \Lib\FlashMessage::danger('Acesso negado');
             $this->redirectTo(route('auth.login'));
         }
     }

@@ -63,8 +63,11 @@ abstract class Model
                 'Core\Database\ActiveRecord\BelongsToMany'
             ];
 
-            if ($returnType !== null && in_array($returnType->getName(), $allowedTypes)) {
-                return $this->$method()->get();
+            if ($returnType !== null) {
+                $typeName = $returnType instanceof \ReflectionNamedType ? $returnType->getName() : (string) $returnType;
+                if (in_array($typeName, $allowedTypes)) {
+                    return $this->$method()->get();
+                }
             }
         }
 
@@ -151,7 +154,7 @@ abstract class Model
 
                 $stmt = $pdo->prepare($sql);
                 foreach (static::$columns as $column) {
-                    $stmt->bindValue($column, $this->$column);
+                    $stmt->bindValue(":$column", $this->$column);
                 }
 
                 $stmt->execute();
@@ -173,7 +176,7 @@ abstract class Model
                 $stmt->bindValue(':id', $this->id);
 
                 foreach (static::$columns as $column) {
-                    $stmt->bindValue($column, $this->$column);
+                    $stmt->bindValue(":$column", $this->$column);
                 }
 
                 $stmt->execute();
@@ -204,7 +207,7 @@ abstract class Model
         $stmt->bindValue(':id', $this->id);
 
         foreach ($data as $column => $value) {
-            $stmt->bindValue($column, $value);
+            $stmt->bindValue(":$column", $value);
             $this->$column = $value;
         }
 
@@ -303,11 +306,11 @@ abstract class Model
         $attributes = implode(', ', static::$columns);
 
         $sql = <<<SQL
-            SELECT id, {$attributes} FROM {$table} WHERE 
+            SELECT id, {$attributes} FROM {$table} WHERE
         SQL;
 
         $sqlConditions = array_map(function ($column) {
-            return "{$column} = :{$column}";
+            return "`{$column}` = :{$column}";
         }, array_keys($conditions));
 
         $sql .= implode(' AND ', $sqlConditions);
@@ -316,7 +319,7 @@ abstract class Model
         $stmt = $pdo->prepare($sql);
 
         foreach ($conditions as $column => $value) {
-            $stmt->bindValue($column, $value);
+            $stmt->bindValue(":$column", $value);
         }
 
         $stmt->execute();

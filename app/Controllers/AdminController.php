@@ -13,8 +13,11 @@ class AdminController extends Controller
     {
         parent::__construct();
 
-        if (!Auth::check() || !Auth::isAdmin()) {
+        if (!Auth::check()) {
             $this->redirectTo(route('auth.login'));
+        } elseif (!Auth::isAdmin()) {
+            \Lib\FlashMessage::danger('Acesso negado');
+            $this->redirectTo(route('user.home'));
         }
     }
 

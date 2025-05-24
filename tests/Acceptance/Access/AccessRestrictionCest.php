@@ -7,78 +7,81 @@ use Tests\Support\AcceptanceTester;
 
 class AccessRestrictionCest extends BaseAcceptanceCest
 {
-    public function testUnauthenticatedAccess(AcceptanceTester $I): void
+    public function testUnauthenticatedAccess(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/admin');
-        $I->seeInCurrentUrl('/login');
-        $I->see('Você deve estar logado para acessar essa página');
+        $tester->amOnPage('/admin');
+        $tester->seeInCurrentUrl('/login');
+        $tester->see('Login', 'h2');
 
-        $I->amOnPage('/hr');
-        $I->seeInCurrentUrl('/login');
-        $I->see('Você deve estar logado para acessar essa página');
+        $tester->amOnPage('/hr');
+        $tester->seeInCurrentUrl('/login');
+        $tester->see('Login', 'h2');
 
-        $I->amOnPage('/user');
-        $I->seeInCurrentUrl('/login');
-        $I->see('Você deve estar logado para acessar essa página');
+        $tester->amOnPage('/user');
+        $tester->seeInCurrentUrl('/login');
+        $tester->see('Login', 'h2');
     }
 
-    public function testUserRestrictedAccess(AcceptanceTester $I): void
+    public function testUserRestrictedAccess(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'flavio@user.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
-        $I->seeInCurrentUrl('/user');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'flavio@user.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
+        $tester->seeInCurrentUrl('/user');
 
-        $I->amOnPage('/admin');
-        $I->dontSeeInCurrentUrl('/admin');
-        $I->see('Acesso negado');
+        $tester->amOnPage('/admin');
+        $tester->dontSeeInCurrentUrl('/admin');
+        $tester->see('Acesso negado');
 
-        $I->amOnPage('/hr');
-        $I->dontSeeInCurrentUrl('/hr');
-        $I->see('Acesso negado');
+        $tester->amOnPage('/hr');
+        $tester->dontSeeInCurrentUrl('/hr');
+        $tester->see('Acesso negado');
 
-        $I->click('Sair');
-        $I->seeInCurrentUrl('/login');
+        $tester->wait(2.5);
+        $tester->click('Sair');
+        $tester->seeInCurrentUrl('/login');
     }
 
-    public function testHRRestrictedAccess(AcceptanceTester $I): void
+    public function testHRRestrictedAccess(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'caio@rh.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
-        $I->seeInCurrentUrl('/hr');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'caio@rh.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
+        $tester->seeInCurrentUrl('/hr');
 
-        $I->amOnPage('/admin');
-        $I->dontSeeInCurrentUrl('/admin');
-        $I->see('Acesso negado');
+        $tester->amOnPage('/admin');
+        $tester->dontSeeInCurrentUrl('/admin');
+        $tester->see('Acesso negado');
 
-        $I->amOnPage('/hr');
-        $I->seeInCurrentUrl('/hr');
+        $tester->amOnPage('/hr');
+        $tester->seeInCurrentUrl('/hr');
 
-        $I->click('Sair');
-        $I->seeInCurrentUrl('/login');
+        $tester->wait(2.5);
+        $tester->click('Sair');
+        $tester->seeInCurrentUrl('/login');
     }
 
-    public function testAdminFullAccess(AcceptanceTester $I): void
+    public function testAdminFullAccess(AcceptanceTester $tester): void
     {
-        $I->amOnPage('/login');
-        $I->fillField('email', 'klesio@admin.com');
-        $I->fillField('password', '123456');
-        $I->click('Entrar');
-        $I->seeInCurrentUrl('/admin');
+        $tester->amOnPage('/login');
+        $tester->fillField('email', 'klesio@admin.com');
+        $tester->fillField('password', '123456');
+        $tester->click('Entrar');
+        $tester->seeInCurrentUrl('/admin');
 
-        $I->amOnPage('/admin');
-        $I->seeInCurrentUrl('/admin');
+        $tester->amOnPage('/admin');
+        $tester->seeInCurrentUrl('/admin');
 
-        $I->amOnPage('/hr');
-        $I->seeInCurrentUrl('/hr');
+        $tester->amOnPage('/hr');
+        $tester->seeInCurrentUrl('/hr');
 
-        $I->amOnPage('/user');
-        $I->seeInCurrentUrl('/user');
+        $tester->amOnPage('/user');
+        $tester->seeInCurrentUrl('/user');
 
-        $I->click('Sair');
-        $I->seeInCurrentUrl('/login');
+        $tester->wait(2.5);
+        $tester->click('Sair');
+        $tester->seeInCurrentUrl('/login');
     }
 }

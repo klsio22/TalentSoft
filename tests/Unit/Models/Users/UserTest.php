@@ -149,6 +149,7 @@ class UserTest extends TestCase
 
     public function test_update_should_not_change_the_password(): void
     {
+        // @phpstan-ignore-next-line property.protected
         $this->user->password = '654321';
         $this->user->save();
 
