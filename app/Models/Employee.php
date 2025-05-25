@@ -73,16 +73,13 @@ class Employee extends Model
 
     public static function createWithCredentials(array $data): array
     {
-        // Preprocessar dados
         $processedData = self::preprocessEmployeeData($data);
 
-        // Validar dados
         $validationResult = self::validateEmployeeData($processedData);
         if (!$validationResult['isValid']) {
             return [false, $validationResult['message'], null];
         }
 
-        // Tentar criar funcionário e credenciais
         return self::createEmployeeWithCredentials($processedData);
     }
 
@@ -104,13 +101,11 @@ class Employee extends Model
 
     private static function validateEmployeeData(array $data): array
     {
-        // Verificar todos os campos obrigatórios e senha de uma vez
         $validationErrors = self::checkAllRequiredFields($data);
         if (!empty($validationErrors)) {
             return ['isValid' => false, 'message' => $validationErrors];
         }
 
-        // Verificar confirmação de senha
         if ($data['password'] !== ($data['password_confirmation'] ?? '')) {
             return ['isValid' => false, 'message' => "A senha e a confirmação de senha não conferem"];
         }

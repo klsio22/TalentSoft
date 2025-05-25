@@ -6,6 +6,7 @@ use App\Controllers\EmployeesController;
 use App\Controllers\ErrorController;
 use App\Controllers\HomeController;
 use App\Controllers\HRController;
+use App\Controllers\ProfileController;
 use App\Controllers\UserController;
 use Core\Router\Route;
 
@@ -18,6 +19,9 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 Route::get('/admin', [AdminController::class, 'home'])->name('admin.home');
 Route::get('/hr', [HRController::class, 'home'])->name('hr.home');
 Route::get('/user', [UserController::class, 'home'])->name('user.home');
+
+// Rota do perfil - disponível para todos os usuários autenticados
+Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
 
 
 Route::middleware('admin-hr')->group(function () {

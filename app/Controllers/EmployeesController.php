@@ -207,6 +207,13 @@ class EmployeesController extends Controller
      */
     public function update(Request $request): void
     {
+        // Verificar permissões antes de qualquer processamento
+        if (!Auth::isAdmin() && !Auth::isHR()) {
+            FlashMessage::danger(self::ACCESS_DENIED);
+            $this->redirectTo(route('employees.index'));
+            return;
+        }
+
         $id = $request->getParam('id');
 
         if (!$id) {
@@ -281,7 +288,7 @@ class EmployeesController extends Controller
      */
     private function updateEmployee(Employee $employee, array $data): bool
     {
-        $this->sanitizeEmployeeData($data);
+        $this->preprocessEmployeeUpdateData($data);
         $this->updateEmployeeAttributes($employee, $data);
 
         if (!$employee->save()) {
@@ -292,12 +299,31 @@ class EmployeesController extends Controller
     }
 
     /**
-     * Remove campos vazios que não devem ser atualizados
+     * Preprocessa os dados do funcionário para atualização
      */
-    private function sanitizeEmployeeData(array &$data): void
+    private function preprocessEmployeeUpdateData(array &$data): void
     {
+        // Processar salário (remover formatação)
+        if (isset($data['salary']) && !empty($data['salary'])) {
+            $data['salary'] = str_replace(['R$', ' ', '.'], '', $data['salary']);
+            $data['salary'] = str_replace(',', '.', $data['salary']);
+            // Converter para float para garantir formato correto
+            $data['salary'] = floatval($data['salary']);
+        }
+
+        // Processar data de contratação
+        if (isset($data['hire_date']) && !empty($data['hire_date']) && strtotime($data['hire_date']) !== false) {
+            $data['hire_date'] = date('Y-m-d', strtotime($data['hire_date']));
+        }
+
+        // Processar data de nascimento
+        if (isset($data['birth_date']) && !empty($data['birth_date']) && strtotime($data['birth_date']) !== false) {
+            $data['birth_date'] = date('Y-m-d', strtotime($data['birth_date']));
+        }
+
+        // Remover campos vazios que não devem ser atualizados (exceto notes e salary)
         foreach ($data as $key => $value) {
-            if (empty($value) && $key !== 'notes') { // notes pode ser vazio
+            if (empty($value) && !in_array($key, ['notes', 'salary'])) {
                 unset($data[$key]);
             }
         }

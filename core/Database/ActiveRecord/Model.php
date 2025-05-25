@@ -338,8 +338,9 @@ abstract class Model
     public static function findBy($conditions): ?static
     {
         $resp = self::where($conditions);
-        if (isset($resp[0]))
+        if (isset($resp[0])) {
             return $resp[0];
+        }
 
         return null;
     }
