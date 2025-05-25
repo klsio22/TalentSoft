@@ -33,7 +33,16 @@ class Controller
     {
         extract($data);
 
-        $view = Constants::rootPath()->join('app/views/' . $view . '.phtml');
+        // Verificar se o arquivo .php existe primeiro, caso contrário tentar .phtml
+        $phpView = Constants::rootPath()->join('app/views/' . $view . '.php');
+        $phtmlView = Constants::rootPath()->join('app/views/' . $view . '.phtml');
+
+        if (file_exists($phpView)) {
+            $view = $phpView;
+        } else {
+            $view = $phtmlView;
+        }
+
         require Constants::rootPath()->join('app/views/layouts/' . $this->layout . '.phtml');
     }
 

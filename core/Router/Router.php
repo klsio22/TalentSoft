@@ -4,6 +4,7 @@ namespace Core\Router;
 
 use Core\Constants\Constants;
 use Core\Exceptions\HTTPException;
+use Core\Exceptions\MiddlewareException;
 use Core\Http\Request;
 use Exception;
 
@@ -114,14 +115,78 @@ class Router
                 return $controller;
             }
         }
-        throw new HTTPException('URI ' . $request->getUri() . ' not found.', 404);
+
+        // Verificar por URLs comuns erradas e fazer redirecionamentos inteligentes
+        $uri = $request->getUri();
+
+        // Mapeamento de URLs incorretas para URLs corretas
+        $redirectMap = [
+            '/employee' => '/employees',
+            '/employee/' => '/employees',
+            '/admin/employee' => '/employees',
+            '/hr/employee' => '/employees',
+            '/employee/list' => '/employees',
+            '/funcionario' => '/employees',
+            '/funcionarios' => '/employees'
+        ];
+
+        // Verificar se a URL atual está no mapa de redirecionamento
+        if (isset($redirectMap[$uri])) {
+            header('Location: ' . $redirectMap[$uri]);
+            exit;
+        }
+
+        // Verificação adicional para URLs com ID (como /employee/1 -> /employees/1)
+        if (preg_match('#^/employee/(\d+)$#', $uri, $matches)) {
+            header('Location: /employees/' . $matches[1]);
+            exit;
+        }
+
+        // Redirecionar para página 404 em vez de lançar exceção
+        header('Location: ' . route('error.not_found'));
+        exit;
     }
 
+    /**
+     * Redireciona para a página de erro 404
+     */
+    private static function redirectToNotFound(): void
+    {
+        header('Location: ' . route('error.not_found'));
+        exit;
+    }
+
+    /**
+     * Registra o erro e redireciona para página de erro 500
+     */
+    private static function redirectToServerError(string $errorMsg): void
+    {
+        error_log($errorMsg);
+        header('Location: ' . route('error.server_error'));
+        exit;
+    }
+
+    /**
+     * Inicializa o roteador
+     */
     public static function init(): void
     {
-        if (isset($_SERVER['REQUEST_METHOD'])) {
-            require Constants::rootPath()->join('config/routes.php');
+        if (!isset($_SERVER['REQUEST_METHOD'])) {
+            return;
+        }
+
+        try {
+            require_once Constants::rootPath()->join('config/routes.php');
             Router::getInstance()->dispatch();
+        } catch (HTTPException $e) {
+            if ($e->getStatusCode() === 404) {
+                self::redirectToNotFound();
+            }
+            self::redirectToServerError("Erro HTTP: " . $e->getMessage());
+        } catch (MiddlewareException $e) {
+            self::redirectToServerError("Erro de middleware: " . $e->getMessage());
+        } catch (Exception $e) {
+            self::redirectToServerError("Erro não tratado: " . $e->getMessage());
         }
     }
 }

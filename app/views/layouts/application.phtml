@@ -7,12 +7,20 @@
   <title>TalentSoft -
     <?= $title ?>
   </title>
-  <script src="/assets/js/application.js"></script>
 
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Scripts do aplicativo -->
+  <script defer src="/assets/js/application.js"></script>
+
+  <!-- CSS do aplicativo -->
   <link rel="stylesheet" href="/assets/css/application.css">
 
+  <!-- Favicon -->
   <link rel="apple-touch-icon" href="/assets/images/defaults/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/defaults/android-chrome-192x192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/defaults/favicon-32x32.png">
@@ -21,29 +29,85 @@
   <link rel="icon" href="/assets/images/defaults/favicon.ico" type="image/x-icon">
 </head>
 
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-50 min-h-screen flex flex-col">
   <?php if (\Lib\Authentication\Auth::check()): ?>
-  <nav class="bg-gray-800 text-white p-4">
-    <div class="container mx-auto flex justify-between items-center">
-      <div class="flex items-center">
-        <span class="text-xl font-bold">TalentSoft</span>
+  <nav class="bg-blue-600 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <div class="flex-shrink-0 flex items-center">
+            <a href="<?= route('root') ?>" class="text-white text-xl font-bold">
+              <i class="fas fa-laptop-code mr-2"></i> TalentSoft
+            </a>
+          </div>
+          <div class="hidden md:ml-6 md:flex md:space-x-8 items-center">
+            <a href="<?= route('root') ?>"
+              class="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+              <i class="fas fa-home mr-1"></i> Início
+            </a>
+            <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
+            <a href="<?= route('employees.index') ?>"
+              class="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+              <i class="fas fa-users mr-1"></i> Funcionários
+            </a>
+            <?php endif; ?>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <span class="text-blue-100 mr-4">Olá,
+            <?= htmlspecialchars($this->currentUser()->name, ENT_QUOTES, 'UTF-8') ?>
+          </span>
+          <a href="<?= route('auth.logout') ?>"
+            class="bg-blue-500 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+            <i class="fas fa-sign-out-alt mr-1"></i> Sair
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <div class="md:hidden flex items-center">
+          <button type="button" class="text-blue-100 hover:text-white focus:outline-none focus:text-white"
+            id="mobile-menu-button">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
       </div>
-      <div class="flex items-center space-x-4">
-        <span>Olá,
-          <?= htmlspecialchars($this->currentUser()->name, ENT_QUOTES, 'UTF-8') ?>
-        </span>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="md:hidden hidden" id="mobile-menu">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="<?= route('root') ?>"
+          class="text-blue-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+          <i class="fas fa-home mr-1"></i> Início
+        </a>
+        <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
+        <a href="<?= route('employees.index') ?>"
+          class="text-blue-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+          <i class="fas fa-users mr-1"></i> Funcionários
+        </a>
+        <?php endif; ?>
         <a href="<?= route('auth.logout') ?>"
-          class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Sair</a>
+          class="text-blue-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+          <i class="fas fa-sign-out-alt mr-1"></i> Sair
+        </a>
       </div>
     </div>
   </nav>
   <?php endif; ?>
 
-  <main class="container mx-auto mt-6 px-4">
+  <main class="flex-1 container mx-auto mt-6 px-4">
     <?php require '_flash_message.phtml'; ?>
 
     <?php require $view ?>
   </main>
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-button')?.addEventListener('click', function () {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    });
+  </script>
 </body>
 
 </html>

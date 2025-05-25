@@ -1,67 +1,69 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-blue-50 p-6 rounded-lg shadow">
-        <h3 class="text-lg font-semibold text-blue-800 mb-2">Funcionários</h3>
-        <p class="text-3xl font-bold mb-4">--</p>
-        <p class="text-sm text-gray-600">Total de funcionários cadastrados no sistema.</p>
-    </div>
+  <div class="bg-blue-50 p-6 rounded-lg shadow">
+    <h3 class="text-lg font-semibold text-blue-800 mb-2">Funcionários</h3>
+    <p class="text-3xl font-bold mb-4">--</p>
+    <p class="text-sm text-gray-600">Total de funcionários cadastrados no sistema.</p>
+  </div>
 
-    <div class="bg-green-50 p-6 rounded-lg shadow">
-        <h3 class="text-lg font-semibold text-green-800 mb-2">Projetos</h3>
-        <p class="text-3xl font-bold mb-4">--</p>
-        <p class="text-sm text-gray-600">Projetos ativos no momento.</p>
-    </div>
+  <div class="bg-green-50 p-6 rounded-lg shadow">
+    <h3 class="text-lg font-semibold text-green-800 mb-2">Projetos</h3>
+    <p class="text-3xl font-bold mb-4">--</p>
+    <p class="text-sm text-gray-600">Projetos ativos no momento.</p>
+  </div>
 
-    <div class="bg-yellow-50 p-6 rounded-lg shadow">
-        <h3 class="text-lg font-semibold text-yellow-800 mb-2">Aprovações</h3>
-        <p class="text-3xl font-bold mb-4">--</p>
-        <p class="text-sm text-gray-600">Solicitações pendentes de aprovação.</p>
-    </div>
+  <div class="bg-yellow-50 p-6 rounded-lg shadow">
+    <h3 class="text-lg font-semibold text-yellow-800 mb-2">Aprovações</h3>
+    <p class="text-3xl font-bold mb-4">--</p>
+    <p class="text-sm text-gray-600">Solicitações pendentes de aprovação.</p>
+  </div>
 </div>
 
 <div class="bg-white p-6 rounded-lg shadow mb-8">
-    <h2 class="text-xl font-bold mb-4">Informações do Administrador</h2>
+  <h2 class="text-xl font-bold mb-4">Informações do Administrador</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <p class="text-gray-600 mb-1">Nome:</p>
-            <p class="font-medium">
-                <?= $employee->name ?>
-            </p>
-        </div>
-
-        <div>
-            <p class="text-gray-600 mb-1">Email:</p>
-            <p class="font-medium">
-                <?= $employee->email ?>
-            </p>
-        </div>
-
-        <div>
-            <p class="text-gray-600 mb-1">Função:</p>
-            <p class="font-medium">
-                <?= $employee->role()->name ?>
-            </p>
-        </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <p class="text-gray-600 mb-1">Nome:</p>
+      <p class="font-medium">
+        <?= $employee->name ?>
+      </p>
     </div>
+
+    <div>
+      <p class="text-gray-600 mb-1">Email:</p>
+      <p class="font-medium">
+        <?= $employee->email ?>
+      </p>
+    </div>
+
+    <div>
+      <p class="text-gray-600 mb-1">Função:</p>
+      <p class="font-medium">
+        <?= $employee->role()->name ?>
+      </p>
+    </div>
+  </div>
 </div>
 
 <div class="bg-white p-6 rounded-lg shadow">
-    <h2 class="text-xl font-bold mb-4">Recursos do Administrador</h2>
+  <h2 class="text-xl font-bold mb-4">Recursos do Administrador</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
-            <h3 class="font-semibold mb-2">Gerenciar Funcionários</h3>
-            <p class="text-sm text-gray-600">Adicionar, editar e remover funcionários.</p>
-        </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <a href="<?= route('employees.index') ?>">
+      <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
+        <h3 class="font-semibold mb-2">Gerenciar Funcionários</h3>
+        <p class="text-sm text-gray-600">Adicionar, editar e remover funcionários.</p>
+      </div>
+    </a>
 
-        <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
-            <h3 class="font-semibold mb-2">Gerenciar Projetos</h3>
-            <p class="text-sm text-gray-600">Criar e administrar projetos.</p>
-        </div>
-
-        <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
-            <h3 class="font-semibold mb-2">Relatórios</h3>
-            <p class="text-sm text-gray-600">Visualizar relatórios e métricas.</p>
-        </div>
+    <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
+      <h3 class="font-semibold mb-2">Gerenciar Projetos</h3>
+      <p class="text-sm text-gray-600">Criar e administrar projetos.</p>
     </div>
+
+    <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
+      <h3 class="font-semibold mb-2">Relatórios</h3>
+      <p class="text-sm text-gray-600">Visualizar relatórios e métricas.</p>
+    </div>
+  </div>
 </div>
