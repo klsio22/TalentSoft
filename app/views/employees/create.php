@@ -55,10 +55,10 @@ use Core\Constants\CssClasses;
                     </div>
 
                     <div>
-                        <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-2">Data de Nascimento</label>
+                        <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-2">Data de Nascimento*</label>
                         <input type="date"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent <?= isset($errors['birth_date']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
-                               id="birth_date" name="birth_date" value="<?= htmlspecialchars($employee->birth_date ?? '') ?>">
+                               id="birth_date" name="birth_date" value="<?= htmlspecialchars($employee->birth_date ?? '') ?>" required>
                         <?php if(isset($errors['birth_date'])): ?>
                             <p class="mt-1 text-sm text-red-600"><?= $errors['birth_date'] ?></p>
                         <?php endif; ?>
@@ -83,14 +83,17 @@ use Core\Constants\CssClasses;
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="salary" class="block text-sm font-medium text-gray-700 mb-2">Salário</label>
+                        <label for="salary" class="block text-sm font-medium text-gray-700 mb-2">Salário*</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">R$</span>
+                                <span class="text-gray-500">R$</span>
                             </div>
-                            <input type="number" step="0.01" min="0"
-                                   class="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent <?= isset($errors['salary']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
-                                   id="salary" name="salary" value="<?= htmlspecialchars($employee->salary ?? '') ?>">
+                            <input type="text"
+                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent <?= isset($errors['salary']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+                                   id="salary" name="salary" value="<?= htmlspecialchars($employee->salary ?? '') ?>"
+                                   placeholder="0,00"
+                                   pattern="[0-9,.]*"
+                                   inputmode="decimal" required>
                         </div>
                         <?php if(isset($errors['salary'])): ?>
                             <p class="mt-1 text-sm text-red-600"><?= $errors['salary'] ?></p>
@@ -180,14 +183,14 @@ use Core\Constants\CssClasses;
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Senha*</label>
                         <input type="password"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               id="password" name="password" required>
+                               id="password" name="password" value="<?= htmlspecialchars($formData['password'] ?? '') ?>" required>
                     </div>
 
                     <div>
                         <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Confirmar Senha*</label>
                         <input type="password"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               id="password_confirmation" name="password_confirmation" required>
+                               id="password_confirmation" name="password_confirmation" value="<?= htmlspecialchars($formData['password_confirmation'] ?? '') ?>" required>
                     </div>
                 </div>
 

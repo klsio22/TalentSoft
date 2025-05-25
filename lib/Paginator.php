@@ -48,9 +48,6 @@ class Paginator
         return $this->totalOfRegisters;
     }
 
-    /**
-     * Alias para totalOfRegisters() para compatibilidade
-     */
     public function total(): int
     {
         return $this->totalOfRegisters();
@@ -98,9 +95,7 @@ class Paginator
         return $this->registers;
     }
 
-    /**
-     * Alias para registers() para compatibilidade
-     */
+
     public function items(): array
     {
         return $this->registers();

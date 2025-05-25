@@ -19,7 +19,6 @@ class EmployeesController extends Controller
 {
     protected string $layout = 'application';
 
-    // Constantes para mensagens
     private const EMPLOYEE_NOT_FOUND = 'Funcionário não encontrado';
     private const ACCESS_DENIED = 'Acesso negado';
     private const EMPLOYEE_CREATED = 'Funcionário cadastrado com sucesso!';
@@ -27,14 +26,12 @@ class EmployeesController extends Controller
     private const EMPLOYEE_DELETED = 'Funcionário removido com sucesso!';
     private const CREDENTIAL_ERROR = 'Erro ao salvar credenciais do usuário';
 
-    // Constante para formato de data
     private const DATETIME_FORMAT = 'Y-m-d H:i:s';
 
     public function __construct()
     {
         parent::__construct();
 
-        // Apenas Admin e RH podem acessar este controller
         if (!Auth::check()) {
             $this->redirectTo(route('auth.login'));
         } elseif (!Auth::isHR() && !Auth::isAdmin()) {
@@ -43,18 +40,13 @@ class EmployeesController extends Controller
         }
     }
 
-    /**
-     * Exibe a lista de funcionários com opções de filtro
-     */
     public function index(): void
     {
-        // Parâmetros de pesquisa
         $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
         $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
         $roleId = filter_input(INPUT_GET, 'role', FILTER_VALIDATE_INT);
         $status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_SPECIAL_CHARS);
 
-        // Construir a condição WHERE
         $where = [];
         $params = [];
 
@@ -74,7 +66,6 @@ class EmployeesController extends Controller
             $params[] = $status;
         }
 
-        // Buscar funcionários com ou sem filtros
         if (!empty($where)) {
             $whereClause = implode(' AND ', $where);
             $employees = Employee::findWhere($whereClause, $params, $page, 10, 'employees.index');
@@ -82,11 +73,9 @@ class EmployeesController extends Controller
             $employees = Employee::paginate($page, 10, 'employees.index');
         }
 
-        // Buscar todos os cargos para o filtro de seleção
         $roles = Role::all();
         $title = 'Lista de Funcionários';
 
-        // Manter os parâmetros de filtro para a paginação
         $queryParams = [];
         if ($search) {
             $queryParams['search'] = $search;
@@ -101,9 +90,7 @@ class EmployeesController extends Controller
         $this->render('employees/index', compact('employees', 'title', 'roles', 'queryParams'));
     }
 
-    /**
-     * Mostra o formulário para criar um novo funcionário
-     */
+
     public function create(): void
     {
         $employee = new Employee();
@@ -111,55 +98,62 @@ class EmployeesController extends Controller
         $title = 'Novo Funcionário';
 
         $this->render('employees/create', compact('employee', 'roles', 'title'));
-    }    /**
-     * Armazena um novo funcionário no banco de dados
-     */
+    }
     public function store(Request $request): void
     {
-        $data = $request->getParams();
-        $employee = new Employee($data);
+        try {
+            $data = $request->getParams();
 
-        if ($employee->save()) {
-            // Se o funcionário foi salvo com sucesso, criar credenciais
-            if (isset($data['password']) && !empty($data['password'])) {
-                $credentials = new UserCredential([
-                    'employee_id' => $employee->id,
-                    'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
-                    'last_updated' => date(self::DATETIME_FORMAT)
-                ]);
+            // Delegar toda a lógica de validação e criação para o modelo
+            list($success, $errorMessage) = Employee::createWithCredentials($data);
 
-                // Configurar senha e confirmação
-                $credentials->password = $data['password'];
-                $credentials->passwordConfirmation = $data['password_confirmation'] ?? '';
-
-                if (!$credentials->save()) {
-                    FlashMessage::danger(self::CREDENTIAL_ERROR);
-                    $this->redirectTo(route('employees.edit', ['id' => $employee->id]));
-                    return;
-                }
+            if ($success) {
+                FlashMessage::success(self::EMPLOYEE_CREATED);
+                $this->redirectTo(route('employees.index'));
+                return;
             }
 
-            FlashMessage::success(self::EMPLOYEE_CREATED);
-            $this->redirectTo(route('employees.index'));
-        } else {
-            // Se houver erros, exibe o formulário novamente com os erros
-            $roles = Role::all();
-            $title = 'Novo Funcionário';
+            // Se chegou aqui, houve erro
+            FlashMessage::danger($errorMessage);
+            $this->renderCreateForm($data);
+        } catch (\Exception $e) {
+            // Registrar o erro para depuração discretamente (sem mostrar na tela)
+            error_log("Erro ao cadastrar funcionário: " . $e->getMessage());
 
-            // Passar os erros de validação para a view
-            $errors = [];
-            $employeeColumns = Employee::getColumns();
-            foreach ($employeeColumns as $field) {
-                if ($employee->errors($field)) {
-                    $errors[$field] = $employee->errors($field);
-                }
-            }
-
-            $this->render('employees/create', compact('employee', 'roles', 'title', 'errors'));
+            // Mostrar mensagem amigável para o usuário
+            FlashMessage::danger("Erro interno ao cadastrar funcionário. Por favor, tente novamente.");
+            $this->renderCreateForm($request->getParams());
         }
-    }    /**
-     * Exibe um funcionário específico
+    }
+
+    /**
+     * Helper para renderizar o formulário de criação
      */
+    private function renderCreateForm(array $data = [], array $errors = []): void
+    {
+        $roles = Role::all();
+        $title = 'Novo Funcionário';
+
+        // Filtrar apenas os campos do modelo Employee
+        $employeeData = [];
+        $employeeFields = Employee::getColumns();
+        foreach ($employeeFields as $field) {
+            if (isset($data[$field])) {
+                $employeeData[$field] = $data[$field];
+            }
+        }
+
+        $employee = new Employee($employeeData);
+
+        // Adicionar campos extra necessários para o formulário (não do model)
+        $formData = [
+            'password' => $data['password'] ?? '',
+            'password_confirmation' => $data['password_confirmation'] ?? ''
+        ];
+
+        $this->render('employees/create', compact('employee', 'roles', 'title', 'errors', 'formData'));
+    }
+
     public function show(Request $request): void
     {
         $id = $request->getParam('id');

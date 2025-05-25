@@ -7,23 +7,6 @@ use Core\Database\ActiveRecord\HasMany;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
-/**
- * @property int $id
- * @property string $name
- * @property string $cpf
- * @property string $email
- * @property string $birth_date
- * @property int $role_id
- * @property float $salary
- * @property string $hire_date
- * @property string $status
- * @property string $address
- * @property string $city
- * @property string $state
- * @property string $zipcode
- * @property string $created_at
- * @property string $notes
- */
 class Employee extends Model
 {
     protected static string $table = 'Employees';
@@ -33,17 +16,11 @@ class Employee extends Model
         'city', 'state', 'zipcode', 'created_at', 'notes'
     ];
 
-    /**
-     * Retorna as colunas disponíveis do modelo
-     */
     public static function getColumns(): array
     {
         return static::$columns;
     }
 
-    /**
-     * Retorna o nome da tabela
-     */
     public static function getTable(): string
     {
         return static::$table;
@@ -64,14 +41,10 @@ class Employee extends Model
 
     public function credential(): ?UserCredential
     {
-        /** @var array<int, UserCredential> $credentials */
         $credentials = $this->hasMany(UserCredential::class, 'employee_id')->get();
         return $credentials[0] ?? null;
     }
 
-    /**
-     * @return Role|null
-     */
     public function role(): ?Role
     {
         $result = $this->belongsTo(Role::class, 'role_id')->get();
@@ -96,6 +69,111 @@ class Employee extends Model
     public function approvals(): HasMany
     {
         return $this->hasMany(Approval::class, 'employee_id');
+    }
+
+    public static function createWithCredentials(array $data): array
+    {
+        // Preprocessar dados
+        $processedData = self::preprocessEmployeeData($data);
+
+        // Validar dados
+        $validationResult = self::validateEmployeeData($processedData);
+        if (!$validationResult['isValid']) {
+            return [false, $validationResult['message'], null];
+        }
+
+        // Tentar criar funcionário e credenciais
+        return self::createEmployeeWithCredentials($processedData);
+    }
+
+    private static function preprocessEmployeeData(array $data): array
+    {
+        if (isset($data['salary']) && !empty($data['salary'])) {
+            $data['salary'] = str_replace(['R$', ' ', '.'], '', $data['salary']);
+            $data['salary'] = str_replace(',', '.', $data['salary']);
+        } else {
+            $data['salary'] = null;
+        }
+
+        if (isset($data['hire_date']) && !empty($data['hire_date']) && strtotime($data['hire_date']) !== false) {
+            $data['hire_date'] = date('Y-m-d', strtotime($data['hire_date']));
+        }
+
+        return $data;
+    }
+
+    private static function validateEmployeeData(array $data): array
+    {
+        // Verificar todos os campos obrigatórios e senha de uma vez
+        $validationErrors = self::checkAllRequiredFields($data);
+        if (!empty($validationErrors)) {
+            return ['isValid' => false, 'message' => $validationErrors];
+        }
+
+        // Verificar confirmação de senha
+        if ($data['password'] !== ($data['password_confirmation'] ?? '')) {
+            return ['isValid' => false, 'message' => "A senha e a confirmação de senha não conferem"];
+        }
+
+        return ['isValid' => true, 'message' => ''];
+    }
+
+    private static function checkAllRequiredFields(array $data): string
+    {
+        $requiredFields = ['name', 'cpf', 'email', 'role_id', 'hire_date'];
+
+        foreach ($requiredFields as $field) {
+            if (empty($data[$field])) {
+                return "Campo obrigatório não preenchido: {$field}";
+            }
+        }
+
+        if (empty($data['password'])) {
+            return "A senha é obrigatória para um novo funcionário";
+        }
+
+        return '';
+    }
+
+    private static function createEmployeeWithCredentials(array $data): array
+    {
+        $employeeData = [];
+        foreach (self::$columns as $field) {
+            if (isset($data[$field])) {
+                $employeeData[$field] = $data[$field];
+            }
+        }
+
+        $employee = new Employee($employeeData);
+
+        if (!$employee->save()) {
+            // Construir resposta de erro do funcionário
+            $errors = [];
+            foreach (self::$columns as $field) {
+                if ($employee->errors($field)) {
+                    $errors[] = "{$field}: " . $employee->errors($field);
+                }
+            }
+            $errorMessage = !empty($errors) ? implode("; ", $errors) : "Erro ao salvar funcionário";
+            return [false, $errorMessage, null];
+        }
+
+        // Criar credenciais do usuário
+        $credentials = new UserCredential([
+            'employee_id' => $employee->id,
+            'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
+            'last_updated' => date('Y-m-d H:i:s')
+        ]);
+
+        $credentials->password = $data['password'];
+        $credentials->passwordConfirmation = $data['password_confirmation'] ?? '';
+
+        if (!$credentials->save()) {
+            $employee->destroy();
+            return [false, "Erro ao salvar credenciais do usuário", null];
+        }
+
+        return [true, null, $employee];
     }
 
     public static function findByEmail(string $email): ?Employee
@@ -130,49 +208,32 @@ class Employee extends Model
         return password_verify($password, $credential->password_hash);
     }
 
-    /**
-     * Busca funcionários com base em critérios personalizados e retorna com paginação
-     *
-     * @param string $whereClause Cláusula WHERE SQL (sem a palavra 'WHERE')
-     * @param array $params Parâmetros para consulta preparada
-     * @param int $page Página atual
-     * @param int $perPage Itens por página
-     * @param string|null $route Rota usada para gerar links de paginação
-     * @return \Lib\Paginator
-     */
     public static function findWhere(string $whereClause, array $params = [], int $page = 1, int $perPage = 10, ?string $route = null): \Lib\Paginator
     {
         $pdo = \Core\Database\Database::getDatabaseConn();
         $table = static::$table;
         $attributes = implode(', ', static::$columns);
 
-        // Constrói a consulta SQL com WHERE personalizado
         $sql = "SELECT id, {$attributes} FROM {$table} WHERE {$whereClause} ORDER BY id DESC";
 
-        // Executar a consulta
         $stmt = $pdo->prepare($sql);
         foreach ($params as $key => $value) {
-            $stmt->bindValue($key + 1, $value); // bind posicional (índices começam em 1)
+            $stmt->bindValue($key + 1, $value);
         }
         $stmt->execute();
 
-        // Buscar todos os resultados
         $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        // Calcular total de registros
         $total = count($results);
 
-        // Paginar manualmente
         $offset = ($page - 1) * $perPage;
         $paginatedResults = array_slice($results, $offset, $perPage);
 
-        // Criar objetos do modelo
         $items = [];
         foreach ($paginatedResults as $row) {
             $items[] = new static($row);
         }
 
-        // Criar objeto de paginação personalizado
         return new class($items, $total, $page, $perPage, $route) extends \Lib\Paginator {
             private array $items;
             private int $customTotalOfRegisters;
@@ -192,7 +253,6 @@ class Employee extends Model
                     route: $route
                 );
 
-                // Armazenar valores personalizados
                 $this->customTotalOfRegisters = $total;
                 $this->customTotalOfPages = ceil($total / $perPage);
                 $this->customTotalOfRegistersOfPage = count($items);
@@ -203,9 +263,6 @@ class Employee extends Model
                 return $this->customTotalOfRegisters;
             }
 
-            /**
-             * Alias para totalOfRegisters() para compatibilidade
-             */
             public function total(): int
             {
                 return $this->customTotalOfRegisters;
