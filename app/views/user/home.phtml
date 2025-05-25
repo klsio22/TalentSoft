@@ -1,70 +1,138 @@
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-  <div class="bg-blue-50 p-6 rounded-lg shadow">
-    <h3 class="text-lg font-semibold text-blue-800 mb-2">Meus Projetos</h3>
-    <p class="text-3xl font-bold mb-4">--</p>
-    <p class="text-sm text-gray-600">Projetos que você está participando.</p>
+<!-- Dashboard Usuário -->
+<div class="min-h-[70vh] py-8">
+  <!-- Welcome Section -->
+  <div class="glass-effect rounded-2xl shadow-xl p-8 mb-8 text-center">
+    <div
+      class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl mb-4 shadow-lg">
+      <i class="fas fa-user text-white text-xl"></i>
+    </div>
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+      Meu Painel
+    </h1>
+    <p class="text-gray-600">Bem-vindo,
+      <?= htmlspecialchars($employee->name) ?>!
+    </p>
   </div>
 
-  <div class="bg-purple-50 p-6 rounded-lg shadow">
-    <h3 class="text-lg font-semibold text-purple-800 mb-2">Notificações</h3>
-    <p class="text-3xl font-bold mb-4">--</p>
-    <p class="text-sm text-gray-600">Notificações não lidas.</p>
-  </div>
-</div>
-
-<div class="bg-white p-6 rounded-lg shadow mb-8">
-  <h2 class="text-xl font-bold mb-4">Minhas Informações</h2>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <p class="text-gray-600 mb-1">Nome:</p>
-      <p class="font-medium">
-        <?= $employee->name ?>
-      </p>
+  <!-- Statistics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div
+      class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-transform hover:scale-105">
+      <div class="flex items-center">
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+          <i class="fas fa-tasks text-blue-600 text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">Meus Projetos</h3>
+          <p class="text-3xl font-bold text-blue-600 mb-1">--</p>
+          <p class="text-sm text-gray-600">Projetos que você está participando</p>
+        </div>
+      </div>
     </div>
 
-    <div>
-      <p class="text-gray-600 mb-1">Email:</p>
-      <p class="font-medium">
-        <?= $employee->email ?>
-      </p>
-    </div>
-
-    <div>
-      <p class="text-gray-600 mb-1">CPF:</p>
-      <p class="font-medium">
-        <?= $employee->cpf ?>
-      </p>
-    </div>
-
-    <div>
-      <p class="text-gray-600 mb-1">Data de Contratação:</p>
-      <p class="font-medium">
-        <?= $employee->hire_date ?>
-      </p>
-    </div>
-
-    <div>
-      <p class="text-gray-600 mb-1">Função:</p>
-      <p class="font-medium">
-        <?= $employee->role()->name ?>
-      </p>
+    <div
+      class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-transform hover:scale-105">
+      <div class="flex items-center">
+        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+          <i class="fas fa-bell text-purple-600 text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">Notificações</h3>
+          <p class="text-3xl font-bold text-purple-600 mb-1">--</p>
+          <p class="text-sm text-gray-600">Notificações não lidas</p>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="bg-white p-6 rounded-lg shadow">
-  <h2 class="text-xl font-bold mb-4">Recursos Disponíveis</h2>
+  <!-- User Information -->
+  <div class="glass-effect rounded-2xl shadow-xl p-8">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+      <i class="fas fa-id-card mr-3 text-purple-600"></i>
+      Minhas Informações
+    </h2>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
-      <h3 class="font-semibold mb-2">Meus Projetos</h3>
-      <p class="text-sm text-gray-600">Visualizar projetos em que estou alocado.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <p class="text-gray-600 mb-1">Nome:</p>
+        <p class="font-medium">
+          <?= $employee->name ?>
+        </p>
+      </div>
+
+      <div>
+        <p class="text-gray-600 mb-1">Email:</p>
+        <p class="font-medium">
+          <?= $employee->email ?>
+        </p>
+      </div>
+
+      <div>
+        <p class="text-gray-600 mb-1">CPF:</p>
+        <p class="font-medium">
+          <?= $employee->cpf ?>
+        </p>
+      </div>
+
+      <div>
+        <p class="text-gray-600 mb-1">Data de Contratação:</p>
+        <p class="font-medium">
+          <?= $employee->hire_date ?>
+        </p>
+      </div>
+
+      <div>
+        <p class="text-gray-600 mb-1">Função:</p>
+        <p class="font-medium">
+          <?= $employee->role()->name ?>
+        </p>
+      </div>
     </div>
+  </div>
 
-    <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
-      <h3 class="font-semibold mb-2">Notificações</h3>
-      <p class="text-sm text-gray-600">Gerenciar minhas notificações.</p>
+  <!-- Resources Section -->
+  <div class="glass-effect rounded-2xl shadow-xl p-8 mt-8">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+      <i class="fas fa-rocket mr-3 text-purple-600"></i>
+      Recursos Disponíveis
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div
+        class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-all hover:scale-105 hover:shadow-xl cursor-pointer group">
+        <div class="text-center">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+            <i class="fas fa-project-diagram text-white text-xl"></i>
+          </div>
+          <h3 class="font-semibold text-gray-800 mb-2">Meus Projetos</h3>
+          <p class="text-sm text-gray-600">Visualizar projetos em que estou alocado</p>
+        </div>
+      </div>
+
+      <div
+        class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-all hover:scale-105 hover:shadow-xl cursor-pointer group">
+        <div class="text-center">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+            <i class="fas fa-bell text-white text-xl"></i>
+          </div>
+          <h3 class="font-semibold text-gray-800 mb-2">Notificações</h3>
+          <p class="text-sm text-gray-600">Gerenciar minhas notificações e alertas</p>
+        </div>
+      </div>
+
+      <div
+        class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-all hover:scale-105 hover:shadow-xl cursor-pointer group">
+        <div class="text-center">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+            <i class="fas fa-user-edit text-white text-xl"></i>
+          </div>
+          <h3 class="font-semibold text-gray-800 mb-2">Meu Perfil</h3>
+          <p class="text-sm text-gray-600">Atualizar informações pessoais</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

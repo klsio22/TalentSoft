@@ -1,48 +1,120 @@
 <?php if (\Lib\Authentication\Auth::check()): ?>
-<nav class="bg-blue-600 shadow-lg">
+<style>
+  .header-glass {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(139, 92, 246, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-link {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .nav-link:hover::before {
+    left: 100%;
+  }
+
+  .brand-logo {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-badge {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .logout-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .logout-btn:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  }
+</style>
+
+<nav class="header-glass shadow-xl">
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between h-16">
       <div class="flex">
         <div class="flex-shrink-0 flex items-center">
-          <a href="<?= route('root') ?>" class="text-white text-xl font-bold">
-            <i class="fas fa-briefcase mr-2"></i>TalentSoft
+          <a href="<?= route('root') ?>" class="brand-logo text-xl font-bold flex items-center">
+            <div class="w-8 h-8 rounded-lg bg-white bg-opacity-20 flex items-center justify-center mr-3">
+              <i class="fas fa-briefcase text-white text-lg"></i>
+            </div>
+            TalentSoft
           </a>
         </div>
-        <div class="hidden md:ml-6 md:flex md:space-x-8 items-center">
+        <div class="hidden md:ml-6 md:flex md:space-x-2 items-center">
           <a href="<?= route('root') ?>"
-            class="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            <i class="fas fa-home mr-1"></i> Início
+            class="nav-link text-blue-100 hover:text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+            <i class="fas fa-home mr-2"></i> Início
           </a>
           <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
           <a href="<?= route('employees.index') ?>"
-            class="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            <i class="fas fa-users mr-1"></i> Funcionários
+            class="nav-link text-blue-100 hover:text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+            <i class="fas fa-users mr-2"></i> Funcionários
           </a>
           <?php endif; ?>
         </div>
       </div>
-      <div class="flex items-center space-x-4">
-        <!-- Link para o perfil -->
+      <div class="flex items-center space-x-3">
+        <!-- Profile Link -->
         <a href="<?= route('profile.show') ?>"
-          class="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center">
-          <i class="fas fa-user mr-1"></i>
+          class="nav-link text-blue-100 hover:text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center">
+          <i class="fas fa-user mr-2"></i>
           <span class="hidden sm:inline">Meu Perfil</span>
         </a>
 
-        <span class="text-blue-100 text-sm hidden sm:block">
-          Olá,
-          <?= htmlspecialchars($this->currentUser()->name, ENT_QUOTES, 'UTF-8') ?>
-        </span>
+        <!-- User Badge -->
+        <div class="profile-badge px-3 py-1 rounded-full">
+          <span class="text-white text-sm flex items-center">
+            <i class="fas fa-user-circle mr-2"></i>
+            <span class="hidden sm:inline">
+              <?= htmlspecialchars($this->currentUser()->name, ENT_QUOTES, 'UTF-8') ?>
+            </span>
+          </span>
+        </div>
 
+        <!-- Logout Button -->
         <a href="<?= route('auth.logout') ?>"
-          class="bg-blue-500 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium">
-          <i class="fas fa-sign-out-alt mr-1"></i> Sair
+          class="logout-btn text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+          <i class="fas fa-sign-out-alt mr-2"></i>
+          <span class="hidden sm:inline">Sair</span>
         </a>
       </div>
 
       <!-- Mobile menu button -->
       <div class="md:hidden flex items-center">
-        <button type="button" class="text-blue-100 hover:text-white focus:outline-none focus:text-white"
+        <button type="button"
+          class="nav-link text-blue-100 hover:text-white focus:outline-none focus:text-white p-2 rounded-lg"
           id="mobile-menu-button">
           <i class="fas fa-bars text-lg"></i>
         </button>
@@ -51,25 +123,34 @@
   </div>
 
   <!-- Mobile menu -->
-  <div class="md:hidden hidden" id="mobile-menu">
-    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+  <div class="md:hidden hidden border-t border-white border-opacity-10" id="mobile-menu">
+    <div class="px-4 pt-3 pb-4 space-y-2 bg-black bg-opacity-10">
       <a href="<?= route('root') ?>"
-        class="text-blue-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-        <i class="fas fa-home mr-1"></i> Início
+        class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
+        <i class="fas fa-home mr-3"></i> Início
       </a>
       <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
       <a href="<?= route('employees.index') ?>"
-        class="text-blue-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-        <i class="fas fa-users mr-1"></i> Funcionários
+        class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
+        <i class="fas fa-users mr-3"></i> Funcionários
       </a>
       <?php endif; ?>
       <a href="<?= route('profile.show') ?>"
-        class="text-blue-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-        <i class="fas fa-user mr-1"></i> Meu Perfil
+        class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
+        <i class="fas fa-user mr-3"></i> Meu Perfil
       </a>
+
+      <!-- User info in mobile -->
+      <div class="profile-badge px-4 py-2 rounded-lg mx-1 mb-2">
+        <span class="text-white text-sm flex items-center">
+          <i class="fas fa-user-circle mr-3"></i>
+          <?= htmlspecialchars($this->currentUser()->name, ENT_QUOTES, 'UTF-8') ?>
+        </span>
+      </div>
+
       <a href="<?= route('auth.logout') ?>"
-        class="text-blue-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-        <i class="fas fa-sign-out-alt mr-1"></i> Sair
+        class="logout-btn text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center mx-1">
+        <i class="fas fa-sign-out-alt mr-3"></i> Sair
       </a>
     </div>
   </div>

@@ -18,6 +18,7 @@ class AuthController extends Controller
         }
 
         $title = 'Login';
+        $this->setLayout('public');
         $this->render('auth/login', compact('title'));
     }
 

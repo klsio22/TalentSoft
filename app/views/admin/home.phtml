@@ -1,69 +1,125 @@
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-  <div class="bg-blue-50 p-6 rounded-lg shadow">
-    <h3 class="text-lg font-semibold text-blue-800 mb-2">Funcionários</h3>
-    <p class="text-3xl font-bold mb-4">--</p>
-    <p class="text-sm text-gray-600">Total de funcionários cadastrados no sistema.</p>
-  </div>
-
-  <div class="bg-green-50 p-6 rounded-lg shadow">
-    <h3 class="text-lg font-semibold text-green-800 mb-2">Projetos</h3>
-    <p class="text-3xl font-bold mb-4">--</p>
-    <p class="text-sm text-gray-600">Projetos ativos no momento.</p>
-  </div>
-
-  <div class="bg-yellow-50 p-6 rounded-lg shadow">
-    <h3 class="text-lg font-semibold text-yellow-800 mb-2">Aprovações</h3>
-    <p class="text-3xl font-bold mb-4">--</p>
-    <p class="text-sm text-gray-600">Solicitações pendentes de aprovação.</p>
-  </div>
-</div>
-
-<div class="bg-white p-6 rounded-lg shadow mb-8">
-  <h2 class="text-xl font-bold mb-4">Informações do Administrador</h2>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <p class="text-gray-600 mb-1">Nome:</p>
-      <p class="font-medium">
-        <?= $employee->name ?>
-      </p>
+<!-- Dashboard Admin -->
+<div class="min-h-[70vh] py-8">
+  <!-- Welcome Section -->
+  <div class="glass-effect rounded-2xl shadow-xl p-8 mb-8 text-center">
+    <div
+      class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl mb-4 shadow-lg">
+      <i class="fas fa-user-shield text-white text-xl"></i>
     </div>
-
-    <div>
-      <p class="text-gray-600 mb-1">Email:</p>
-      <p class="font-medium">
-        <?= $employee->email ?>
-      </p>
-    </div>
-
-    <div>
-      <p class="text-gray-600 mb-1">Função:</p>
-      <p class="font-medium">
-        <?= $employee->role()->name ?>
-      </p>
-    </div>
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+      Painel Administrativo
+    </h1>
+    <p class="text-gray-600">Bem-vindo,
+      <?= htmlspecialchars($employee->name) ?>!
+    </p>
   </div>
-</div>
 
-<div class="bg-white p-6 rounded-lg shadow">
-  <h2 class="text-xl font-bold mb-4">Recursos do Administrador</h2>
-
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <a href="<?= route('employees.index') ?>">
-      <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
-        <h3 class="font-semibold mb-2">Gerenciar Funcionários</h3>
-        <p class="text-sm text-gray-600">Adicionar, editar e remover funcionários.</p>
+  <!-- Statistics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div
+      class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-transform hover:scale-105">
+      <div class="flex items-center">
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+          <i class="fas fa-users text-blue-600 text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">Funcionários</h3>
+          <p class="text-3xl font-bold text-blue-600 mb-1">--</p>
+          <p class="text-sm text-gray-600">Total de funcionários cadastrados</p>
+        </div>
       </div>
-    </a>
-
-    <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
-      <h3 class="font-semibold mb-2">Gerenciar Projetos</h3>
-      <p class="text-sm text-gray-600">Criar e administrar projetos.</p>
     </div>
 
-    <div class="border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
-      <h3 class="font-semibold mb-2">Relatórios</h3>
-      <p class="text-sm text-gray-600">Visualizar relatórios e métricas.</p>
+    <div
+      class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-transform hover:scale-105">
+      <div class="flex items-center">
+        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+          <i class="fas fa-project-diagram text-green-600 text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">Projetos</h3>
+          <p class="text-3xl font-bold text-green-600 mb-1">--</p>
+          <p class="text-sm text-gray-600">Projetos ativos no momento</p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-transform hover:scale-105">
+      <div class="flex items-center">
+        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+          <i class="fas fa-check-circle text-yellow-600 text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">Aprovações</h3>
+          <p class="text-3xl font-bold text-yellow-600 mb-1">--</p>
+          <p class="text-sm text-gray-600">Solicitações pendentes</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Information -->
+  <div class="glass-effect rounded-2xl shadow-xl p-8">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+      <i class="fas fa-id-card mr-3 text-blue-600"></i>
+      Informações do Administrador
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white/60 p-4 rounded-lg border border-blue-100">
+        <p class="text-gray-600 mb-1 font-medium">Nome:</p>
+        <p class="text-gray-800 font-semibold">
+          <?= htmlspecialchars($employee->name) ?>
+        </p>
+      </div>
+
+      <div class="bg-white/60 p-4 rounded-lg border border-blue-100">
+        <p class="text-gray-600 mb-1 font-medium">Email:</p>
+        <p class="text-gray-800 font-semibold">
+          <?= htmlspecialchars($employee->email) ?>
+        </p>
+      </div>
+
+      <div class="bg-white/60 p-4 rounded-lg border border-blue-100">
+        <p class="text-gray-600 mb-1 font-medium">Função:</p>
+        <p class="text-gray-800 font-semibold">
+          <?= htmlspecialchars($employee->role()->name) ?>
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8 pt-6 border-t border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Recursos do Administrador</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="<?= route('employees.index') ?>"
+          class="bg-white/60 p-4 rounded-lg border border-blue-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md">
+          <h3 class="font-semibold mb-2 text-blue-600">
+            <i class="fas fa-users mr-2"></i>
+            Gerenciar Funcionários
+          </h3>
+          <p class="text-sm text-gray-600">Adicionar, editar e remover funcionários.</p>
+        </a>
+
+        <div
+          class="bg-white/60 p-4 rounded-lg border border-blue-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md cursor-pointer">
+          <h3 class="font-semibold mb-2 text-green-600">
+            <i class="fas fa-project-diagram mr-2"></i>
+            Gerenciar Projetos
+          </h3>
+          <p class="text-sm text-gray-600">Criar e administrar projetos.</p>
+        </div>
+
+        <div
+          class="bg-white/60 p-4 rounded-lg border border-blue-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md cursor-pointer">
+          <h3 class="font-semibold mb-2 text-purple-600">
+            <i class="fas fa-chart-bar mr-2"></i>
+            Relatórios
+          </h3>
+          <p class="text-sm text-gray-600">Visualizar relatórios e métricas.</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -17,6 +17,11 @@ class Controller
         $this->current_user = Auth::user();
     }
 
+    public function setLayout(string $layout): void
+    {
+        $this->layout = $layout;
+    }
+
     public function currentUser(): ?Employee
     {
         if ($this->current_user === null) {
