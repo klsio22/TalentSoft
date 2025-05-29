@@ -1,22 +1,16 @@
 /**
- * Validações para o formulário de funcionários
+ * Employee Form Validation System
+ * Handles input masks, real-time validation, and form submission validation
  */
 document.addEventListener('DOMContentLoaded', function () {
-  // Aplicar máscaras
   applyInputMasks();
-
-  // Aplicar validações ao formulário
-  setupFormValidation();
-
-  // Adicionar validação preventiva em tempo real
   setupPreventiveValidation();
 });
 
 /**
- * Aplica máscaras de entrada para campos específicos
+ * Apply input masks for CPF, ZIP code, and salary formatting
  */
 function applyInputMasks() {
-  // Máscara para CPF
   const cpfInput = document.getElementById('cpf');
   if (cpfInput) {
     cpfInput.addEventListener('input', function () {
@@ -30,7 +24,6 @@ function applyInputMasks() {
     });
   }
 
-  // Máscara para CEP
   const cepInput = document.getElementById('zipcode');
   if (cepInput) {
     cepInput.addEventListener('input', function () {
@@ -42,21 +35,16 @@ function applyInputMasks() {
     });
   }
 
-  // Máscara para Salário
+  // Currency formatting for salary field
   const salaryInput = document.getElementById('salary');
   if (salaryInput) {
-    // Função para aplicar máscara de moeda
     function applyCurrencyMask(value) {
-      // Remove tudo que não for dígito
       let numbers = value.replace(/\D/g, '');
-
       if (numbers.length === 0) return '';
 
-      // Converte para centavos e formata
       let formatted = (parseInt(numbers) / 100).toFixed(2);
       formatted = formatted.replace('.', ',');
       formatted = formatted.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
       return formatted;
     }
 
@@ -66,7 +54,6 @@ function applyInputMasks() {
 
       this.value = applyCurrencyMask(this.value);
 
-      // Ajustar posição do cursor
       const newLength = this.value.length;
       const lengthDiff = newLength - oldLength;
       this.setSelectionRange(
@@ -77,13 +64,9 @@ function applyInputMasks() {
 
     salaryInput.addEventListener('focus', function () {
       if (!this.value) return;
-
-      setTimeout(() => {
-        this.select();
-      }, 0);
+      setTimeout(() => this.select(), 0);
     });
 
-    // Ao perder foco, garantir formatação correta
     salaryInput.addEventListener('blur', function () {
       if (this.value) {
         this.value = applyCurrencyMask(this.value);
@@ -93,21 +76,23 @@ function applyInputMasks() {
 }
 
 /**
- * Configura validação de formulário
+ * Setup form validation system
  */
 function setupFormValidation() {
   const form = document.querySelector('form');
 
   if (form) {
-    // Determinar se é formulário de criação ou edição
     const isCreating = window.location.href.includes('create');
+    const touchedFields = new Set();
 
-    // Adicionar validação personalizada no envio do formulário
     form.addEventListener('submit', function (event) {
-      // Executar validações personalizadas
-      updateCustomValidation();
+      const allInputs = form.querySelectorAll('input, select, textarea');
+      allInputs.forEach((input) => {
+        if (input.id) touchedFields.add(input.id);
+      });
 
-      // Definir campos obrigatórios baseado no tipo de formulário
+      updateCustomValidation(touchedFields);
+
       let requiredFields = [
         'name',
         'cpf',
@@ -118,11 +103,9 @@ function setupFormValidation() {
         'hire_date',
       ];
 
-      // No formulário de criação, senha é sempre obrigatória
       if (isCreating) {
         requiredFields.push('password', 'password_confirmation');
       } else {
-        // No formulário de edição, verificar se já tem credencial
         const hasCredential = document.querySelector(
           '.bg-blue-50.border-blue-200',
         );
@@ -131,7 +114,6 @@ function setupFormValidation() {
           'password_confirmation',
         );
 
-        // Se não tem credencial, senha é obrigatória
         if (!hasCredential && passwordField && passwordConfField) {
           if (passwordField.hasAttribute('required')) {
             requiredFields.push('password', 'password_confirmation');
@@ -146,11 +128,10 @@ function setupFormValidation() {
         if (field && !field.value.trim()) {
           field.classList.add('border-red-300');
 
-          // Adicionar mensagem de erro se ainda não existir
           let errorMsg = field.nextElementSibling;
           if (!errorMsg || !errorMsg.classList.contains('text-red-600')) {
             errorMsg = document.createElement('p');
-            errorMsg.className = 'mt-1 text-sm text-red-600';
+            errorMsg.className = 'mt-1 text-sm text-red-600 absolute';
             errorMsg.textContent = 'Este campo é obrigatório';
             field.parentNode.insertBefore(errorMsg, field.nextSibling);
           }
@@ -159,7 +140,6 @@ function setupFormValidation() {
         }
       });
 
-      // Verificar se o formulário é válido
       if (!form.checkValidity() || hasError) {
         event.preventDefault();
         event.stopPropagation();
@@ -168,41 +148,49 @@ function setupFormValidation() {
       form.classList.add('was-validated');
     });
 
-    // Validar em tempo real para melhor experiência do usuário
     const inputs = form.querySelectorAll('input, select, textarea');
     inputs.forEach((input) => {
-      // Remover mensagens de erro quando o usuário começa a digitar
+      input.addEventListener('focus', function () {
+        if (this.id) touchedFields.add(this.id);
+      });
+
       input.addEventListener('input', function () {
-        this.classList.remove('border-red-300');
-        const errorMsg = this.nextElementSibling;
-        if (errorMsg && errorMsg.classList.contains('text-red-600')) {
-          errorMsg.remove();
+        if (touchedFields.has(this.id)) {
+          this.classList.remove('border-red-300');
+          const errorMsg = this.nextElementSibling;
+          if (errorMsg && errorMsg.classList.contains('text-red-600')) {
+            errorMsg.remove();
+          }
         }
       });
 
-      input.addEventListener('blur', updateCustomValidation);
+      input.addEventListener('blur', function () {
+        if (touchedFields.has(this.id)) {
+          const currentFieldSet = new Set([this.id]);
+          updateCustomValidation(currentFieldSet);
+        }
+      });
     });
   }
 }
 
 /**
- * Atualiza as validações personalizadas
+ * Run validation checks for CPF, email, and required fields
  */
-function updateCustomValidation() {
-  validateCPFField();
-  validateEmailField();
-  validateRequiredFields();
-  validatePasswordFields();
+function updateCustomValidation(touchedFields = null) {
+  validateCPFField(touchedFields);
+  validateEmailField(touchedFields);
+  validateRequiredFields(touchedFields);
 }
 
 /**
- * Valida campo CPF
+ * Validate CPF using Brazilian algorithm
  */
-function validateCPFField() {
+function validateCPFField(touchedFields = null) {
   const cpfInput = document.getElementById('cpf');
-  if (cpfInput) {
+  if (cpfInput && (!touchedFields || touchedFields.has('cpf'))) {
     if (cpfInput.value && !isValidCPF(cpfInput.value)) {
-      cpfInput.setCustomValidity('CPF inválido');
+      cpfInput.setCustomValidity('Formato de CPF inválido');
       showFieldError(cpfInput, 'CPF inválido');
     } else {
       cpfInput.setCustomValidity('');
@@ -212,13 +200,13 @@ function validateCPFField() {
 }
 
 /**
- * Valida campo Email
+ * Validate email format
  */
-function validateEmailField() {
+function validateEmailField(touchedFields = null) {
   const emailInput = document.getElementById('email');
-  if (emailInput) {
+  if (emailInput && (!touchedFields || touchedFields.has('email'))) {
     if (emailInput.value && !isValidEmail(emailInput.value)) {
-      emailInput.setCustomValidity('Email inválido');
+      emailInput.setCustomValidity('Formato de email inválido');
       showFieldError(emailInput, 'Email inválido');
     } else {
       emailInput.setCustomValidity('');
@@ -228,10 +216,9 @@ function validateEmailField() {
 }
 
 /**
- * Valida campos obrigatórios
+ * Validate required fields based on form type
  */
-function validateRequiredFields() {
-  // Determinar se é formulário de criação ou edição
+function validateRequiredFields(touchedFields = null) {
   const isCreating = window.location.href.includes('create');
 
   let requiredFields = [
@@ -244,11 +231,9 @@ function validateRequiredFields() {
     'hire_date',
   ];
 
-  // No formulário de criação, senha é sempre obrigatória
   if (isCreating) {
     requiredFields.push('password', 'password_confirmation');
   } else {
-    // No formulário de edição, verificar se senha é obrigatória
     const passwordField = document.getElementById('password');
     const passwordConfField = document.getElementById('password_confirmation');
 
@@ -262,77 +247,35 @@ function validateRequiredFields() {
 
   requiredFields.forEach((fieldId) => {
     const field = document.getElementById(fieldId);
-    if (field && !field.value.trim()) {
-      field.setCustomValidity('Campo obrigatório');
-    } else if (field) {
-      field.setCustomValidity('');
+    if (field && (!touchedFields || touchedFields.has(fieldId))) {
+      if (!field.value.trim()) {
+        field.setCustomValidity('Este campo é obrigatório');
+      } else {
+        field.setCustomValidity('');
+      }
     }
   });
 }
 
 /**
- * Valida campos de senha
- */
-function validatePasswordFields() {
-  const password = document.getElementById('password');
-  const passwordConfirmation = document.getElementById('password_confirmation');
-
-  if (password && passwordConfirmation) {
-    const isCreating = window.location.href.includes('create');
-
-    // Verificar correspondência de senhas
-    if (
-      (isCreating || (password.value && passwordConfirmation.value)) &&
-      password.value !== passwordConfirmation.value
-    ) {
-      passwordConfirmation.setCustomValidity('As senhas não correspondem');
-      showFieldError(passwordConfirmation, 'As senhas não correspondem');
-    } else {
-      passwordConfirmation.setCustomValidity('');
-      clearFieldError(passwordConfirmation);
-    }
-
-    // Verificar senha obrigatória na criação
-    if (isCreating && !password.value) {
-      password.setCustomValidity('A senha é obrigatória');
-      showFieldError(password, 'A senha é obrigatória');
-    } else if (password.value && password.value.length < 6) {
-      password.setCustomValidity('A senha deve ter pelo menos 6 caracteres');
-      showFieldError(password, 'A senha deve ter pelo menos 6 caracteres');
-    } else {
-      password.setCustomValidity('');
-      clearFieldError(password);
-    }
-  }
-}
-
-/**
- * Valida se um CPF é válido
+ * Validate Brazilian CPF using official algorithm
  */
 function isValidCPF(cpf) {
-  // Remove caracteres não numéricos
   cpf = cpf.replace(/[^\d]/g, '');
 
-  // Verifica se tem 11 dígitos
   if (cpf.length !== 11) return false;
 
-  // Verifica se todos os dígitos são iguais
   if (/^(\d)\1{10}$/.test(cpf)) return false;
 
-  // Validação de dígitos verificadores
   let sum = 0;
-  let remainder;
-
-  // Primeiro dígito verificador
   for (let i = 1; i <= 9; i++) {
     sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
   }
 
-  remainder = (sum * 10) % 11;
+  let remainder = (sum * 10) % 11;
   if (remainder === 10 || remainder === 11) remainder = 0;
   if (remainder !== parseInt(cpf.substring(9, 10))) return false;
 
-  // Segundo dígito verificador
   sum = 0;
   for (let i = 1; i <= 10; i++) {
     sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
@@ -344,26 +287,23 @@ function isValidCPF(cpf) {
 }
 
 /**
- * Valida se um email é válido
+ * Validate email format using standard regex pattern
  */
 function isValidEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 /**
- * Valida se um salário é válido
+ * Validate salary field - must be a positive number
  */
 function isValidSalary(salary) {
   if (!salary.trim()) return false;
 
-  // Permitir apenas números, vírgulas, pontos e espaços
   const cleanSalary = salary.replace(/[R$\s]/g, '');
 
-  // Verificar se contém apenas números, vírgulas e pontos
   if (!/^[\d,.]+$/.test(cleanSalary)) return false;
 
-  // Verificar se é um número válido após limpeza
   const numericValue = parseFloat(
     cleanSalary.replace(/\./g, '').replace(',', '.'),
   );
@@ -371,46 +311,32 @@ function isValidSalary(salary) {
 }
 
 /**
- * Mostra uma mensagem de erro para um campo
+ * Display error message for a specific field
  */
 function showFieldError(field, errorMessage) {
-  // Adicionar borda vermelha
   field.classList.add('border-red-300');
+  field.style.borderColor = '#f87171';
 
-  // Verificar se já existe uma mensagem de erro
-  let errorElem = field.nextElementSibling;
-  if (errorElem && errorElem.tagName === 'SMALL') {
-    // Se for um small de ajuda, procure o próximo elemento
-    errorElem = errorElem.nextElementSibling;
-  }
+  clearFieldError(field);
 
-  if (!errorElem || !errorElem.classList.contains('text-red-600')) {
-    // Criar novo elemento de erro se não existir
-    errorElem = document.createElement('p');
-    errorElem.className = 'mt-1 text-sm text-red-600';
-
-    // Adicionar após o campo
-    if (field.nextElementSibling) {
-      field.parentNode.insertBefore(
-        errorElem,
-        field.nextElementSibling.nextSibling,
-      );
-    } else {
-      field.parentNode.appendChild(errorElem);
-    }
-  }
-
-  // Atualizar a mensagem
+  const errorElem = document.createElement('div');
+  errorElem.className = 'error-message mt-1 text-sm text-red-600 absolute';
+  errorElem.style.color = '#dc2626';
   errorElem.textContent = errorMessage;
+
+  field.parentNode.insertBefore(errorElem, field.nextSibling);
 }
 
 /**
- * Remove a mensagem de erro de um campo
+ * Remove error styling and messages from a field
  */
 function clearFieldError(field) {
   field.classList.remove('border-red-300');
+  field.style.borderColor = '';
 
-  // Procurar pela mensagem de erro
+  const errorMessages = field.parentNode.querySelectorAll('.error-message');
+  errorMessages.forEach((elem) => elem.remove());
+
   let currentElem = field.nextElementSibling;
   while (currentElem) {
     if (
@@ -425,14 +351,60 @@ function clearFieldError(field) {
 }
 
 /**
- * Configura validação preventiva em tempo real
+ * Handle password field validation when confirmation field changes
+ */
+function validatePasswordConfirmation(fieldId, touchedFields) {
+  if (fieldId === 'password_confirmation') {
+    const passwordField = document.getElementById('password');
+    if (passwordField && touchedFields.has('password')) {
+      validateFieldWithTouchedCheck(passwordField, touchedFields);
+    }
+  }
+}
+
+/**
+ * Handle password confirmation field validation when password field changes
+ */
+function validatePasswordField(fieldId, touchedFields) {
+  if (fieldId === 'password') {
+    const passwordConfField = document.getElementById('password_confirmation');
+    if (passwordConfField && touchedFields.has('password_confirmation')) {
+      validateFieldWithTouchedCheck(passwordConfField, touchedFields);
+    }
+  }
+}
+
+/**
+ * Handle input validation for password fields
+ */
+function handlePasswordInput(field, fieldId, touchedFields) {
+  validateFieldWithTouchedCheck(field, touchedFields);
+  validatePasswordConfirmation(fieldId, touchedFields);
+  validatePasswordField(fieldId, touchedFields);
+}
+
+/**
+ * Handle input validation for non-password fields
+ */
+function handleNonPasswordInput(field, touchedFields) {
+  if (field.value.trim()) {
+    clearFieldError(field);
+  } else {
+    validateFieldWithTouchedCheck(field, touchedFields);
+  }
+}
+
+/**
+ * Setup real-time validation for form fields
  */
 function setupPreventiveValidation() {
   const form = document.querySelector('form');
   if (!form) return;
 
-  // Determinar se é formulário de criação ou edição
-  const isCreating = window.location.href.includes('create');
+  const isCreating =
+    window.location.href.includes('create') ||
+    window.location.href.includes('test-validation') ||
+    window.location.href.includes('test-debug');
 
   let requiredFields = [
     'name',
@@ -444,21 +416,26 @@ function setupPreventiveValidation() {
     'hire_date',
   ];
 
-  // No formulário de criação, senha é sempre obrigatória
   if (isCreating) {
     requiredFields.push('password', 'password_confirmation');
   }
+
+  const touchedFields = new Set();
 
   requiredFields.forEach((fieldId) => {
     const field = document.getElementById(fieldId);
     if (!field) return;
 
-    // Validação quando o campo perde o foco
-    field.addEventListener('blur', function () {
-      validateField(this);
+    field.addEventListener('focus', function () {
+      touchedFields.add(fieldId);
     });
 
-    // Validação em tempo real para campos de texto
+    field.addEventListener('blur', function () {
+      if (touchedFields.has(fieldId)) {
+        validateFieldWithTouchedCheck(this, touchedFields);
+      }
+    });
+
     if (
       field.type === 'text' ||
       field.type === 'email' ||
@@ -466,24 +443,30 @@ function setupPreventiveValidation() {
       field.type === 'date'
     ) {
       field.addEventListener('input', function () {
-        // Remover erro se o campo não estiver mais vazio
-        if (this.value.trim()) {
-          clearFieldError(this);
+        if (touchedFields.has(fieldId)) {
+          if (field.type === 'password') {
+            handlePasswordInput(this, fieldId, touchedFields);
+          } else {
+            handleNonPasswordInput(this, touchedFields);
+          }
         }
       });
     }
 
-    // Validação para select
     if (field.tagName === 'SELECT') {
       field.addEventListener('change', function () {
-        validateField(this);
+        touchedFields.add(fieldId);
+        validateFieldWithTouchedCheck(this, touchedFields);
       });
     }
   });
 
-  // Interceptar tentativa de envio para mostrar alerta geral
   form.addEventListener('submit', function (event) {
-    if (!validateAllRequiredFields()) {
+    requiredFields.forEach((fieldId) => {
+      touchedFields.add(fieldId);
+    });
+
+    if (!validateAllRequiredFieldsWithTouchedCheck(touchedFields)) {
       event.preventDefault();
       showGeneralAlert();
     }
@@ -491,26 +474,29 @@ function setupPreventiveValidation() {
 }
 
 /**
- * Valida um campo específico
+ * Validate a specific field considering which fields have been touched
  */
-function validateField(field) {
+function validateFieldWithTouchedCheck(field, touchedFields) {
+  if (!touchedFields.has(field.id)) {
+    return true;
+  }
+
   let isValid = true;
   let errorMessage = '';
 
-  // Verificar se é campo obrigatório
   if (field.hasAttribute('required') && !field.value.trim()) {
     isValid = false;
     errorMessage = 'Este campo é obrigatório';
   }
 
-  // Validações específicas por tipo de campo
-  if (field.value.trim() && isValid) {
+  if (isValid) {
     const validationResult = validateSpecificField(field);
     isValid = validationResult.isValid;
-    errorMessage = validationResult.errorMessage;
+    if (!isValid) {
+      errorMessage = validationResult.errorMessage;
+    }
   }
 
-  // Mostrar ou limpar erro
   if (!isValid) {
     showFieldError(field, errorMessage);
   } else {
@@ -521,63 +507,9 @@ function validateField(field) {
 }
 
 /**
- * Valida campos específicos baseado no ID
+ * Validate all required fields considering which ones have been touched
  */
-function validateSpecificField(field) {
-  switch (field.id) {
-    case 'cpf': {
-      if (!isValidCPF(field.value)) {
-        return { isValid: false, errorMessage: 'CPF inválido' };
-      }
-      break;
-    }
-
-    case 'email': {
-      if (!isValidEmail(field.value)) {
-        return { isValid: false, errorMessage: 'Email inválido' };
-      }
-      break;
-    }
-
-    case 'password': {
-      const isCreating = window.location.href.includes('create');
-      if (isCreating && field.value.length < 6) {
-        return {
-          isValid: false,
-          errorMessage: 'A senha deve ter pelo menos 6 caracteres',
-        };
-      }
-      break;
-    }
-
-    case 'password_confirmation': {
-      const passwordField = document.getElementById('password');
-      if (passwordField && field.value !== passwordField.value) {
-        return { isValid: false, errorMessage: 'As senhas não correspondem' };
-      }
-      break;
-    }
-
-    case 'salary': {
-      if (!isValidSalary(field.value)) {
-        return {
-          isValid: false,
-          errorMessage:
-            'Formato de salário inválido. Use apenas números, vírgulas e pontos.',
-        };
-      }
-      break;
-    }
-  }
-
-  return { isValid: true, errorMessage: '' };
-}
-
-/**
- * Valida todos os campos obrigatórios
- */
-function validateAllRequiredFields() {
-  // Determinar se é formulário de criação ou edição
+function validateAllRequiredFieldsWithTouchedCheck(touchedFields) {
   const isCreating = window.location.href.includes('create');
 
   let requiredFields = [
@@ -590,11 +522,9 @@ function validateAllRequiredFields() {
     'hire_date',
   ];
 
-  // No formulário de criação, senha é sempre obrigatória
   if (isCreating) {
     requiredFields.push('password', 'password_confirmation');
   } else {
-    // No formulário de edição, verificar se senha é obrigatória
     const passwordField = document.getElementById('password');
     const passwordConfField = document.getElementById('password_confirmation');
 
@@ -610,7 +540,7 @@ function validateAllRequiredFields() {
 
   requiredFields.forEach((fieldId) => {
     const field = document.getElementById(fieldId);
-    if (field && !validateField(field)) {
+    if (field && !validateFieldWithTouchedCheck(field, touchedFields)) {
       allValid = false;
     }
   });
@@ -619,30 +549,27 @@ function validateAllRequiredFields() {
 }
 
 /**
- * Mostra alerta geral para campos obrigatórios não preenchidos
+ * Show general alert for unfilled required fields
  */
 function showGeneralAlert() {
-  // Determinar se é formulário de criação ou edição
   const isCreating = window.location.href.includes('create');
 
   let requiredFields = [
-    { id: 'name', label: 'Nome completo' },
+    { id: 'name', label: 'Nome Completo' },
     { id: 'cpf', label: 'CPF' },
     { id: 'email', label: 'Email' },
     { id: 'role_id', label: 'Cargo' },
-    { id: 'birth_date', label: 'Data de nascimento' },
+    { id: 'birth_date', label: 'Data de Nascimento' },
     { id: 'salary', label: 'Salário' },
-    { id: 'hire_date', label: 'Data de contratação' },
+    { id: 'hire_date', label: 'Data de Contratação' },
   ];
 
-  // No formulário de criação, senha é sempre obrigatória
   if (isCreating) {
     requiredFields.push(
       { id: 'password', label: 'Senha' },
-      { id: 'password_confirmation', label: 'Confirmação de senha' },
+      { id: 'password_confirmation', label: 'Confirmação de Senha' },
     );
   } else {
-    // No formulário de edição, verificar se senha é obrigatória
     const passwordField = document.getElementById('password');
     const passwordConfField = document.getElementById('password_confirmation');
 
@@ -652,7 +579,7 @@ function showGeneralAlert() {
     if (passwordConfField && passwordConfField.hasAttribute('required')) {
       requiredFields.push({
         id: 'password_confirmation',
-        label: 'Confirmação de senha',
+        label: 'Confirmação de Senha',
       });
     }
   }
@@ -667,9 +594,130 @@ function showGeneralAlert() {
   });
 
   if (emptyFields.length > 0) {
-    const fieldsText = emptyFields.join(', ');
-    alert(
-      `Por favor, preencha os seguintes campos obrigatórios:\n\n${fieldsText}`,
-    );
+    const fieldsHtml = emptyFields
+      .map(
+        (field) =>
+          `<div style="display: flex; align-items: center; gap: 8px; margin: 5px 0;">
+        <span style="color: #f59e0b;">•</span>
+        <span>${field}</span>
+      </div>`,
+      )
+      .join('');
+
+    const message = `
+      <div style="text-align: left;">
+        <p style="margin-bottom: 15px; font-weight: 500;">Por favor, preencha os seguintes campos obrigatórios:</p>
+        ${fieldsHtml}
+      </div>
+    `;
+
+    if (typeof showCustomModal === 'function') {
+      showCustomModal('Campos Obrigatórios', message, 'warning');
+    } else {
+      const fieldsText = emptyFields.join(', ');
+      alert(
+        `Por favor, preencha os seguintes campos obrigatórios:\n\n${fieldsText}`,
+      );
+    }
+  }
+}
+
+/**
+ * Validate CPF field
+ */
+function validateCPFSpecific(field) {
+  if (!isValidCPF(field.value)) {
+    return { isValid: false, errorMessage: 'CPF inválido' };
+  }
+  return { isValid: true, errorMessage: '' };
+}
+
+/**
+ * Validate email field
+ */
+function validateEmailSpecific(field) {
+  if (!isValidEmail(field.value)) {
+    return { isValid: false, errorMessage: 'Email inválido' };
+  }
+  return { isValid: true, errorMessage: '' };
+}
+
+/**
+ * Validate password field
+ */
+function validatePasswordSpecific(field) {
+  const isCreating = window.location.href.includes('create');
+
+  if (isCreating && !field.value.trim()) {
+    return {
+      isValid: false,
+      errorMessage: 'Senha é obrigatória',
+    };
+  }
+
+  if (field.value.trim() && field.value.length < 6) {
+    return {
+      isValid: false,
+      errorMessage: 'Senha deve ter pelo menos 6 caracteres',
+    };
+  }
+
+  return { isValid: true, errorMessage: '' };
+}
+
+/**
+ * Validate password confirmation field
+ */
+function validatePasswordConfirmationSpecific(field) {
+  const passwordField = document.getElementById('password');
+  const isCreating = window.location.href.includes('create');
+
+  if (isCreating && !field.value.trim()) {
+    return {
+      isValid: false,
+      errorMessage: 'Confirmação de senha é obrigatória',
+    };
+  }
+
+  if (passwordField && (field.value || passwordField.value)) {
+    if (field.value !== passwordField.value) {
+      return { isValid: false, errorMessage: 'Senhas não coincidem' };
+    }
+  }
+
+  return { isValid: true, errorMessage: '' };
+}
+
+/**
+ * Validate salary field
+ */
+function validateSalarySpecific(field) {
+  if (!isValidSalary(field.value)) {
+    return {
+      isValid: false,
+      errorMessage:
+        'Formato de salário inválido. Use apenas números, vírgulas e pontos.',
+    };
+  }
+  return { isValid: true, errorMessage: '' };
+}
+
+/**
+ * Validate specific fields based on field ID
+ */
+function validateSpecificField(field) {
+  switch (field.id) {
+    case 'cpf':
+      return validateCPFSpecific(field);
+    case 'email':
+      return validateEmailSpecific(field);
+    case 'password':
+      return validatePasswordSpecific(field);
+    case 'password_confirmation':
+      return validatePasswordConfirmationSpecific(field);
+    case 'salary':
+      return validateSalarySpecific(field);
+    default:
+      return { isValid: true, errorMessage: '' };
   }
 }

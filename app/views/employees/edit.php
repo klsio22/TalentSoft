@@ -210,14 +210,38 @@ $disabledClass = $canEdit ? '' : ' opacity-60 cursor-not-allowed';
             </div>
 
             <div class="mt-6">
-                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-toggle-on mr-2 text-blue-600"></i>Status
+                <label for="status" class="block text-sm font-semibold text-gray-700 mb-4">
+                    <i class="fas fa-toggle-on mr-2 text-blue-600"></i>Status do Funcionário
                 </label>
-                <select class="w-full md:w-1/2 px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200<?= $disabledClass ?>"
-                        id="status" name="status" <?= $disabled ?>>
-                    <option value="Active" <?= $employee->status === 'Active' ? 'selected' : '' ?>>Ativo</option>
-                    <option value="Inactive" <?= $employee->status === 'Inactive' ? 'selected' : '' ?>>Inativo</option>
-                </select>
+                <div class="flex items-center space-x-4">
+                    <!-- Toggle Switch -->
+                    <label class="relative inline-flex items-center cursor-pointer<?= $disabledClass ?>">
+                        <input type="hidden" name="status" value="Inactive">
+                        <input type="checkbox"
+                               id="status"
+                               name="status"
+                               value="Active"
+                               class="sr-only peer"
+                               <?= $employee->status === 'Active' ? 'checked' : '' ?>
+                               <?= $disabled ?>>
+                        <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-green-500 peer-checked:to-green-600 transition-all duration-300 shadow-inner"></div>
+                    </label>
+
+                    <!-- Status Text -->
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-600">Status:</span>
+                        <span id="status-text" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold <?= $employee->status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                            <i class="fas fa-circle mr-1 text-xs"></i>
+                            <span id="status-label"><?= $employee->status === 'Active' ? 'Ativo' : 'Inativo' ?></span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Script para atualizar o texto do status -->
+                <p class="mt-2 text-xs text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Funcionários ativos podem fazer login no sistema
+                </p>
             </div>
         </div>
 
@@ -415,3 +439,4 @@ $disabledClass = $canEdit ? '' : ' opacity-60 cursor-not-allowed';
 </div>
 
 <script src="/assets/js/employee-form-validation.js"></script>
+<script src="/assets/js/employee-status-toggle.js"></script>

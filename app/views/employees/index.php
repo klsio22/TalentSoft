@@ -256,10 +256,10 @@ use Core\Constants\CssClasses;
 </div>
 
 <!-- Modal de confirmação de exclusão -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-    <div class="glass-effect p-8 border border-white/20 w-96 shadow-2xl rounded-2xl mx-4">
+<div id="deleteModal" class="hidden fixed inset-0 bg-gray-900/80 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="bg-white p-8 w-96 shadow-2xl rounded-2xl mx-4 border border-gray-200">
         <div class="text-center">
-            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 ">
                 <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
             </div>
             <h3 class="text-xl font-semibold text-gray-800 mb-2">Confirmar Exclusão</h3>

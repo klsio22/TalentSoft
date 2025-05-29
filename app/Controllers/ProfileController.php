@@ -15,7 +15,6 @@ class ProfileController extends Controller
 
         if (!Auth::check()) {
             $this->redirectTo(route('auth.login'));
-            return;
         }
     }
 

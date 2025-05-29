@@ -184,6 +184,7 @@ use Core\Constants\CssClasses;
                         </div>
                         <input type="date"
                                class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['hire_date']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+                               id="hire_date" name="hire_date" value="<?= htmlspecialchars($employee->hire_date ?? '') ?>" required>
                     </div>
                     <?php if(isset($errors['hire_date'])): ?>
                         <p class="mt-2 text-sm text-red-600 flex items-center">
@@ -328,8 +329,19 @@ use Core\Constants\CssClasses;
                             <i class="fas fa-lock text-gray-400"></i>
                         </div>
                         <input type="password"
-                               class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                               id="password" name="password" value="<?= htmlspecialchars($formData['password'] ?? '') ?>" required>
+                               class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['password']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+                               id="password" name="password" value="<?= htmlspecialchars($formData['password'] ?? '') ?>"
+                               placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                    <?php if(isset($errors['password'])): ?>
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            <?= $errors['password'] ?>
+                        </p>
+                    <?php endif; ?>
+                    <div id="password-error" class="mt-2 text-sm text-red-600 hidden flex items-center">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        <span class="error-message"></span>
                     </div>
                 </div>
 
@@ -340,25 +352,61 @@ use Core\Constants\CssClasses;
                             <i class="fas fa-lock text-gray-400"></i>
                         </div>
                         <input type="password"
-                               class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                               id="password_confirmation" name="password_confirmation" value="<?= htmlspecialchars($formData['password_confirmation'] ?? '') ?>" required>
+                               class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['password_confirmation']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+                               id="password_confirmation" name="password_confirmation" value="<?= htmlspecialchars($formData['password_confirmation'] ?? '') ?>"
+                               placeholder="Repita a senha" required>
+                    </div>
+                    <?php if(isset($errors['password_confirmation'])): ?>
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            <?= $errors['password_confirmation'] ?>
+                        </p>
+                    <?php endif; ?>
+                    <div id="password_confirmation-error" class="mt-2 text-sm text-red-600 hidden flex items-center">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        <span class="error-message"></span>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <i class="fas fa-toggle-on text-gray-400"></i>
+                    <label class="block text-sm font-semibold text-gray-700 mb-4">Status do Funcionário</label>
+                    <div class="flex items-center justify-between p-4 bg-white/60 rounded-xl border border-gray-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="relative">
+                                <!-- Hidden input para valor padrão (Inactive) -->
+                                <input type="hidden" name="status" value="Inactive">
+                                <!-- Toggle switch -->
+                                <input type="checkbox"
+                                       id="statusToggle"
+                                       name="status"
+                                       value="Active"
+                                       class="sr-only"
+                                       <?= ($employee->status ?? 'Active') === 'Active' ? 'checked' : '' ?>>
+                                <label for="statusToggle"
+                                       class="flex items-center cursor-pointer">
+                                    <div class="relative">
+                                        <div class="block bg-gray-300 w-14 h-8 rounded-full transition-colors duration-200 ease-in-out toggle-bg"></div>
+                                        <div class="absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-200 ease-in-out toggle-dot"></div>
+                                    </div>
+                                </label>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">
+                                Funcionário ativo no sistema
+                            </span>
                         </div>
-                        <select class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 appearance-none"
-                                id="status" name="status">
-                            <option value="Active" <?= ($employee->status ?? 'Active') === 'Active' ? 'selected' : '' ?>>Ativo</option>
-                            <option value="Inactive" <?= ($employee->status ?? '') === 'Inactive' ? 'selected' : '' ?>>Inativo</option>
-                        </select>
+                        <div>
+                            <span id="statusBadge" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold">
+                                <i id="statusBadgeIcon" class="mr-1.5"></i>
+                                <span id="statusBadgeText"></span>
+                            </span>
+                        </div>
                     </div>
+                    <p class="mt-2 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Funcionários ativos podem fazer login no sistema
+                    </p>
                 </div>
             </div>
         </div>
@@ -379,4 +427,24 @@ use Core\Constants\CssClasses;
     </form>
 </div>
 
+<style>
+/* Toggle Switch Styles */
+#statusToggle:checked + label .toggle-bg {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+#statusToggle:checked + label .toggle-dot {
+    transform: translateX(1.5rem);
+}
+
+.toggle-bg {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+.toggle-dot {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+</style>
+
 <script src="/assets/js/employee-form-validation.js"></script>
+<script src="/assets/js/employee-status-toggle.js"></script>
