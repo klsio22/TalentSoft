@@ -29,38 +29,4 @@
 </div>
 <?php endforeach; ?>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const flashMessages = document.querySelectorAll('.flash-message');
-
-    flashMessages.forEach(messageEl => {
-      // Auto-fade após 5 segundos
-      setTimeout(() => {
-        fadeOutMessage(messageEl);
-      }, 5000);
-
-      // Fechar ao clicar no botão X
-      const closeBtn = messageEl.querySelector('.close-flash');
-      if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-          fadeOutMessage(messageEl);
-        });
-      }
-    });
-
-    function fadeOutMessage(messageEl) {
-      messageEl.style.opacity = '0';
-      messageEl.style.transform = 'translateY(-20px)';
-      messageEl.style.transition = 'all 0.3s ease';
-
-      setTimeout(() => {
-        if (messageEl.parentNode) {
-          messageEl.parentNode.removeChild(messageEl);
-        }
-
-        // Disparar evento personalizado
-        document.dispatchEvent(new CustomEvent('flashMessageHidden'));
-      }, 300);
-    }
-  });
-</script>
+<!-- Flash message scripts are loaded via layout -->
