@@ -5,7 +5,8 @@
  * Coloque no início do método store() do EmployeesController.php
  */
 
-function debug_error_handler($errno, $errstr, $errfile, $errline) {
+function debug_error_handler($errno, $errstr, $errfile, $errline)
+{
     $error_log = '/var/www/log/debug-errors.log';
     $message = date('[Y-m-d H:i:s]') . " Error $errno: $errstr in $errfile on line $errline\n";
 
@@ -48,10 +49,13 @@ if (!is_dir($logDir)) {
 ini_set('error_log', $logDir . '/php_errors.log');
 
 // Função para depurar variáveis (apenas em log, nunca na tela)
-function debug_var($var, $label = null) {
+function debug_var($var, $label = null)
+{
     ob_start();
     echo "\n\n----- DEBUG ";
-    if ($label) echo "[$label] ";
+    if ($label) {
+        echo "[$label] ";
+    }
     echo "-----\n";
     var_dump($var);
     echo "\n----- END DEBUG -----\n\n";

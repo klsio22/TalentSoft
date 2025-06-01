@@ -1,4 +1,5 @@
 <?php
+
 require_once 'config/bootstrap.php';
 
 use Lib\Authentication\Auth;

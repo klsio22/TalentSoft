@@ -229,7 +229,7 @@ class Employee extends Model
             $items[] = new static($row);
         }
 
-        return new class($items, $total, $page, $perPage, $route) extends \Lib\Paginator {
+        return new class ($items, $total, $page, $perPage, $route) extends \Lib\Paginator {
             private array $items;
             private int $customTotalOfRegisters;
             private int $customTotalOfPages;

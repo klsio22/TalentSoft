@@ -44,5 +44,3 @@ Route::get('/not-found', [ErrorController::class, 'notFound'])->name('error.not_
 Route::get('/server-error', [ErrorController::class, 'serverError'])->name('error.server_error');
 
 Route::get('/{any}', [ErrorController::class, 'notFound'])->name('error.fallback');
-
-
