@@ -7,8 +7,8 @@
     <env name="APP_ENV" value="testing" />
     <env name="DB_HOST" value="db" />
     <env name="DB_PORT" value="3306" />
-    <env name="DB_DATABASE" value="problem_test" />
-    <env name="DB_USERNAME" value="root" />
-    <env name="DB_PASSWORD" value="" />
+    <env name="DB_DATABASE" value="talent_soft_development" />
+    <env name="DB_USERNAME" value="talent-soft" />
+    <env name="DB_PASSWORD" value="talent-soft" />
   </php>
 </phpunit>
