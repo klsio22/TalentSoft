@@ -35,13 +35,25 @@ function initializeFlashMessages() {
 function fadeOutMessage(messageEl) {
   if (!messageEl || !messageEl.parentNode) return;
 
+  // First apply transition properties
+  messageEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+
+  // Force browser to recognize transition by triggering a reflow
+  void messageEl.offsetWidth;
+
+  // Then apply changes that will be animated
   messageEl.style.opacity = '0';
   messageEl.style.transform = 'translateY(-20px)';
-  messageEl.style.transition = 'all 0.3s ease';
 
+  // Remove element after animation completes
   setTimeout(() => {
-    if (messageEl.parentNode) {
-      messageEl.parentNode.removeChild(messageEl);
+    if (messageEl && messageEl.parentNode) {
+      const container = messageEl.closest('.fixed');
+      if (container && container.parentNode) {
+        container.parentNode.removeChild(container);
+      } else {
+        messageEl.parentNode.removeChild(messageEl);
+      }
     }
 
     // Dispatch custom event
@@ -50,7 +62,7 @@ function fadeOutMessage(messageEl) {
         detail: { messageType: messageEl.dataset.type || 'info' },
       }),
     );
-  }, 300);
+  }, 350);
 }
 
 /**

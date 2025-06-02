@@ -2,7 +2,8 @@
 <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full px-4">
   <div
     class="flash-message <?= $type ?> rounded-lg shadow-lg p-4 text-white <?= $type === 'success' ? 'bg-green-500' : ($type === 'danger' ? 'bg-red-500' : ($type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500')) ?> auto-fade"
-    role="alert" aria-live="assertive" aria-atomic="true">
+    style="opacity: 1; transform: translateY(0); transition: opacity 0.3s ease, transform 0.3s ease;" role="alert"
+    aria-live="assertive" aria-atomic="true" data-type="<?= htmlspecialchars($type) ?>">
     <div class="flex items-center justify-between">
       <div class="flex items-center">
         <span class="mr-2">
@@ -20,7 +21,7 @@
           <?= $msg ?>
         </span>
       </div>
-      <button type="button" class="ml-4 text-white hover:text-gray-200 focus:outline-none close-flash"
+      <button type="button" class="ml-4 text-white hover:text-gray-200 focus:outline-none close-flash cursor-pointer"
         aria-label="Fechar">
         <i class="fas fa-times"></i>
       </button>
