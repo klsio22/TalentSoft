@@ -79,8 +79,11 @@ class RouterTest extends TestCase
         $dispatchCode = file_get_contents($dispatchMethod->getFileName());
 
         // Verificar que o código contém lógica para lidar com rotas não encontradas
-        $this->assertStringContainsString('header(\'Location:', $dispatchCode,
-            'O Router deve redirecionar quando uma rota não é encontrada');
+        $this->assertStringContainsString(
+            'header(\'Location:',
+            $dispatchCode,
+            'O Router deve redirecionar quando uma rota não é encontrada'
+        );
     }
 
     public function test_should_return_a_route_after_add(): void

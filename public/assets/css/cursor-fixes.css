@@ -1,0 +1,40 @@
+/* Correções de cursor para melhorar a experiência do usuário */
+
+/* Define cursor padrão para elementos com tooltip */
+[title] {
+  cursor: default;
+}
+
+/* Elementos clicáveis com título devem mostrar cursor pointer */
+a[title],
+button[title],
+.delete-btn[title],
+[role="button"][title],
+input[type="submit"][title],
+input[type="button"][title],
+input[type="reset"][title] {
+  cursor: pointer;
+}
+
+/* Garante que links e botões sempre mostrem cursor pointer */
+a:not([disabled]),
+button:not([disabled]):not(.cursor-not-allowed),
+[role="button"]:not([disabled]):not(.cursor-not-allowed),
+.delete-btn:not([disabled]) {
+  cursor: pointer;
+}
+
+/* Garante que elementos desabilitados mostrem cursor not-allowed */
+button[disabled],
+input[disabled],
+select[disabled],
+textarea[disabled],
+a.disabled,
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}
+
+/* Sobrescreve cursor help para spans com aria-hidden */
+span[aria-hidden="true"] {
+  cursor: default;
+}

@@ -232,7 +232,8 @@ use Core\Constants\CssClasses;
         class="inline-flex items-center justify-center w-10 h-10 bg-white/60 hover:bg-white/80 text-gray-600 hover:text-gray-800 rounded-lg border border-gray-200 transition-all duration-200"
         aria-label="Ir para primeira página" title="Primeira página">1</a>
       <?php if ($start > 2): ?>
-      <span class="inline-flex items-center justify-center w-10 h-10 text-gray-400" aria-hidden="true">...</span>
+      <span class="inline-flex items-center justify-center w-10 h-10 text-gray-400 cursor-default"
+        aria-hidden="true">...</span>
       <?php endif;
                 endif;
 
@@ -256,7 +257,8 @@ use Core\Constants\CssClasses;
                 // Última página, se não estiver no fim da faixa
                 if ($end < $totalPages): ?>
       <?php if ($end < $totalPages - 1): ?>
-      <span class="inline-flex items-center justify-center w-10 h-10 text-gray-400" aria-hidden="true">...</span>
+      <span class="inline-flex items-center justify-center w-10 h-10 text-gray-400 cursor-default"
+        aria-hidden="true">...</span>
       <?php endif; ?>
       <a href="<?= route('employees.index', ['page' => $totalPages] + ($queryParams ?? [])) ?>"
         class="inline-flex items-center justify-center w-10 h-10 bg-white/60 hover:bg-white/80 text-gray-600 hover:text-gray-800 rounded-lg border border-gray-200 transition-all duration-200"

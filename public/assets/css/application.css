@@ -55,7 +55,18 @@ nav.navbar {
 
 /* Tooltip styling for better UX */
 [title] {
-  cursor: help;
+  cursor: default;
+}
+
+/* Elementos clicáveis com título devem mostrar cursor pointer */
+a[title],
+button[title],
+.delete-btn[title],
+[role="button"][title],
+input[type="submit"][title],
+input[type="button"][title],
+input[type="reset"][title] {
+  cursor: pointer;
 }
 
 /* Pagination enhancements */
