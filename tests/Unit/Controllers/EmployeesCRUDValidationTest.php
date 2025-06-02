@@ -92,9 +92,11 @@ class EmployeesCRUDValidationTest extends TestCase
     public function test_employee_routes_exist(): void
     {
         // Testando apenas a lógica sem depender de execução de código
-        $routesFile = file_get_contents(dirname(__DIR__, 4) . '/config/routes.php');
+        $routesFilePath = '/var/www/config/routes.php';
+        $this->assertFileExists($routesFilePath, 'Arquivo de rotas deve existir');
 
-        $this->assertNotFalse($routesFile, 'Arquivo de rotas deve existir');
+        $routesFile = file_get_contents($routesFilePath);
+        $this->assertNotEmpty($routesFile, 'Arquivo de rotas não deve estar vazio');
 
         // Verificar se as rotas de funcionários estão definidas
         $this->assertStringContainsString("'employees.index'", $routesFile, 'Rota de listagem deve existir');

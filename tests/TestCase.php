@@ -28,11 +28,38 @@ class TestCase extends FrameworkTestCase
         Database::drop();
     }
 
+    /**
+     * Captura a saída de uma função garantindo que os buffers sejam gerenciados corretamente
+     * @param callable $callable A função cuja saída será capturada
+     * @return string A saída capturada
+     */
     protected function getOutput(callable $callable): string
     {
+        // Salva o nível atual de buffering para restaurar corretamente depois
+        $level = ob_get_level();
+
+        // Inicia a captura
         ob_start();
-        $callable();
-        return ob_get_clean();
+        try {
+            // Executa a função
+            $callable();
+
+            // Captura a saída
+            $output = ob_get_clean();
+        } catch (\Throwable $e) {
+            // Em caso de exceção, limpa todos os buffers até o nível original
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
+            throw $e;
+        }
+
+        // Garante que voltamos ao nível original de buffering em caso de problemas
+        while (ob_get_level() > $level) {
+            ob_end_clean();
+        }
+
+        return $output;
     }
 
     /**

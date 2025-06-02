@@ -122,8 +122,12 @@ abstract class Model
         return !empty($this->errors);
     }
 
-    public function errors(string $index = null): string | null
+    public function errors(string $index = null)
     {
+        if ($index === null) {
+            return $this->errors;
+        }
+
         if (isset($this->errors[$index])) {
             return $this->errors[$index];
         }

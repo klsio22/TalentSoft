@@ -18,6 +18,11 @@ if (!function_exists('route')) {
      */
     function route(string $name, $params = []): string
     {
+        // Se estamos em um ambiente de teste e existe um mock para esta função, usar o mock
+        if (isset($GLOBALS['__function_mock_route'])) {
+            return call_user_func($GLOBALS['__function_mock_route'], $name, $params);
+        }
+
         return Router::getInstance()->getRoutePathByName($name, $params);
     }
 }

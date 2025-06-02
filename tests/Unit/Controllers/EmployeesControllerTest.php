@@ -14,27 +14,93 @@ use Tests\TestCase;
  */
 class EmployeesControllerTest extends TestCase
 {
+    private Employee $mockEmployee;
+
     /**
-     * Mock da classe Auth para simular um usuário autenticado
+     * Preparar o ambiente antes de cada teste
      */
-    private function mockAuth(bool $isAdmin = true, bool $isHR = false): void
+    public function setUp(): void
     {
-        // Criar um mock da classe Auth
-        $authMock = $this->getMockBuilder(Auth::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        parent::setUp();
 
-        // Configurar os métodos
-        $authMock->method('check')->willReturn(true);
-        $authMock->method('isAdmin')->willReturn($isAdmin);
-        $authMock->method('isHR')->willReturn($isHR);
-        $authMock->method('user')->willReturn(new Employee());
+        // Definir constante para evitar exit() em redirectTo
+        if (!defined('PHPUNIT_TEST_RUNNING')) {
+            define('PHPUNIT_TEST_RUNNING', true);
+        }
 
-        // Definir o mock como estático
-        $reflectionClass = new \ReflectionClass(Auth::class);
-        $instanceProperty = $reflectionClass->getProperty('instance');
-        $instanceProperty->setAccessible(true);
-        $instanceProperty->setValue(null, $authMock);
+        // Configurar ambiente de teste para Request
+        $_SERVER['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_URI'] = $_SERVER['REQUEST_URI'] ?? '/test';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['HTTPS'] = 'off';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_REQUEST = $_REQUEST ?? [];
+        $_POST = $_POST ?? [];
+        $_GET = $_GET ?? [];
+
+        // Configurar sessão para autenticação
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Configurar o mock da autenticação
+        $this->mockAuth();
+    }
+
+    public function tearDown(): void
+    {
+        // Limpar todos os buffers de output
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        // Limpar variáveis superglobais
+        unset($_SERVER['REQUEST_METHOD']);
+        unset($_SERVER['REQUEST_URI']);
+        unset($_SERVER['SERVER_NAME']);
+        unset($_SERVER['HTTPS']);
+        $_REQUEST = [];
+        $_POST = [];
+        $_GET = [];
+
+        // Limpar sessão
+        if (isset($_SESSION['employee'])) {
+            unset($_SESSION['employee']);
+        }
+
+        parent::tearDown();
+    }
+
+    /**
+     * Configura os mocks para testes do controller
+     * @param bool $isAdmin Se o usuário é admin
+     */
+    private function mockAuth(bool $isAdmin = true): void
+    {
+        // Criar um role de admin ou HR para o mock
+        $roleData = $isAdmin ? ['name' => 'Admin', 'description' => 'Administrador'] : ['name' => 'HR', 'description' => 'Recursos Humanos'];
+        $role = new Role($roleData);
+        $this->assertTrue($role->save(), 'Falha ao salvar role do mock');
+
+        // Criar um empregado simulado para o Auth::user()
+        $this->mockEmployee = new Employee([
+            'name' => 'Mock User',
+            'email' => 'mock@example.com',
+            'status' => 'Active',
+            'role_id' => $role->id,
+            'cpf' => '11111111111',
+            'birth_date' => '1990-01-01',
+            'hire_date' => date('Y-m-d')
+        ]);
+        $this->assertTrue($this->mockEmployee->save(), 'Falha ao salvar employee do mock');
+
+        // Simular login do usuário na sessão - VERIFICAR SE O ID FOI SALVO
+        $this->assertNotNull($this->mockEmployee->id, 'Employee mock deve ter um ID válido');
+        $_SESSION['employee']['id'] = $this->mockEmployee->id;
+
+        // Verificar se a autenticação funciona
+        $this->assertTrue(\Lib\Authentication\Auth::check(), 'Auth::check() deve retornar true após configurar sessão');
     }
 
     /**
@@ -71,9 +137,9 @@ class EmployeesControllerTest extends TestCase
     public function test_index_renders_employee_list(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [, $employee] = $this->createTestData();
 
-        // Criar uma instância do controlador
+        // Criar uma instância do controlador (mockAuth já é chamado no setUp)
         $controller = new EmployeesController();
 
         // Capturar a saída do método index
@@ -92,7 +158,7 @@ class EmployeesControllerTest extends TestCase
     public function test_create_renders_form(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        $this->createTestData();
 
         // Criar uma instância do controlador
         $controller = new EmployeesController();
@@ -105,7 +171,7 @@ class EmployeesControllerTest extends TestCase
         // Verificar se a saída contém elementos esperados
         $this->assertStringContainsString('Novo Funcionário', $output);
         $this->assertStringContainsString('form', $output);
-        $this->assertStringContainsString('action="/employees"', $output);
+        $this->assertStringContainsString('action="/mock-route/employees.store"', $output);
     }
 
     /**
@@ -114,9 +180,10 @@ class EmployeesControllerTest extends TestCase
     public function test_show_displays_employee_details(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [, $employee] = $this->createTestData();
 
-        // Simular parâmetros da requisição
+        // Simular parâmetros da requisição através do $_REQUEST
+        $_REQUEST['id'] = $employee->id;
         $_GET['id'] = $employee->id;
 
         // Criar uma instância do controlador e do request
@@ -140,9 +207,10 @@ class EmployeesControllerTest extends TestCase
     public function test_edit_renders_edit_form(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [, $employee] = $this->createTestData();
 
-        // Simular parâmetros da requisição
+        // Simular parâmetros da requisição através do $_REQUEST
+        $_REQUEST['id'] = $employee->id;
         $_GET['id'] = $employee->id;
 
         // Criar uma instância do controlador e do request
@@ -167,7 +235,11 @@ class EmployeesControllerTest extends TestCase
     public function test_store_creates_new_employee(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [$role] = $this->createTestData();
+
+        // Configurar requisição POST
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/employees/store';
 
         // Simular parâmetros da requisição
         $_POST = [
@@ -181,7 +253,7 @@ class EmployeesControllerTest extends TestCase
             'password' => 'password123',
             'password_confirmation' => 'password123'
         ];
-        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_REQUEST = $_POST;
 
         // Criar uma instância do controlador
         $controller = $this->getMockBuilder(EmployeesController::class)
@@ -191,7 +263,7 @@ class EmployeesControllerTest extends TestCase
         // Configurar o mock para não redirecionar
         $controller->expects($this->once())
             ->method('redirectTo')
-            ->willReturnCallback(function ($url) {
+            ->willReturnCallback(function () {
                 return true;
             });
 
@@ -211,7 +283,11 @@ class EmployeesControllerTest extends TestCase
     public function test_update_modifies_employee(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [, $employee] = $this->createTestData();
+
+        // Configurar requisição POST
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/employees/update';
 
         // Simular parâmetros da requisição
         $_POST = [
@@ -224,7 +300,7 @@ class EmployeesControllerTest extends TestCase
             'hire_date' => $employee->hire_date,
             'status' => $employee->status
         ];
-        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_REQUEST = $_POST;
 
         // Criar uma instância do controlador
         $controller = $this->getMockBuilder(EmployeesController::class)
@@ -234,7 +310,7 @@ class EmployeesControllerTest extends TestCase
         // Configurar o mock para não redirecionar
         $controller->expects($this->once())
             ->method('redirectTo')
-            ->willReturnCallback(function ($url) {
+            ->willReturnCallback(function () {
                 return true;
             });
 
@@ -253,11 +329,15 @@ class EmployeesControllerTest extends TestCase
     public function test_destroy_removes_employee(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [, $employee] = $this->createTestData();
+
+        // Configurar requisição POST
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/employees/destroy';
 
         // Simular parâmetros da requisição
         $_POST['id'] = $employee->id;
-        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_REQUEST = $_POST;
 
         // Criar uma instância do controlador
         $controller = $this->getMockBuilder(EmployeesController::class)
@@ -267,7 +347,7 @@ class EmployeesControllerTest extends TestCase
         // Configurar o mock para não redirecionar
         $controller->expects($this->once())
             ->method('redirectTo')
-            ->willReturnCallback(function ($url) {
+            ->willReturnCallback(function () {
                 return true;
             });
 

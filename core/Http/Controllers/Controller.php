@@ -71,7 +71,14 @@ class Controller
     protected function redirectTo(string $location): void
     {
         header('Location: ' . $location);
-        exit;
+
+        // Não sair durante os testes
+        if (!defined('PHPUNIT_TEST_RUNNING') || PHPUNIT_TEST_RUNNING !== true) {
+            exit;
+        }
+
+        // Em ambiente de teste, lança uma exceção para evitar a continuação do código
+        throw new \RuntimeException("Redirect to: $location");
     }
 
     protected function redirectBack(): void
