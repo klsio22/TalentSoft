@@ -4,7 +4,7 @@
   colors="true" cacheDirectory=".cache/phpunit"
   displayDetailsOnTestsThatTriggerWarnings="true">
   <php>
-    <env name="APP_ENV" value="testing" />
+    <env name="APP_ENV" value="development" />
     <env name="DB_HOST" value="db" />
     <env name="DB_PORT" value="3306" />
     <env name="DB_DATABASE" value="talent_soft_development" />
