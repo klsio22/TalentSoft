@@ -142,7 +142,12 @@ class Router
             exit;
         }
 
-        // Redirecionar para página 404 em vez de lançar exceção
+        // Se estamos em ambiente de teste, lançar exceção em vez de redirecionar
+        if (getenv('APP_ENV') === 'testing') {
+            throw new HTTPException('Route not found', 404);
+        }
+
+        // Redirecionar para página 404 em produção
         header('Location: ' . route('error.not_found'));
         exit;
     }
