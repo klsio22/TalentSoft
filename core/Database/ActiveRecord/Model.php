@@ -122,8 +122,12 @@ abstract class Model
         return !empty($this->errors);
     }
 
-    public function errors(string $index = null): string | null
+    public function errors(string $index = null)
     {
+        if ($index === null) {
+            return $this->errors;
+        }
+
         if (isset($this->errors[$index])) {
             return $this->errors[$index];
         }
@@ -338,8 +342,9 @@ abstract class Model
     public static function findBy($conditions): ?static
     {
         $resp = self::where($conditions);
-        if (isset($resp[0]))
+        if (isset($resp[0])) {
             return $resp[0];
+        }
 
         return null;
     }

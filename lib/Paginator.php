@@ -48,6 +48,11 @@ class Paginator
         return $this->totalOfRegisters;
     }
 
+    public function total(): int
+    {
+        return $this->totalOfRegisters();
+    }
+
     public function totalOfPages(): int
     {
         return $this->totalOfPages;
@@ -88,6 +93,12 @@ class Paginator
     public function registers(): array
     {
         return $this->registers;
+    }
+
+
+    public function items(): array
+    {
+        return $this->registers();
     }
 
     public function renderPagesNavigation()

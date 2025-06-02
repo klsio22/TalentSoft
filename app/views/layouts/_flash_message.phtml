@@ -1,25 +1,32 @@
 <?php foreach (\Lib\FlashMessage::get() as $type => $msg) : ?>
-<div class="fixed top-0 left-0 w-full p-4 <?= $type === 'success' ? 'bg-green-500' : ($type === 'danger' ? 'bg-red-500' : 'bg-yellow-500') ?> text-white flex justify-between items-center text-2xl flash-message <?= $type ?> auto-fade"
-    style="z-index: 10; pointer-events: none;">
-    <div class="text-center w-full">
-        <?= $msg ?>
+<div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full px-4">
+  <div
+    class="flash-message <?= $type ?> rounded-lg shadow-lg p-4 text-white <?= $type === 'success' ? 'bg-green-500' : ($type === 'danger' ? 'bg-red-500' : ($type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500')) ?> auto-fade"
+    role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center">
+        <span class="mr-2">
+          <?php if ($type === 'success'): ?>
+          <i class="fas fa-check-circle"></i>
+          <?php elseif ($type === 'danger'): ?>
+          <i class="fas fa-exclamation-triangle"></i>
+          <?php elseif ($type === 'warning'): ?>
+          <i class="fas fa-exclamation-circle"></i>
+          <?php else: ?>
+          <i class="fas fa-info-circle"></i>
+          <?php endif; ?>
+        </span>
+        <span>
+          <?= $msg ?>
+        </span>
+      </div>
+      <button type="button" class="ml-4 text-white hover:text-gray-200 focus:outline-none close-flash"
+        aria-label="Fechar">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <button type="button" class="text-white close-btn" onclick="this.parentElement.style.display='none';"
-        aria-label="Close" style="pointer-events: auto;">&times;</button>
+  </div>
 </div>
 <?php endforeach; ?>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const flashMessages = document.querySelectorAll('.flash-message');
-        if (flashMessages.length > 0) {
-            setTimeout(function () {
-                flashMessages.forEach(function (element) {
-                    element.style.display = 'none';
-                });
-                // Disparar um evento personalizado quando as mensagens flash são ocultadas
-                document.dispatchEvent(new CustomEvent('flashMessagesHidden'));
-            }, 2000); // Reduzido para 2 segundos para facilitar os testes
-        }
-    });
-</script>
+<!-- Flash message scripts are loaded via layout -->

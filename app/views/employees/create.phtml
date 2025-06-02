@@ -1,0 +1,456 @@
+<?php
+use Core\Constants\CssClasses;
+?>
+
+<!-- Header Section -->
+<div class="glass-effect rounded-2xl shadow-xl p-8 mb-8">
+  <div class="text-center">
+    <div
+      class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-600 to-blue-600 rounded-xl mb-4 shadow-lg">
+      <i class="fas fa-user-plus text-white text-xl"></i>
+    </div>
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">
+      Novo Funcionário
+    </h1>
+    <p class="text-gray-600">Cadastre um novo funcionário no sistema</p>
+  </div>
+</div>
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-6">
+  <ol class="flex items-center space-x-2 text-sm">
+    <li>
+      <a href="<?= route('employees.index') ?>"
+        class="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center">
+        <i class="fas fa-users mr-1"></i>
+        Funcionários
+      </a>
+    </li>
+    <li class="text-gray-400">
+      <i class="fas fa-chevron-right mx-2"></i>
+    </li>
+    <li class="text-gray-600 font-medium">Novo Funcionário</li>
+  </ol>
+</nav>
+
+<!-- Formulário -->
+<div class="glass-effect rounded-2xl shadow-xl p-8">
+  <form action="<?= route('employees.store') ?>" method="post" class="space-y-8" novalidate>
+    <!-- Dados Pessoais -->
+    <div class="space-y-6">
+      <div class="border-b border-gray-200 pb-4">
+        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+          <i class="fas fa-user mr-3 text-blue-600"></i>
+          Dados Pessoais
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Nome completo*</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-user text-gray-400"></i>
+            </div>
+            <input type="text"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['name']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="name" name="name" value="<?= htmlspecialchars($employee->name ?? '') ?>" required>
+          </div>
+          <?php if(isset($errors['name'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['name'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email*</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-envelope text-gray-400"></i>
+            </div>
+            <input type="email"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['email']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="email" name="email" value="<?= htmlspecialchars($employee->email ?? '') ?>" required>
+          </div>
+          <?php if(isset($errors['email'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['email'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label for="cpf" class="block text-sm font-semibold text-gray-700 mb-2">CPF*</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-id-card text-gray-400"></i>
+            </div>
+            <input type="text"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['cpf']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="cpf" name="cpf" value="<?= htmlspecialchars($employee->cpf ?? '') ?>" placeholder="000.000.000-00"
+              required>
+          </div>
+          <?php if(isset($errors['cpf'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['cpf'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+
+        <div>
+          <label for="birth_date" class="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento*</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-calendar text-gray-400"></i>
+            </div>
+            <input type="date"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['birth_date']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="birth_date" name="birth_date" value="<?= htmlspecialchars($employee->birth_date ?? '') ?>" required>
+          </div>
+          <?php if(isset($errors['birth_date'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['birth_date'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+
+        <div>
+          <label for="role_id" class="block text-sm font-semibold text-gray-700 mb-2">Cargo*</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-briefcase text-gray-400"></i>
+            </div>
+            <select
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 appearance-none <?= isset($errors['role_id']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="role_id" name="role_id" required>
+              <option value="" selected disabled>Selecione um cargo...</option>
+              <?php foreach ($roles as $role): ?>
+              <option value="<?= $role->id ?>" <?=($employee->role_id ?? '') == $role->id ? 'selected' : '' ?>>
+                <?= htmlspecialchars($role->description) ?>
+              </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <?php if(isset($errors['role_id'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['role_id'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dados Profissionais -->
+    <div class="space-y-6">
+      <div class="border-b border-gray-200 pb-4">
+        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+          <i class="fas fa-building mr-3 text-green-600"></i>
+          Dados Profissionais
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="salary" class="block text-sm font-semibold text-gray-700 mb-2">Salário*</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <span class="text-gray-400 font-medium">R$</span>
+            </div>
+            <input type="text"
+              class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['salary']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="salary" name="salary" value="<?= htmlspecialchars($employee->salary ?? '') ?>" placeholder="0,00"
+              pattern="[0-9,.]*" inputmode="decimal" required>
+          </div>
+          <?php if(isset($errors['salary'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['salary'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+
+        <div>
+          <label for="hire_date" class="block text-sm font-semibold text-gray-700 mb-2">Data de Contratação*</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-calendar-plus text-gray-400"></i>
+            </div>
+            <input type="date"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['hire_date']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="hire_date" name="hire_date" value="<?= htmlspecialchars($employee->hire_date ?? '') ?>" required>
+          </div>
+          <?php if(isset($errors['hire_date'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['hire_date'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dados de Endereço -->
+    <div class="space-y-6">
+      <div class="border-b border-gray-200 pb-4">
+        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+          <i class="fas fa-map-marker-alt mr-3 text-purple-600"></i>
+          Endereço
+        </h2>
+      </div>
+
+      <div>
+        <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">Endereço</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fas fa-home text-gray-400"></i>
+          </div>
+          <input type="text"
+            class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['address']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+            id="address" name="address" value="<?= htmlspecialchars($employee->address ?? '') ?>"
+            placeholder="Rua, número, complemento">
+        </div>
+        <?php if(isset($errors['address'])): ?>
+        <p class="mt-2 text-sm text-red-600 flex items-center">
+          <i class="fas fa-exclamation-circle mr-1"></i>
+          <?= $errors['address'] ?>
+        </p>
+        <?php endif; ?>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-1">
+          <label for="city" class="block text-sm font-semibold text-gray-700 mb-2">Cidade</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-city text-gray-400"></i>
+            </div>
+            <input type="text"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['city']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="city" name="city" value="<?= htmlspecialchars($employee->city ?? '') ?>">
+          </div>
+          <?php if(isset($errors['city'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['city'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+
+        <div>
+          <label for="state" class="block text-sm font-semibold text-gray-700 mb-2">Estado</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-map text-gray-400"></i>
+            </div>
+            <input type="text"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['state']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="state" name="state" value="<?= htmlspecialchars($employee->state ?? '') ?>"
+              placeholder="Ex: SP, RJ, MG">
+          </div>
+          <?php if(isset($errors['state'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['state'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+
+        <div>
+          <label for="zipcode" class="block text-sm font-semibold text-gray-700 mb-2">CEP</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-mail-bulk text-gray-400"></i>
+            </div>
+            <input type="text"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['zipcode']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="zipcode" name="zipcode" value="<?= htmlspecialchars($employee->zipcode ?? '') ?>"
+              placeholder="00000-000">
+          </div>
+          <?php if(isset($errors['zipcode'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['zipcode'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <div>
+        <label for="notes" class="block text-sm font-semibold text-gray-700 mb-2">Observações</label>
+        <div class="relative">
+          <div class="absolute top-3 left-3 pointer-events-none">
+            <i class="fas fa-sticky-note text-gray-400"></i>
+          </div>
+          <textarea
+            class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['notes']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+            id="notes" name="notes" rows="4"
+            placeholder="Informações adicionais sobre o funcionário..."><?= htmlspecialchars($employee->notes ?? '') ?></textarea>
+        </div>
+        <?php if(isset($errors['notes'])): ?>
+        <p class="mt-2 text-sm text-red-600 flex items-center">
+          <i class="fas fa-exclamation-circle mr-1"></i>
+          <?= $errors['notes'] ?>
+        </p>
+        <?php endif; ?>
+      </div>
+    </div>
+
+    <!-- Credenciais de Acesso -->
+    <div class="space-y-6">
+      <div class="border-b border-gray-200 pb-4">
+        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+          <i class="fas fa-key mr-3 text-indigo-600"></i>
+          Credenciais de Acesso
+        </h2>
+      </div>
+
+      <div class="bg-blue-50/80 border border-blue-200 rounded-xl p-4">
+        <div class="flex items-start">
+          <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+            <i class="fas fa-info-circle text-blue-600 text-sm"></i>
+          </div>
+          <div>
+            <h4 class="text-blue-800 font-medium mb-1">Configuração de Login</h4>
+            <p class="text-blue-700 text-sm">Defina uma senha para o funcionário poder acessar o sistema.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Senha*</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-lock text-gray-400"></i>
+            </div>
+            <input type="password"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['password']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="password" name="password" value="<?= htmlspecialchars($formData['password'] ?? '') ?>"
+              placeholder="Mínimo 6 caracteres" required>
+          </div>
+          <?php if(isset($errors['password'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['password'] ?>
+          </p>
+          <?php endif; ?>
+          <div id="password-error" class="mt-2 text-sm text-red-600 hidden flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <span class="error-message"></span>
+          </div>
+        </div>
+
+        <div>
+          <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 mb-2">Confirmar
+            Senha*</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-lock text-gray-400"></i>
+            </div>
+            <input type="password"
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 <?= isset($errors['password_confirmation']) ? 'border-red-300 focus:ring-red-500' : '' ?>"
+              id="password_confirmation" name="password_confirmation"
+              value="<?= htmlspecialchars($formData['password_confirmation'] ?? '') ?>" placeholder="Repita a senha"
+              required>
+          </div>
+          <?php if(isset($errors['password_confirmation'])): ?>
+          <p class="mt-2 text-sm text-red-600 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <?= $errors['password_confirmation'] ?>
+          </p>
+          <?php endif; ?>
+          <div id="password_confirmation-error" class="mt-2 text-sm text-red-600 hidden flex items-center">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <span class="error-message"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <div class="block text-sm font-semibold text-gray-700 mb-4">Status do Funcionário</div>
+          <div class="flex items-center justify-between p-4 bg-white/60 rounded-xl border border-gray-200">
+            <div class="flex items-center space-x-3">
+              <div class="relative">
+                <!-- Hidden input para valor padrão (Inactive) -->
+                <input type="hidden" name="status" value="Inactive">
+                <!-- Toggle switch -->
+                <input type="checkbox" id="statusToggle" name="status" value="Active" class="sr-only"
+                  <?=($employee->status ?? 'Active') === 'Active' ? 'checked' : '' ?>>
+                <label for="statusToggle" class="flex items-center cursor-pointer">
+                  <div class="relative">
+                    <div
+                      class="block bg-gray-300 w-14 h-8 rounded-full transition-colors duration-200 ease-in-out toggle-bg">
+                    </div>
+                    <div
+                      class="absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-200 ease-in-out toggle-dot">
+                    </div>
+                  </div>
+                </label>
+              </div>
+              <span class="text-sm font-medium text-gray-700">
+                Funcionário ativo no sistema
+              </span>
+            </div>
+            <div>
+              <span id="statusBadge" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold">
+                <i id="statusBadgeIcon" class="mr-1.5"></i>
+                <span id="statusBadgeText"></span>
+              </span>
+            </div>
+          </div>
+          <p class="mt-2 text-xs text-gray-500">
+            <i class="fas fa-info-circle mr-1"></i>
+            Funcionários ativos podem fazer login no sistema
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>">
+
+    <!-- Botões de Ação -->
+    <div class="flex justify-between items-center pt-8 border-t border-gray-200">
+      <a href="<?= route('employees.index') ?>"
+        class="px-6 py-3 text-gray-600 bg-white/60 hover:bg-white/80 border border-gray-200 rounded-xl transition-all duration-200 font-medium flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Cancelar
+      </a>
+      <button type="submit"
+        class="px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-xl flex items-center font-semibold transition duration-300 transform hover:scale-105 shadow-lg">
+        <i class="fas fa-save mr-2"></i>
+        Salvar Funcionário
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  /* Toggle Switch Styles */
+  #statusToggle:checked+label .toggle-bg {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  #statusToggle:checked+label .toggle-dot {
+    transform: translateX(1.5rem);
+  }
+
+  .toggle-bg {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .toggle-dot {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+  }
+</style>
+
+<script src="/assets/js/employee-form-validation.js"></script>
+<script src="/assets/js/employee-status-toggle.js"></script>

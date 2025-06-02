@@ -18,6 +18,7 @@ class AuthController extends Controller
         }
 
         $title = 'Login';
+        $this->setLayout('public');
         $this->render('auth/login', compact('title'));
     }
 
@@ -27,7 +28,6 @@ class AuthController extends Controller
         $password = $request->getParam('password');
         $token = $request->getParam('_token');
 
-        // Verificar o token CSRF
         if (!csrf_check($token)) {
             FlashMessage::danger('Erro de validação do formulário');
             $this->redirectTo(route('auth.login'));

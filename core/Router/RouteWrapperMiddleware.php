@@ -3,6 +3,7 @@
 namespace Core\Router;
 
 use Config\App;
+use Core\Exceptions\MiddlewareException;
 use Core\Http\Middleware\Middleware;
 
 class RouteWrapperMiddleware
@@ -26,6 +27,10 @@ class RouteWrapperMiddleware
 
     private function middlewareInstance(): Middleware
     {
+        if (!isset(App::$middlewareAliases[$this->name])) {
+            throw new MiddlewareException("O middleware '{$this->name}' não está definido em App::\$middlewareAliases");
+        }
+
         $class = App::$middlewareAliases[$this->name];
         return new $class();
     }
