@@ -203,84 +203,100 @@ class Employee extends Model
         return password_verify($password, $credential->password_hash);
     }
 
-    public static function findWhere(string $whereClause, array $params = [], int $page = 1, int $perPage = 10, ?string $route = null): \Lib\Paginator
+    /**
+     * Filtra funcionários com base em critérios de busca
+     *
+     * @param array $allEmployees Lista de todos os funcionários
+     * @param string|null $search Termo de busca para nome ou email
+     * @param int|null $roleId ID do cargo para filtrar
+     * @param string|null $status Status do funcionário para filtrar
+     * @return array Lista filtrada de funcionários
+     */
+    public static function filterEmployees(array $allEmployees, ?string $search, ?int $roleId, ?string $status): array
     {
-        $pdo = \Core\Database\Database::getDatabaseConn();
-        $table = static::$table;
-        $attributes = implode(', ', static::$columns);
+        $filteredEmployees = [];
 
-        $sql = "SELECT id, {$attributes} FROM {$table} WHERE {$whereClause} ORDER BY id DESC";
+        foreach ($allEmployees as $employee) {
+            $matchesSearch = true;
+            $matchesRole = true;
+            $matchesStatus = true;
 
-        $stmt = $pdo->prepare($sql);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key + 1, $value);
+            if ($search) {
+                $matchesSearch = (stripos($employee->name, $search) !== false ||
+                                 stripos($employee->email, $search) !== false);
+            }
+
+            if ($roleId) {
+                $matchesRole = $employee->role_id == $roleId;
+            }
+
+            if ($status) {
+                $matchesStatus = $employee->status === $status;
+            }
+
+            if ($matchesSearch && $matchesRole && $matchesStatus) {
+                $filteredEmployees[] = $employee;
+            }
         }
-        $stmt->execute();
 
-        $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $filteredEmployees;
+    }
 
-        $total = count($results);
-
+    /**
+     * Cria um objeto de paginação a partir de uma lista de funcionários
+     *
+     * @param array $employees Lista de funcionários
+     * @param int $page Número da página atual
+     * @param int $perPage Itens por página
+     * @return object Objeto de paginação
+     */
+    public static function createPaginator(array $employees, int $page, int $perPage): object
+    {
+        $total = count($employees);
+        $totalPages = ceil($total / $perPage);
+        $page = max(1, min($page, $totalPages ?: 1)); // Garantir que a página é válida
         $offset = ($page - 1) * $perPage;
-        $paginatedResults = array_slice($results, $offset, $perPage);
+        $paginatedEmployees = array_slice($employees, $offset, $perPage);
 
-        $items = [];
-        foreach ($paginatedResults as $row) {
-            $items[] = new static($row);
-        }
+        return new class($paginatedEmployees, $total, $page, $perPage) {
+            private $items;
+            private $total;
+            private $page;
+            private $perPage;
 
-        return new class ($items, $total, $page, $perPage, $route) extends \Lib\Paginator {
-            private array $items;
-            private int $customTotalOfRegisters;
-            private int $customTotalOfPages;
-            private int $customTotalOfRegistersOfPage;
-
-            public function __construct(array $items, int $total, int $page, int $perPage, ?string $route)
-            {
+            public function __construct($items, $total, $page, $perPage) {
                 $this->items = $items;
-                parent::__construct(
-                    class: \App\Models\Employee::class,
-                    page: $page,
-                    per_page: $perPage,
-                    table: \App\Models\Employee::getTable(),
-                    attributes: \App\Models\Employee::getColumns(),
-                    conditions: [],
-                    route: $route
-                );
-
-                $this->customTotalOfRegisters = $total;
-                $this->customTotalOfPages = ceil($total / $perPage);
-                $this->customTotalOfRegistersOfPage = count($items);
+                $this->total = $total;
+                $this->page = $page;
+                $this->perPage = $perPage;
             }
 
-            public function totalOfRegisters(): int
-            {
-                return $this->customTotalOfRegisters;
-            }
-
-            public function total(): int
-            {
-                return $this->customTotalOfRegisters;
-            }
-
-            public function totalOfPages(): int
-            {
-                return $this->customTotalOfPages;
-            }
-
-            public function totalOfRegistersOfPage(): int
-            {
-                return $this->customTotalOfRegistersOfPage;
-            }
-
-            public function items(): array
-            {
+            public function items() {
                 return $this->items;
             }
 
-            public function registers(): array
-            {
-                return $this->items;
+            public function total() {
+                return $this->total;
+            }
+
+            public function getPage() {
+                return $this->page;
+            }
+
+            public function perPage() {
+                return $this->perPage;
+            }
+
+            public function getTotalPages() {
+                return ceil($this->total / $this->perPage);
+            }
+
+            public function totalOfRegisters() {
+                return $this->total;
+            }
+
+            public function totalOfRegistersOfPage() {
+                return count($this->items);
             }
         };
     }
