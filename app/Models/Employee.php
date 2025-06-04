@@ -258,44 +258,52 @@ class Employee extends Model
         $offset = ($page - 1) * $perPage;
         $paginatedEmployees = array_slice($employees, $offset, $perPage);
 
-        return new class($paginatedEmployees, $total, $page, $perPage) {
+        return new class ($paginatedEmployees, $total, $page, $perPage) {
             private $items;
             private $total;
             private $page;
             private $perPage;
 
-            public function __construct($items, $total, $page, $perPage) {
+            public function __construct($items, $total, $page, $perPage)
+            {
                 $this->items = $items;
                 $this->total = $total;
                 $this->page = $page;
                 $this->perPage = $perPage;
             }
 
-            public function items() {
+            public function items()
+            {
                 return $this->items;
             }
 
-            public function total() {
+            public function total()
+            {
                 return $this->total;
             }
 
-            public function getPage() {
+            public function getPage()
+            {
                 return $this->page;
             }
 
-            public function perPage() {
+            public function perPage()
+            {
                 return $this->perPage;
             }
 
-            public function getTotalPages() {
+            public function getTotalPages()
+            {
                 return ceil($this->total / $this->perPage);
             }
 
-            public function totalOfRegisters() {
+            public function totalOfRegisters()
+            {
                 return $this->total;
             }
 
-            public function totalOfRegistersOfPage() {
+            public function totalOfRegistersOfPage()
+            {
                 return count($this->items);
             }
         };

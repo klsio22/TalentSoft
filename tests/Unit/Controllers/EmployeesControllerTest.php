@@ -79,7 +79,9 @@ class EmployeesControllerTest extends TestCase
     private function mockAuth(bool $isAdmin = true): void
     {
         // Criar um role de admin ou HR para o mock
-        $roleData = $isAdmin ? ['name' => 'Admin', 'description' => 'Administrador'] : ['name' => 'HR', 'description' => 'Recursos Humanos'];
+        $roleData = $isAdmin
+            ? ['name' => 'Admin', 'description' => 'Administrador']
+            : ['name' => 'HR', 'description' => 'Recursos Humanos'];
         $role = new Role($roleData);
         $this->assertTrue($role->save(), 'Falha ao salvar role do mock');
 

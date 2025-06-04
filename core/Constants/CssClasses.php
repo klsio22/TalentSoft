@@ -5,10 +5,13 @@ namespace Core\Constants;
 class CssClasses
 {
     // forms
-    public const INPUT_BASE = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent';
-    public const INPUT_ERROR = 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-red-50';
+    public const INPUT_BASE = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 '
+                            . 'focus:ring-blue-500 focus:border-transparent';
+    public const INPUT_ERROR = 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 '
+                             . 'focus:ring-red-500 focus:border-transparent bg-red-50';
     public const INPUT_ERROR_CLASSES = 'border-red-300 focus:ring-red-500';
-    public const SELECT_BASE = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent';
+    public const SELECT_BASE = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 '
+                             . 'focus:ring-blue-500 focus:border-transparent';
     public const LABEL_BASE = 'block text-sm font-medium text-gray-700 mb-2';
 
     // buttons
@@ -37,11 +40,14 @@ class CssClasses
     public const PAGINATION_LINK = 'px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md';
     public const PAGINATION_ACTIVE = 'px-3 py-2 text-sm bg-blue-600 text-white rounded-md';
     public const PAGINATION_DISABLED = 'px-3 py-2 text-sm text-gray-300 rounded-md cursor-not-allowed';
-    public const PAGINATION_NAV_BUTTON = 'px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md flex items-center';
+    public const PAGINATION_NAV_BUTTON = 'px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 '
+                                       . 'rounded-md flex items-center';
 
     // Status badges
-    public const STATUS_ACTIVE = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-    public const STATUS_INACTIVE = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800';
+    public const STATUS_ACTIVE = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 '
+                               . 'text-green-800';
+    public const STATUS_INACTIVE = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 '
+                                 . 'text-gray-800';
 
     // Alertas
     public const ALERT_SUCCESS = 'bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md';
@@ -52,7 +58,8 @@ class CssClasses
     // Tabelas
     public const TABLE_BASE = 'min-w-full divide-y divide-gray-200';
     public const TABLE_HEADER = 'bg-gray-50';
-    public const TABLE_HEADER_CELL = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+    public const TABLE_HEADER_CELL = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase '
+                                    . 'tracking-wider';
     public const TABLE_ROW = 'hover:bg-gray-50';
     public const TABLE_CELL = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
     public const TABLE_CELL_SECONDARY = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';

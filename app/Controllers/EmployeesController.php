@@ -170,7 +170,9 @@ class EmployeesController extends Controller
         $title = 'Detalhes do Funcionário';
 
         $this->render('employees/show', compact('employee', 'title'));
-    }    /**
+    }
+
+    /**
      * Mostra o formulário para editar um funcionário
      */
     public function edit(Request $request): void
