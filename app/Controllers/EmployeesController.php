@@ -46,36 +46,31 @@ class EmployeesController extends Controller
         $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
         $roleId = filter_input(INPUT_GET, 'role', FILTER_VALIDATE_INT);
         $status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_SPECIAL_CHARS);
+        $perPage = 10;
 
-        $where = [];
-        $params = [];
+        // Buscar todos os funcionários
+        $allEmployees = Employee::all();
 
-        if ($search) {
-            $where[] = "(name LIKE ? OR email LIKE ?)";
-            $params[] = "%{$search}%";
-            $params[] = "%{$search}%";
-        }
+        // Usar o modelo Employee para filtrar os funcionários
+        $filteredEmployees = Employee::filterEmployees($allEmployees, $search, $roleId, $status);
 
-        if ($roleId) {
-            $where[] = "role_id = ?";
-            $params[] = $roleId;
-        }
-
-        if ($status) {
-            $where[] = "status = ?";
-            $params[] = $status;
-        }
-
-        if (!empty($where)) {
-            $whereClause = implode(' AND ', $where);
-            $employees = Employee::findWhere($whereClause, $params, $page, 10, 'employees.index');
-        } else {
-            $employees = Employee::paginate($page, 10, 'employees.index');
-        }
+        // Criar um objeto de paginação através do modelo
+        $employees = Employee::createPaginator($filteredEmployees, $page, $perPage);
 
         $roles = Role::all();
         $title = 'Lista de Funcionários';
 
+        // Preparar parâmetros de consulta para URLs de paginação
+        $queryParams = $this->prepareQueryParams($search, $roleId, $status);
+
+        $this->render('employees/index', compact('employees', 'title', 'roles', 'queryParams'));
+    }
+
+    /**
+     * Prepara os parâmetros de consulta para URLs de paginação
+     */
+    private function prepareQueryParams(?string $search, ?int $roleId, ?string $status): array
+    {
         $queryParams = [];
         if ($search) {
             $queryParams['search'] = $search;
@@ -86,8 +81,7 @@ class EmployeesController extends Controller
         if ($status) {
             $queryParams['status'] = $status;
         }
-
-        $this->render('employees/index', compact('employees', 'title', 'roles', 'queryParams'));
+        return $queryParams;
     }
 
 
@@ -99,6 +93,7 @@ class EmployeesController extends Controller
 
         $this->render('employees/create', compact('employee', 'roles', 'title'));
     }
+
     public function store(Request $request): void
     {
         try {

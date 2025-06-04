@@ -87,9 +87,7 @@ use Core\Constants\CssClasses;
       </button>
     </div>
   </form>
-</div>
-
-<!-- Lista de funcionários -->
+</div> <!-- Lista de funcionários -->
 <div class="glass-effect rounded-2xl shadow-xl p-6">
   <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
     <i class="fas fa-list mr-3 text-blue-600"></i>
@@ -179,14 +177,14 @@ use Core\Constants\CssClasses;
   <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
     <div class="text-sm text-gray-600">
       <?php
-        $inicioIntervalo = ($employees->getPage() - 1) * $employees->perPage() + 1;
-        $fimIntervalo = min($inicioIntervalo + $employees->totalOfRegistersOfPage() - 1, $employees->totalOfRegisters());
+      $start = ($employees->getPage() - 1) * $employees->perPage() + 1;
+      $end = min($start + $employees->totalOfRegistersOfPage() - 1, $employees->totalOfRegisters());
       ?>
       Exibindo <span class="font-medium">
-        <?= $inicioIntervalo ?>
+        <?= $start ?>
       </span>
       a <span class="font-medium">
-        <?= $fimIntervalo ?>
+        <?= $end ?>
       </span>
       de <span class="font-medium">
         <?= $employees->totalOfRegisters() ?>
@@ -209,25 +207,25 @@ use Core\Constants\CssClasses;
       <?php endif; ?>
 
       <?php
-                $totalPages = $employees->totalOfPages();
-                $currentPage = $employees->getPage();
-                $range = 2;
+      $totalPages = $employees->getTotalPages();
+      $currentPage = $employees->getPage();
+      $range = 2;
 
-                // Calculando o início e o fim da faixa de páginas
-                $start = max(1, $currentPage - $range);
-                $end = min($totalPages, $currentPage + $range);
+      // Calculando o início e o fim da faixa de páginas
+      $start = max(1, $currentPage - $range);
+      $end = min($totalPages, $currentPage + $range);
 
-                // Garantindo que mostremos pelo menos 5 páginas se possível
-                if ($end - $start + 1 < 5 && $totalPages >= 5) {
-                    if ($start === 1) {
-                        $end = min($totalPages, 5);
-                    } elseif ($end === $totalPages) {
-                        $start = max(1, $totalPages - 4);
-                    }
-                }
+      // Garantindo que mostremos pelo menos 5 páginas se possível
+      if ($end - $start + 1 < 5 && $totalPages >= 5) {
+          if ($start === 1) {
+              $end = min($totalPages, 5);
+          } elseif ($end === $totalPages) {
+              $start = max(1, $totalPages - 4);
+          }
+      }
 
-                // Primeira página, se não estiver no início da faixa
-                if ($start > 1): ?>
+      // Primeira página, se não estiver no início da faixa
+      if ($start > 1): ?>
       <a href="<?= route('employees.index', ['page' => 1] + ($queryParams ?? [])) ?>"
         class="inline-flex items-center justify-center w-10 h-10 bg-white/60 hover:bg-white/80 text-gray-600 hover:text-gray-800 rounded-lg border border-gray-200 transition-all duration-200"
         aria-label="Ir para primeira página" title="Primeira página">1</a>
@@ -235,10 +233,10 @@ use Core\Constants\CssClasses;
       <span class="inline-flex items-center justify-center w-10 h-10 text-gray-400 cursor-default"
         aria-hidden="true">...</span>
       <?php endif;
-                endif;
+      endif;
 
-                // Números das páginas
-                for ($i = $start; $i <= $end; $i++): ?>
+      // Números das páginas
+      for ($i = $start; $i <= $end; $i++): ?>
       <?php if ($i === $currentPage): ?>
       <span
         class="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium"
@@ -254,8 +252,8 @@ use Core\Constants\CssClasses;
       <?php endif; ?>
       <?php endfor;
 
-                // Última página, se não estiver no fim da faixa
-                if ($end < $totalPages): ?>
+      // Última página, se não estiver no fim da faixa
+      if ($end < $totalPages): ?>
       <?php if ($end < $totalPages - 1): ?>
       <span class="inline-flex items-center justify-center w-10 h-10 text-gray-400 cursor-default"
         aria-hidden="true">...</span>
