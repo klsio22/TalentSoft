@@ -7,6 +7,22 @@ use Core\Database\ActiveRecord\HasMany;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
+/**
+ * @property string $name
+ * @property string $cpf
+ * @property string $email
+ * @property string|null $birth_date
+ * @property int $role_id
+ * @property float|null $salary
+ * @property string $hire_date
+ * @property string|null $status
+ * @property string|null $address
+ * @property string|null $city
+ * @property string|null $state
+ * @property string|null $zipcode
+ * @property string|null $created_at
+ * @property string|null $notes
+ */
 class Employee extends Model
 {
     protected static string $table = 'Employees';
@@ -16,6 +32,9 @@ class Employee extends Model
         'city', 'state', 'zipcode', 'created_at', 'notes'
     ];
 
+    /**
+     * @return array<int, string>
+     */
     public static function getColumns(): array
     {
         return static::$columns;
@@ -39,10 +58,16 @@ class Employee extends Model
     }
 
 
+    /**
+     * @return UserCredential|null
+     */
     public function credential(): ?UserCredential
     {
         $credentials = $this->hasMany(UserCredential::class, 'employee_id')->get();
-        return $credentials[0] ?? null;
+        if (isset($credentials[0])) {
+            return UserCredential::findById($credentials[0]->id);
+        }
+        return null;
     }
 
     public function role(): ?Role
@@ -71,6 +96,10 @@ class Employee extends Model
         return $this->hasMany(Approval::class, 'employee_id');
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return array<int|string, mixed>
+     */
     public static function createWithCredentials(array $data): array
     {
         $processedData = self::preprocessEmployeeData($data);
@@ -83,6 +112,10 @@ class Employee extends Model
         return self::createEmployeeWithCredentials($processedData);
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
     private static function preprocessEmployeeData(array $data): array
     {
         if (isset($data['salary']) && !empty($data['salary'])) {
@@ -99,6 +132,10 @@ class Employee extends Model
         return $data;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return array{isValid: bool, message: string}
+     */
     private static function validateEmployeeData(array $data): array
     {
         $validationErrors = self::checkAllRequiredFields($data);
@@ -113,6 +150,9 @@ class Employee extends Model
         return ['isValid' => true, 'message' => ''];
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private static function checkAllRequiredFields(array $data): string
     {
         $requiredFields = ['name', 'cpf', 'email', 'role_id', 'hire_date'];
@@ -130,6 +170,10 @@ class Employee extends Model
         return '';
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return array{0: bool, 1: string, 2: ?Employee}
+     */
     private static function createEmployeeWithCredentials(array $data): array
     {
         $employeeData = [];
@@ -160,15 +204,16 @@ class Employee extends Model
             'last_updated' => date('Y-m-d H:i:s')
         ]);
 
+        // Use magic __set method to set password
         $credentials->password = $data['password'];
-        $credentials->passwordConfirmation = $data['password_confirmation'] ?? '';
+        $credentials->password_confirmation = $data['password_confirmation'] ?? '';
 
         if (!$credentials->save()) {
             $employee->destroy();
             return [false, "Erro ao salvar credenciais do usuário", null];
         }
 
-        return [true, null, $employee];
+        return [true, '', $employee];
     }
 
     public static function findByEmail(string $email): ?Employee
@@ -206,11 +251,11 @@ class Employee extends Model
     /**
      * Filtra funcionários com base em critérios de busca
      *
-     * @param array $allEmployees Lista de todos os funcionários
+     * @param array<int, Employee> $allEmployees Lista de todos os funcionários
      * @param string|null $search Termo de busca para nome ou email
      * @param int|null $roleId ID do cargo para filtrar
      * @param string|null $status Status do funcionário para filtrar
-     * @return array Lista filtrada de funcionários
+     * @return array<int, Employee> Lista filtrada de funcionários
      */
     public static function filterEmployees(array $allEmployees, ?string $search, ?int $roleId, ?string $status): array
     {
@@ -245,7 +290,7 @@ class Employee extends Model
     /**
      * Cria um objeto de paginação a partir de uma lista de funcionários
      *
-     * @param array $employees Lista de funcionários
+     * @param array<int, Employee> $employees Lista de funcionários
      * @param int $page Número da página atual
      * @param int $perPage Itens por página
      * @return object Objeto de paginação
@@ -258,44 +303,62 @@ class Employee extends Model
         $offset = ($page - 1) * $perPage;
         $paginatedEmployees = array_slice($employees, $offset, $perPage);
 
-        return new class($paginatedEmployees, $total, $page, $perPage) {
-            private $items;
-            private $total;
-            private $page;
-            private $perPage;
+        return new class ($paginatedEmployees, $total, $page, $perPage) {
+            /** @var array<int, \App\Models\Employee> */
+            private array $items;
+            private int $total;
+            private int $page;
+            private int $perPage;
 
-            public function __construct($items, $total, $page, $perPage) {
+            /**
+             * @param array<int, \App\Models\Employee> $items
+             * @param int $total
+             * @param int $page
+             * @param int $perPage
+             */
+            public function __construct(array $items, int $total, int $page, int $perPage)
+            {
                 $this->items = $items;
                 $this->total = $total;
                 $this->page = $page;
                 $this->perPage = $perPage;
             }
 
-            public function items() {
+            /**
+             * @return array<int, \App\Models\Employee>
+             */
+            public function items(): array
+            {
                 return $this->items;
             }
 
-            public function total() {
+            public function total(): int
+            {
                 return $this->total;
             }
 
-            public function getPage() {
+            public function getPage(): int
+            {
                 return $this->page;
             }
 
-            public function perPage() {
+            public function perPage(): int
+            {
                 return $this->perPage;
             }
 
-            public function getTotalPages() {
-                return ceil($this->total / $this->perPage);
+            public function getTotalPages(): int
+            {
+                return (int)ceil($this->total / $this->perPage);
             }
 
-            public function totalOfRegisters() {
+            public function totalOfRegisters(): int
+            {
                 return $this->total;
             }
 
-            public function totalOfRegistersOfPage() {
+            public function totalOfRegistersOfPage(): int
+            {
                 return count($this->items);
             }
         };

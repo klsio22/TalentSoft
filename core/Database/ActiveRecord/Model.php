@@ -122,7 +122,7 @@ abstract class Model
         return !empty($this->errors);
     }
 
-    public function errors(string $index = null)
+    public function errors(string $index = null): mixed
     {
         if ($index === null) {
             return $this->errors;

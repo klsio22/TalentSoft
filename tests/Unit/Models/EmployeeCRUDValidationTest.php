@@ -12,7 +12,8 @@ use Tests\TestCase;
 class EmployeeCRUDValidationTest extends TestCase
 {
     /**
-     * Criar role e employee para os testes
+     * Criar dados de teste para os testes
+     * @return array{0: \App\Models\Role, 1: \App\Models\Employee}
      */
     private function createTestData(): array
     {

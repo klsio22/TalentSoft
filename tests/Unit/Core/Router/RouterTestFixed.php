@@ -29,7 +29,7 @@ class RouterTestFixed extends TestCase
     /**
      * Testa o comportamento quando uma rota não é encontrada - versão adaptada
      */
-    public function test_should_handle_not_found_routes(): void
+    public function testShouldHandleNotFoundRoutes(): void
     {
         // Este teste é uma versão modificada que apenas verifica se o router
         // tem alguma lógica para lidar com rotas não encontradas, sem tentar

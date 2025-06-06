@@ -1,34 +1,14 @@
 <?php
 
 /**
- * Modifique este arquivo para registrar informações detalhadas sobre erros ao criar funcionários
- * Coloque no início do método store() do EmployeesController.php
+ * Arquivo de inicialização para as configurações de debug
+ *
+ * Este arquivo contém apenas configurações e não define funções,
+ * atendendo ao PSR-1 que exige separação entre definições de símbolos e efeitos colaterais.
  */
 
-function debug_error_handler($errno, $errstr, $errfile, $errline)
-{
-    $error_log = '/var/www/log/debug-errors.log';
-    $message = date('[Y-m-d H:i:s]') . " Error $errno: $errstr in $errfile on line $errline\n";
-
-    // Registrar também a pilha de chamadas
-    $trace = debug_backtrace();
-    $message .= "Backtrace:\n";
-    foreach ($trace as $i => $step) {
-        $file = $step['file'] ?? 'unknown file';
-        $line = $step['line'] ?? 'unknown line';
-        $function = $step['function'] ?? 'unknown function';
-        $class = $step['class'] ?? '';
-        $type = $step['type'] ?? '';
-        $message .= "#$i $file($line): ";
-        if ($class) {
-            $message .= "$class$type";
-        }
-        $message .= "$function()\n";
-    }
-
-    file_put_contents($error_log, $message, FILE_APPEND);
-    return true;
-}
+// Incluir as definições de funções de debug
+require_once __DIR__ . '/debug_functions.php';
 
 // Registrar manipulador personalizado de erros
 set_error_handler('debug_error_handler');
@@ -47,33 +27,3 @@ if (!is_dir($logDir)) {
 
 // Configurar o arquivo de log de erros
 ini_set('error_log', $logDir . '/php_errors.log');
-
-// Função para depurar variáveis (apenas em log, nunca na tela)
-function debug_var($var, $label = null)
-{
-    ob_start();
-    echo "\n\n----- DEBUG ";
-    if ($label) {
-        echo "[$label] ";
-    }
-    echo "-----\n";
-    var_dump($var);
-    echo "\n----- END DEBUG -----\n\n";
-    $output = ob_get_clean();
-
-    // Diretório de logs local
-    $logDir = __DIR__ . '/../log';
-    if (!is_dir($logDir)) {
-        mkdir($logDir, 0777, true);
-    }
-
-    // Usar um arquivo local que pode ser facilmente acessado
-    $logFile = $logDir . '/debug-vars.log';
-    file_put_contents($logFile, $output, FILE_APPEND);
-
-    // Também registrar no log de erros do PHP para facilidade de acesso
-    error_log($output);
-
-    // Retornar uma string vazia para não afetar o output
-    return '';
-}

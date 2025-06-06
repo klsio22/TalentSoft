@@ -46,6 +46,10 @@ class RouterTest extends TestCase
         new Router();
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function test_should_be_possible_to_add_route_to_router(): void
     {
         $router = Router::getInstance();
@@ -123,7 +127,10 @@ class RouterTest extends TestCase
             new Route('GET', '/test/{user_id}/test-1/{id}', MockController::class, 'action')
         )->name('test.one');
 
-        $this->assertEquals('/test/2/test-1/1', $router->getRoutePathByName('test.one', ['id' => 1, 'user_id' => 2,]));
+        $this->assertEquals(
+            '/test/2/test-1/1',
+            $router->getRoutePathByName('test.one', ['id' => 1, 'user_id' => 2])
+        );
     }
 
     public function test_should_get_route_path_by_name_with_params_and_query_params(): void
@@ -137,7 +144,10 @@ class RouterTest extends TestCase
     public function test_should_return_an_exception_if_the_name_does_not_exist(): void
     {
         // Pular este teste porque o comportamento foi alterado para ambientes de teste
-        $this->markTestSkipped('O comportamento do Router foi modificado para ambientes de teste para retornar um valor padrão em vez de lançar exceção');
+        $this->markTestSkipped(
+            'O comportamento do Router foi modificado para ambientes de teste '
+            . 'para retornar um valor padrão em vez de lançar exceção'
+        );
 
         /* Código original do teste
         $router = Router::getInstance();
