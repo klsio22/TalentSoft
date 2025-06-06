@@ -65,7 +65,7 @@ class Employee extends Model
     {
         $credentials = $this->hasMany(UserCredential::class, 'employee_id')->get();
         if (isset($credentials[0])) {
-            return UserCredential::find($credentials[0]->id);
+            return UserCredential::findById($credentials[0]->id);
         }
         return null;
     }
