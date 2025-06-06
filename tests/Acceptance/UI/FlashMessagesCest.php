@@ -18,6 +18,11 @@ use Tests\Support\AcceptanceTester;
  */
 class FlashMessagesCest extends BaseAcceptanceCest
 {
+    private const LOGIN_URL = '/login';
+    private const USER_EMAIL = 'flavio@user.com';
+    private const DEFAULT_PASSWORD = '123456';
+    private const USER_HOME_URL = '/user';
+    private const ADMIN_HOME_URL = '/admin';
     /**
      * Testa a exibição de mensagem de sucesso no login
      *
@@ -31,14 +36,17 @@ class FlashMessagesCest extends BaseAcceptanceCest
     public function testSuccessLoginMessage(AcceptanceTester $tester): void
     {
         // Navega para a página de login
-        $tester->amOnPage('/login');
+        $tester->amOnPage(self::LOGIN_URL);
 
         // Preenche os campos de email e senha com credenciais válidas
-        $tester->fillField('email', 'flavio@user.com');
-        $tester->fillField('password', '123456');
+        $tester->fillField('email', self::USER_EMAIL);
+        $tester->fillField('password', self::DEFAULT_PASSWORD);
 
         // Clica no botão de login
         $tester->click('Entrar');
+
+        // Aguarda para garantir que a mensagem flash apareça
+        $tester->wait(1);
 
         // Verifica se a mensagem de sucesso é exibida
         $tester->see('Login realizado com sucesso');
@@ -60,7 +68,7 @@ class FlashMessagesCest extends BaseAcceptanceCest
     public function testErrorLoginMessage(AcceptanceTester $tester): void
     {
         // Navega para a página de login
-        $tester->amOnPage('/login');
+        $tester->amOnPage(self::LOGIN_URL);
 
         // Preenche os campos com credenciais inválidas
         $tester->fillField('email', 'email@invalido.com');
@@ -69,11 +77,14 @@ class FlashMessagesCest extends BaseAcceptanceCest
         // Clica no botão de login
         $tester->click('Entrar');
 
+        // Aguarda para garantir que a mensagem flash apareça (aumentado para 2 segundos)
+        $tester->wait(2);
+
+        // Verifica se o elemento CSS da mensagem de erro está presente primeiro
+        $tester->seeElement('.flash-message.danger');
+        
         // Verifica se a mensagem de erro é exibida
         $tester->see('Email ou senha incorretos');
-
-        // Verifica se o elemento CSS da mensagem de erro está presente
-        $tester->seeElement('.flash-message.danger');
     }
 
     /**
@@ -88,19 +99,22 @@ class FlashMessagesCest extends BaseAcceptanceCest
     public function testLogoutMessage(AcceptanceTester $tester): void
     {
         // Realiza login completo
-        $tester->amOnPage('/login');
-        $tester->fillField('email', 'flavio@user.com');
-        $tester->fillField('password', '123456');
+        $tester->amOnPage(self::LOGIN_URL);
+        $tester->fillField('email', self::USER_EMAIL);
+        $tester->fillField('password', self::DEFAULT_PASSWORD);
         $tester->click('Entrar');
 
         // Verifica se foi redirecionado para a área do usuário
-        $tester->seeInCurrentUrl('/user');
+        $tester->seeInCurrentUrl(self::USER_HOME_URL);
 
         // Aguarda um tempo para garantir carregamento completo da página
         $tester->wait(2.5);
 
         // Realiza logout
         $tester->click('Sair');
+
+        // Aguarda para garantir que a mensagem flash apareça
+        $tester->wait(1);
 
         // Verifica se a mensagem de sucesso do logout é exibida
         $tester->see('Logout realizado com sucesso');
@@ -121,14 +135,20 @@ class FlashMessagesCest extends BaseAcceptanceCest
     public function testAccessDeniedMessage(AcceptanceTester $tester): void
     {
         // Realiza login com usuário comum
-        $tester->amOnPage('/login');
-        $tester->fillField('email', 'flavio@user.com');
-        $tester->fillField('password', '123456');
+        $tester->amOnPage(self::LOGIN_URL);
+        $tester->fillField('email', self::USER_EMAIL);
+        $tester->fillField('password', self::DEFAULT_PASSWORD);
         $tester->click('Entrar');
 
         // Tenta acessar área administrativa (restrita)
-        $tester->amOnPage('/admin');
+        $tester->amOnPage(self::ADMIN_HOME_URL);
 
+        // Verifica se foi redirecionado para a página do usuário
+        $tester->seeInCurrentUrl(self::USER_HOME_URL);
+        
+        // Aguarda para garantir que a mensagem flash apareça
+        $tester->wait(1);
+        
         // Verifica se a mensagem de acesso negado é exibida
         $tester->see('Acesso negado');
 
@@ -148,15 +168,15 @@ class FlashMessagesCest extends BaseAcceptanceCest
     public function testFlashMessageAutoFade(AcceptanceTester $tester): void
     {
         // Realiza login para gerar uma mensagem flash
-        $tester->amOnPage('/login');
-        $tester->fillField('email', 'flavio@user.com');
-        $tester->fillField('password', '123456');
+        $tester->amOnPage(self::LOGIN_URL);
+        $tester->fillField('email', self::USER_EMAIL);
+        $tester->fillField('password', self::DEFAULT_PASSWORD);
         $tester->click('Entrar');
 
         // Verifica se a mensagem possui a classe para auto-fade
         $tester->seeElement('.flash-message.auto-fade');
 
         // Verifica se o botão de fechamento está presente
-        $tester->seeElement('.flash-message .close-btn');
+        $tester->seeElement('.flash-message .close-flash');
     }
 }
