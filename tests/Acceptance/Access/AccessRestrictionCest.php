@@ -55,7 +55,7 @@ class AccessRestrictionCest extends BaseAcceptanceCest
         $tester->fillField('email', 'caio@rh.com');
         $tester->fillField('password', self::DEFAULT_PASSWORD);
         $tester->click('Entrar');
-        
+
         // HR users are redirected to /hr page
         $tester->seeInCurrentUrl(self::HR_HOME_URL);
 

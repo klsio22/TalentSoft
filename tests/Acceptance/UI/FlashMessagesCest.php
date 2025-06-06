@@ -82,7 +82,7 @@ class FlashMessagesCest extends BaseAcceptanceCest
 
         // Verifica se o elemento CSS da mensagem de erro está presente primeiro
         $tester->seeElement('.flash-message.danger');
-        
+
         // Verifica se a mensagem de erro é exibida
         $tester->see('Email ou senha incorretos');
     }
@@ -145,10 +145,10 @@ class FlashMessagesCest extends BaseAcceptanceCest
 
         // Verifica se foi redirecionado para a página do usuário
         $tester->seeInCurrentUrl(self::USER_HOME_URL);
-        
+
         // Aguarda para garantir que a mensagem flash apareça
         $tester->wait(1);
-        
+
         // Verifica se a mensagem de acesso negado é exibida
         $tester->see('Acesso negado');
 

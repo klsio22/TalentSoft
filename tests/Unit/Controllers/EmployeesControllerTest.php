@@ -135,6 +135,9 @@ class EmployeesControllerTest extends TestCase
 
     /**
      * Testa se o controlador renderiza a lista de funcionários
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function test_index_renders_employee_list(): void
     {
@@ -156,6 +159,9 @@ class EmployeesControllerTest extends TestCase
 
     /**
      * Testa se o controlador renderiza o formulário de criação
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function test_create_renders_form(): void
     {
@@ -178,6 +184,9 @@ class EmployeesControllerTest extends TestCase
 
     /**
      * Testa se o controlador exibe os detalhes de um funcionário
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function test_show_displays_employee_details(): void
     {
@@ -205,6 +214,9 @@ class EmployeesControllerTest extends TestCase
 
     /**
      * Testa se o controlador renderiza o formulário de edição
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function test_edit_renders_edit_form(): void
     {
@@ -233,6 +245,9 @@ class EmployeesControllerTest extends TestCase
 
     /**
      * Testa o armazenamento de um novo funcionário
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function test_store_creates_new_employee(): void
     {
@@ -281,6 +296,9 @@ class EmployeesControllerTest extends TestCase
 
     /**
      * Testa a atualização de um funcionário
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function test_update_modifies_employee(): void
     {
@@ -327,6 +345,9 @@ class EmployeesControllerTest extends TestCase
 
     /**
      * Testa a exclusão de um funcionário
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function test_destroy_removes_employee(): void
     {
