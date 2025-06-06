@@ -18,7 +18,7 @@ class ProfileController extends Controller
         }
     }
 
-    public function show()
+    public function show(): void
     {
         $user = Auth::user();
 

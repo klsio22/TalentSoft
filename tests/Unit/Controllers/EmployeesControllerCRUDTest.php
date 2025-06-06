@@ -15,6 +15,7 @@ class EmployeesControllerCRUDTest extends TestCase
 {
     /**
      * Criar um role e um employee para os testes
+     * @return array{0: \App\Models\Role, 1: \App\Models\Employee}
      */
     private function createTestData(): array
     {
@@ -42,7 +43,7 @@ class EmployeesControllerCRUDTest extends TestCase
     public function test_employee_create(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [, $employee] = $this->createTestData();
 
         // Verificar se o funcionário foi criado corretamente
         $this->assertNotNull($employee->id);
@@ -56,7 +57,7 @@ class EmployeesControllerCRUDTest extends TestCase
     public function test_employee_read(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [, $employee] = $this->createTestData();
 
         // Buscar o funcionário pelo ID
         $foundEmployee = Employee::findById($employee->id);
@@ -82,7 +83,7 @@ class EmployeesControllerCRUDTest extends TestCase
     public function test_employee_update(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [, $employee] = $this->createTestData();
 
         // Atualizar os dados do funcionário
         $employee->name = 'Updated Employee';
@@ -101,7 +102,7 @@ class EmployeesControllerCRUDTest extends TestCase
     public function test_employee_delete(): void
     {
         // Criar dados de teste
-        [$role, $employee] = $this->createTestData();
+        [, $employee] = $this->createTestData();
 
         // Armazenar o ID para consulta posterior
         $employeeId = $employee->id;

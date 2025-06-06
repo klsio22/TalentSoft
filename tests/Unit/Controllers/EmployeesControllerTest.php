@@ -106,8 +106,8 @@ class EmployeesControllerTest extends TestCase
     }
 
     /**
-     * Criar um role e um employee para os testes
-     * @return array [Role, Employee]
+     * Creates test data for the test cases
+     * @return array{0: \App\Models\Role, 1: \App\Models\Employee}
      */
     private function createTestData(): array
     {

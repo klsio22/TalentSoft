@@ -5,6 +5,12 @@ namespace Tests;
 use Core\Database\Database;
 use PHPUnit\Framework\TestCase as FrameworkTestCase;
 
+/**
+ * Base TestCase class for all tests - not a test class itself
+ * @codeCoverageIgnore
+ * @phpstan-ignore-next-line
+ * @SuppressWarnings(PHPMD.MissingTest)
+ */
 class TestCase extends FrameworkTestCase
 {
     /**

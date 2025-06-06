@@ -68,6 +68,7 @@ class EmployeesController extends Controller
 
     /**
      * Prepara os parâmetros de consulta para URLs de paginação
+     * @return array<string, string|int>
      */
     private function prepareQueryParams(?string $search, ?int $roleId, ?string $status): array
     {
@@ -123,6 +124,8 @@ class EmployeesController extends Controller
 
     /**
      * Helper para renderizar o formulário de criação
+     * @param array<string, mixed> $data Form data
+     * @param array<string, string> $errors Validation errors
      */
     private function renderCreateForm(array $data = [], array $errors = []): void
     {
@@ -282,6 +285,9 @@ class EmployeesController extends Controller
 
     /**
      * Atualiza os dados do funcionário e suas credenciais
+     * @param Employee $employee
+     * @param array<string, mixed> $data
+     * @return bool
      */
     private function updateEmployee(Employee $employee, array $data): bool
     {
@@ -296,7 +302,8 @@ class EmployeesController extends Controller
     }
 
     /**
-     * Preprocessa os dados do funcionário para atualização
+     * Processa os dados de atualização do funcionário
+     * @param array<string, mixed> &$data
      */
     private function preprocessEmployeeUpdateData(array &$data): void
     {
@@ -328,6 +335,8 @@ class EmployeesController extends Controller
 
     /**
      * Atualiza os atributos do funcionário
+     * @param Employee $employee
+     * @param array<string, mixed> $data
      */
     private function updateEmployeeAttributes(Employee $employee, array $data): void
     {
@@ -341,6 +350,9 @@ class EmployeesController extends Controller
 
     /**
      * Atualiza ou cria credenciais do funcionário se necessário
+     * @param Employee $employee
+     * @param array<string, mixed> $data
+     * @return bool
      */
     private function updateEmployeeCredentials(Employee $employee, array $data): bool
     {
@@ -358,17 +370,21 @@ class EmployeesController extends Controller
     }
 
     /**
-     * Atualiza credencial existente
+     * Atualiza uma credencial existente
+     * @param UserCredential $credential
+     * @param array<string, mixed> $data
+     * @return bool
      */
     private function updateExistingCredential(UserCredential $credential, array $data): bool
     {
+        // Use magic __set method to set password
         $credential->password = $data['password'];
-        $credential->passwordConfirmation = $data['password_confirmation'] ?? '';
+        $credential->password_confirmation = $data['password_confirmation'] ?? '';
         $credential->password_hash = password_hash($data['password'], PASSWORD_DEFAULT);
         $credential->last_updated = date(self::DATETIME_FORMAT);
 
         if (!$credential->save()) {
-            FlashMessage::danger('Erro ao atualizar senha');
+            FlashMessage::danger(self::CREDENTIAL_ERROR);
             return false;
         }
 
@@ -376,7 +392,10 @@ class EmployeesController extends Controller
     }
 
     /**
-     * Cria nova credencial
+     * Cria uma nova credencial para o funcionário
+     * @param Employee $employee
+     * @param array<string, mixed> $data
+     * @return bool
      */
     private function createNewCredential(Employee $employee, array $data): bool
     {
@@ -386,8 +405,9 @@ class EmployeesController extends Controller
             'last_updated' => date(self::DATETIME_FORMAT)
         ]);
 
+        // Use magic __set method to set password
         $credentials->password = $data['password'];
-        $credentials->passwordConfirmation = $data['password_confirmation'] ?? '';
+        $credentials->password_confirmation = $data['password_confirmation'] ?? '';
 
         if (!$credentials->save()) {
             FlashMessage::danger(self::CREDENTIAL_ERROR);
