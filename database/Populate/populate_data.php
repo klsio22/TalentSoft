@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../../config/bootstrap.php';
+require_once __DIR__ . '/../../config/bootstrap.php';
 
 use App\Models\Employee;
 use App\Models\Role;
@@ -213,3 +213,6 @@ echo "Admin: klesio@admin.com (senha: 123456)\n";
 echo "RH: caio@rh.com (senha: 123456)\n";
 echo "28 usuários com emails @user.com (senha: 123456)\n";
 echo "\nDados inseridos com sucesso!\n";
+
+echo "\nNow populating projects and notifications...\n";
+require_once __DIR__ . '/populate_projects.php';

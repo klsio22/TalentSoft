@@ -1,0 +1,138 @@
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold"><?= htmlspecialchars($project->name) ?></h1>
+        <div class="flex space-x-2">
+            <a href="<?= route('projects.edit', ['id' => $project->id]) ?>" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                Edit
+            </a>
+            <a href="<?= route('projects.index') ?>" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Back to Projects
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Project Details -->
+        <div class="md:col-span-2">
+            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <h2 class="text-xl font-bold mb-4">Project Details</h2>
+                
+                <div class="mb-4">
+                    <h3 class="text-gray-700 font-bold">Description</h3>
+                    <p class="text-gray-600"><?= nl2br(htmlspecialchars($project->description ?? 'No description provided')) ?></p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <h3 class="text-gray-700 font-bold">Start Date</h3>
+                        <p class="text-gray-600"><?= $project->start_date ? date('Y-m-d', strtotime($project->start_date)) : 'Not set' ?></p>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-700 font-bold">End Date</h3>
+                        <p class="text-gray-600"><?= $project->end_date ? date('Y-m-d', strtotime($project->end_date)) : 'Not set' ?></p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <h3 class="text-gray-700 font-bold">Status</h3>
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            <?= $project->status === 'In Progress' ? 'bg-blue-100 text-blue-800' : 
+                                ($project->status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800') ?>">
+                            <?= htmlspecialchars($project->status) ?>
+                        </span>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-700 font-bold">Budget</h3>
+                        <p class="text-gray-600"><?= $project->budget ? '$' . number_format($project->budget, 2) : 'Not set' ?></p>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <a href="<?= route('approvals.project', ['id' => $project->id]) ?>" class="text-blue-600 hover:text-blue-800">
+                        View Project Approvals
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Assign Employee Form -->
+        <div class="md:col-span-1">
+            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <h2 class="text-xl font-bold mb-4">Assign Employee</h2>
+                
+                <form action="<?= route('employee-projects.assign') ?>" method="post">
+                    <input type="hidden" name="project_id" value="<?= $project->id ?>">
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="employee_id">
+                            Employee
+                        </label>
+                        <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="employee_id" name="employee_id" required>
+                            <option value="">Select Employee</option>
+                            <?php foreach ($availableEmployees as $employee) : ?>
+                                <option value="<?= $employee->id ?>"><?= htmlspecialchars($employee->name) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="role">
+                            Project Role
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="role" type="text" name="role" placeholder="Developer, Designer, Manager, etc." required>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                            Assign
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Project Team -->
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Project Team</h2>
+        
+        <?php if (empty($projectTeam)) : ?>
+            <p class="text-gray-500">No employees assigned to this project yet.</p>
+        <?php else : ?>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr>
+                            <th class="py-3 px-4 bg-gray-100 font-semibold text-sm text-gray-700 text-left">Name</th>
+                            <th class="py-3 px-4 bg-gray-100 font-semibold text-sm text-gray-700 text-left">Email</th>
+                            <th class="py-3 px-4 bg-gray-100 font-semibold text-sm text-gray-700 text-left">Role in Project</th>
+                            <th class="py-3 px-4 bg-gray-100 font-semibold text-sm text-gray-700 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($projectTeam as $member) : ?>
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3 px-4"><?= htmlspecialchars($member['employee']->name) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($member['employee']->email) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($member['role']) ?></td>
+                                <td class="py-3 px-4">
+                                    <div class="flex space-x-2">
+                                        <a href="<?= route('employees.show', ['id' => $member['employee']->id]) ?>" class="text-blue-600 hover:text-blue-900">View</a>
+                                        <form action="<?= route('employee-projects.remove') ?>" method="post" class="inline">
+                                            <input type="hidden" name="project_id" value="<?= $project->id ?>">
+                                            <input type="hidden" name="employee_id" value="<?= $member['employee']->id ?>">
+                                            <button type="submit" class="text-red-600 hover:text-red-900">Remove</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>

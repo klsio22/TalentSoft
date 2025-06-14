@@ -92,7 +92,7 @@
     <!-- Quick Actions -->
     <div class="mt-8 pt-6 border-t border-gray-200">
       <h3 class="text-lg font-semibold text-gray-800 mb-4">Recursos de RH</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <a href="<?= route('employees.index') ?>"
           class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md">
           <h3 class="font-semibold mb-2 text-blue-600">
@@ -120,14 +120,23 @@
           <p class="text-sm text-gray-600">Alocar funcionários em projetos.</p>
         </div>
 
-        <div
-          class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md cursor-pointer">
+        <a href="<?= route('approvals.index') ?>"
+          class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md">
           <h3 class="font-semibold mb-2 text-orange-600">
             <i class="fas fa-clipboard-check mr-2"></i>
             Solicitações
           </h3>
           <p class="text-sm text-gray-600">Aprovar ou rejeitar solicitações.</p>
-        </div>
+        </a>
+
+        <a href="<?= route('projects.index') ?>"
+          class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md">
+          <h3 class="font-semibold mb-2 text-green-600">
+            <i class="fas fa-project-diagram mr-2"></i>
+            Gerenciar Projetos
+          </h3>
+          <p class="text-sm text-gray-600">Criar e administrar projetos.</p>
+        </a>
       </div>
     </div>
   </div>

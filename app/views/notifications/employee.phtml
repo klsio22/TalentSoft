@@ -1,0 +1,94 @@
+<?php require_once __DIR__ . '/../shared/header.phtml'; ?>
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold"><?= $title ?></h1>
+        <div class="flex space-x-2">
+            <a href="<?= route('notifications.create') ?>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                New Notification
+            </a>
+            <a href="<?= route('employees.show', ['id' => $employee->id]) ?>" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Back to Employee
+            </a>
+            <a href="<?= route('notifications.admin') ?>" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                All Notifications
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Employee Information</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+                <h3 class="text-gray-700 font-bold">Name</h3>
+                <p class="text-gray-600"><?= htmlspecialchars($employee->name) ?></p>
+            </div>
+            <div>
+                <h3 class="text-gray-700 font-bold">Email</h3>
+                <p class="text-gray-600"><?= htmlspecialchars($employee->email) ?></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Notifications</h2>
+        
+        <?php if (empty($notifications)) : ?>
+            <p class="text-gray-500">This employee has no notifications.</p>
+        <?php else : ?>
+            <div class="space-y-4">
+                <?php foreach ($notifications as $notification) : ?>
+                    <div class="border-l-4 <?= $notification->is_read ? 'border-gray-300' : 'border-blue-500' ?> p-4 <?= $notification->is_read ? 'bg-gray-50' : 'bg-blue-50' ?>">
+                        <div class="flex justify-between">
+                            <h3 class="font-bold text-gray-800"><?= htmlspecialchars($notification->title) ?></h3>
+                            <span class="text-sm text-gray-500"><?= date('Y-m-d H:i', strtotime($notification->created_at)) ?></span>
+                        </div>
+                        <p class="text-gray-600 mt-2"><?= nl2br(htmlspecialchars($notification->message)) ?></p>
+                        <div class="mt-3 flex space-x-2">
+                            <span class="text-sm <?= $notification->is_read ? 'text-green-600' : 'text-blue-600' ?>">
+                                <?= $notification->is_read ? 'Read' : 'Unread' ?>
+                            </span>
+                            <form action="<?= route('notifications.destroy') ?>" method="post" class="inline">
+                                <input type="hidden" name="id" value="<?= $notification->id ?>">
+                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Send New Notification</h2>
+        
+        <form action="<?= route('notifications.store') ?>" method="post">
+            <input type="hidden" name="employee_id" value="<?= $employee->id ?>">
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                    Title
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                    id="title" type="text" name="title" placeholder="Notification Title" required>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="message">
+                    Message
+                </label>
+                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                    id="message" name="message" placeholder="Notification Message" rows="4" required></textarea>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Send Notification
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php require_once __DIR__ . '/../shared/footer.phtml'; ?>

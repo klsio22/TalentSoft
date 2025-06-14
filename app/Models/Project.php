@@ -14,11 +14,12 @@ use Lib\Validations;
  * @property string $start_date
  * @property string $end_date
  * @property string $status
+ * @property float $budget
  */
 class Project extends Model
 {
     protected static string $table = 'Projects';
-    protected static array $columns = ['name', 'description', 'start_date', 'end_date', 'status'];
+    protected static array $columns = ['name', 'description', 'start_date', 'end_date', 'status', 'budget'];
 
     public function validates(): void
     {

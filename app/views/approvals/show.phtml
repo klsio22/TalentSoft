@@ -1,0 +1,131 @@
+<?php require_once __DIR__ . '/../shared/header.phtml'; ?>
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold"><?= $title ?></h1>
+        <a href="<?= route('approvals.index') ?>" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+            Back to Approvals
+        </a>
+    </div>
+
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div class="mb-6">
+            <h2 class="text-xl font-bold mb-4"><?= htmlspecialchars($approval->title) ?></h2>
+            
+            <div class="flex justify-between items-center mb-4">
+                <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
+                    <?php 
+                    if ($approval->status === 'Approved') {
+                        echo 'bg-green-100 text-green-800';
+                    } elseif ($approval->status === 'Rejected') {
+                        echo 'bg-red-100 text-red-800';
+                    } else {
+                        echo 'bg-yellow-100 text-yellow-800';
+                    }
+                    ?>">
+                    <?= htmlspecialchars($approval->status) ?>
+                </span>
+                <span class="text-sm text-gray-500">
+                    Submitted on <?= date('Y-m-d H:i', strtotime($approval->created_at)) ?>
+                </span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <h3 class="text-gray-700 font-bold mb-2">Project</h3>
+                <?php 
+                $project = \App\Models\Project::findById($approval->project_id);
+                if ($project) : 
+                ?>
+                    <p class="text-gray-600">
+                        <a href="<?= route('projects.show', ['id' => $project->id]) ?>" class="text-blue-600 hover:text-blue-900">
+                            <?= htmlspecialchars($project->name) ?>
+                        </a>
+                    </p>
+                <?php else : ?>
+                    <p class="text-gray-600">Unknown Project</p>
+                <?php endif; ?>
+            </div>
+            
+            <div>
+                <h3 class="text-gray-700 font-bold mb-2">Requested By</h3>
+                <?php 
+                $employee = \App\Models\Employee::findById($approval->employee_id);
+                if ($employee) : 
+                ?>
+                    <p class="text-gray-600">
+                        <a href="<?= route('employees.show', ['id' => $employee->id]) ?>" class="text-blue-600 hover:text-blue-900">
+                            <?= htmlspecialchars($employee->name) ?>
+                        </a>
+                    </p>
+                <?php else : ?>
+                    <p class="text-gray-600">Unknown Employee</p>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <h3 class="text-gray-700 font-bold mb-2">Request Type</h3>
+            <p class="text-gray-600"><?= htmlspecialchars($approval->request_type ?? 'Not specified') ?></p>
+        </div>
+        
+        <div class="mb-6">
+            <h3 class="text-gray-700 font-bold mb-2">Description</h3>
+            <div class="bg-gray-50 p-4 rounded">
+                <p class="text-gray-600"><?= nl2br(htmlspecialchars($approval->description)) ?></p>
+            </div>
+        </div>
+        
+        <?php if ($approval->status !== 'Pending') : ?>
+            <div class="mb-6">
+                <h3 class="text-gray-700 font-bold mb-2">Decision Date</h3>
+                <p class="text-gray-600"><?= $approval->updated_at ? date('Y-m-d H:i', strtotime($approval->updated_at)) : 'Not available' ?></p>
+            </div>
+            
+            <?php if (!empty($approval->feedback)) : ?>
+                <div class="mb-6">
+                    <h3 class="text-gray-700 font-bold mb-2">Feedback</h3>
+                    <div class="bg-gray-50 p-4 rounded">
+                        <p class="text-gray-600"><?= nl2br(htmlspecialchars($approval->feedback)) ?></p>
+                    </div>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+        
+        <?php if ($approval->status === 'Pending') : ?>
+            <div class="flex space-x-4 mt-8">
+                <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()) : ?>
+                    <form action="<?= route('approvals.approve') ?>" method="post" class="inline">
+                        <input type="hidden" name="id" value="<?= $approval->id ?>">
+                        <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Approve
+                        </button>
+                    </form>
+                    <form action="<?= route('approvals.reject') ?>" method="post" class="inline">
+                        <input type="hidden" name="id" value="<?= $approval->id ?>">
+                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Reject
+                        </button>
+                    </form>
+                <?php endif; ?>
+                
+                <?php 
+                // Only the employee who created the request or admin/HR can delete it
+                $currentEmployee = \Lib\Authentication\Auth::user();
+                if (($currentEmployee && $currentEmployee->id === $approval->employee_id) || 
+                    \Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()) : 
+                ?>
+                    <form action="<?= route('approvals.destroy') ?>" method="post" class="inline">
+                        <input type="hidden" name="id" value="<?= $approval->id ?>">
+                        <button type="submit" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Delete
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<?php require_once __DIR__ . '/../shared/footer.phtml'; ?>

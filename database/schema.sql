@@ -56,7 +56,8 @@ CREATE TABLE
     description TEXT,
     start_date DATE,
     end_date DATE,
-    status ENUM ('In Progress', 'Completed', 'Canceled') DEFAULT 'In Progress'
+    status ENUM ('In Progress', 'Completed', 'Canceled', 'Inactive') DEFAULT 'In Progress',
+    budget DECIMAL(10, 2) DEFAULT 0.00
   );
 
 -- Tabela de relacionamento entre funcionários e projetos
