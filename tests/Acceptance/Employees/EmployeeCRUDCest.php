@@ -17,9 +17,11 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
     private const NEW_EMPLOYEE_HEADING = 'Novo Funcionário';
     private const EDIT_EMPLOYEE_HEADING = 'Editar Funcionário';
     private const DELETE_TEST_EMPLOYEE_NAME = 'Funcionário Para Deletar';
-    private const SUCCESS_MESSAGE_SELECTOR = '//div[contains(@class, "alert") or contains(@class, "message") or contains(@class, "flash-message")]';
+    private const SUCCESS_MESSAGE_SELECTOR = '//div[contains(@class, "alert") or contains(@class, "message")
+        or contains(@class, "flash-message")]';
     private const UPDATED_EMPLOYEE_NAME = 'Nome Atualizado Teste';
     private const TEST_EMPLOYEE_NAME = 'João Silva Teste';
+    private const SCROLL_TO_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';
 
     private function loginAsAdmin(AcceptanceTester $tester): void
     {
@@ -29,8 +31,6 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->click('Entrar');
         $tester->wait(1);
     }
-
-    private const SCROLL_TO_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';
 
     private function scrollToButtonAndClick(AcceptanceTester $tester, string $buttonText): void
     {
@@ -58,14 +58,16 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->fillField('password_confirmation', '456'); // Confirmação diferente
 
         // Modificar o comportamento do formulário para não redirecionar
-        $tester->executeJS("document.querySelector('form').addEventListener('submit', function(e) { e.preventDefault(); return false; });");
+        $tester->executeJS("document.querySelector('form').addEventListener('submit', function(e) { " .
+            "e.preventDefault(); return false; });");
 
         // Tentar submeter o formulário
         $this->scrollToButtonAndClick($tester, self::SAVE_EMPLOYEE_BUTTON);
         $tester->wait(2);
 
         // Verificar se há erros de validação
-        $hasErrors = $tester->executeJS('return document.querySelectorAll(".invalid-feedback, .text-danger, .error-message").length > 0');
+        $hasErrors = $tester->executeJS('return document.querySelectorAll(".invalid-feedback, .text-danger, ' .
+            '.error-message").length > 0');
 
         if ($hasErrors) {
             $tester->comment('Validation errors found as expected');
@@ -102,7 +104,7 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->fillField('password_confirmation', 'senha123');
 
         // Scroll to button and ensure it's clickable
-        $tester->executeJS('window.scrollTo(0, document.body.scrollHeight);');
+        $tester->executeJS(self::SCROLL_TO_BOTTOM);
         $tester->wait(1);
         $tester->click(self::SAVE_EMPLOYEE_BUTTON);
         $tester->wait(2);
@@ -112,14 +114,16 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->wait(1);
 
         // Verificar se está na página de listagem
-        $onListPage = $tester->executeJS('return window.location.pathname.includes("/employees") && !window.location.pathname.includes("/create")');
+        $onListPage = $tester->executeJS('return window.location.pathname.includes("/employees") && ' .
+            '!window.location.pathname.includes("/create")');
 
         if ($onListPage) {
             // Se redirecionou para a listagem, verificar se o nome aparece na tabela
             $tester->see(self::TEST_EMPLOYEE_NAME);
         } else {
             // Se ainda estiver na página de criação, verificar se há mensagem de sucesso ou se o formulário foi enviado
-            $hasSuccessMessage = $tester->executeJS('return document.querySelectorAll("div.alert-success, div.message-success, .flash-message").length > 0');
+            $hasSuccessMessage = $tester->executeJS('return document.querySelectorAll("div.alert-success, ' .
+                'div.message-success, .flash-message").length > 0');
             if ($hasSuccessMessage) {
                 $tester->comment('Success message found');
             } else {
@@ -150,7 +154,7 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->fillField('email', 'email-mal-formado'); // Email inválido
 
         // Scroll to button and ensure it's clickable
-        $tester->executeJS('window.scrollTo(0, document.body.scrollHeight);');
+        $tester->executeJS(self::SCROLL_TO_BOTTOM);
         $tester->wait(1);
         $tester->click(self::UPDATE_EMPLOYEE_BUTTON);
         $tester->wait(2);
@@ -179,7 +183,7 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->fillField('name', self::UPDATED_EMPLOYEE_NAME);
 
         // Scroll to button and ensure it's clickable
-        $tester->executeJS('window.scrollTo(0, document.body.scrollHeight);');
+        $tester->executeJS(self::SCROLL_TO_BOTTOM);
         $tester->wait(1);
         $tester->click(self::UPDATE_EMPLOYEE_BUTTON);
         $tester->wait(2);
@@ -192,7 +196,8 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
 
         if ($onEditPage) {
             // Se ainda estiver na página de edição
-            $hasSuccessMessage = $tester->executeJS('return document.querySelectorAll("div.alert-success, div.message-success, .flash-message").length > 0');
+            $hasSuccessMessage = $tester->executeJS('return document.querySelectorAll("div.alert-success, ' .
+                'div.message-success, .flash-message").length > 0');
             if ($hasSuccessMessage) {
                 $tester->comment('Success message found');
             }
@@ -263,7 +268,8 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
 
         // Procurar e clicar no botão de deletar do primeiro funcionário
         // Usar JavaScript para clicar no botão de exclusão para evitar problemas de visibilidade
-        $tester->executeJS('document.querySelector("table tbody tr:first-child button[title=\"Excluir\"], table tbody tr:first-child .delete-btn, table tbody tr:first-child .btn-danger").click();');
+        $tester->executeJS('document.querySelector("table tbody tr:first-child button[title=\"Excluir\"], ' .
+            'table tbody tr:first-child .delete-btn, table tbody tr:first-child .btn-danger").click();');
         $tester->wait(2);
 
         // Tentar diferentes abordagens para confirmar a exclusão
@@ -273,7 +279,8 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
 
             if ($hasModal) {
                 // Clicar no botão de confirmação dentro do modal
-                $tester->executeJS('document.querySelector(".modal button.confirm, .modal .btn-danger, .modal button:not(.cancel), [role=dialog] button.confirm, [role=dialog] .btn-danger").click();');
+                $tester->executeJS('document.querySelector(".modal button.confirm, .modal .btn-danger, ' .
+                    '.modal button:not(.cancel), [role=dialog] button.confirm, [role=dialog] .btn-danger").click();');
             } else {
                 // Se não houver modal, pode ser um alerta do navegador
                 $tester->acceptPopup();
