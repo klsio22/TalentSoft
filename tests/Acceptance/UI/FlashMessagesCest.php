@@ -173,6 +173,9 @@ class FlashMessagesCest extends BaseAcceptanceCest
         $tester->fillField('password', self::DEFAULT_PASSWORD);
         $tester->click('Entrar');
 
+        // Aguarda um tempo maior para garantir que a mensagem seja renderizada
+        $tester->wait(3);
+
         // Verifica se a mensagem possui a classe para auto-fade
         $tester->seeElement('.flash-message.auto-fade');
 
