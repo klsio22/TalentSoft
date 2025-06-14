@@ -172,7 +172,7 @@ class FlashMessagesCest extends BaseAcceptanceCest
         $tester->fillField('email', self::USER_EMAIL);
         $tester->fillField('password', self::DEFAULT_PASSWORD);
         $tester->click('Entrar');
-        
+
         // Aguarda um tempo maior para garantir que a mensagem seja renderizada
         $tester->wait(3);
 
