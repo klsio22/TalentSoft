@@ -46,10 +46,8 @@ class RouterTest extends TestCase
         new Router();
     }
 
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     */
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
     public function test_should_be_possible_to_add_route_to_router(): void
     {
         $router = Router::getInstance();

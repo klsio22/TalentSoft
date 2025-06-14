@@ -29,9 +29,9 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->click('Entrar');
         $tester->wait(1);
     }
-    
+
     private const SCROLL_TO_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';
-    
+
     private function scrollToButtonAndClick(AcceptanceTester $tester, string $buttonText): void
     {
         $tester->executeJS(self::SCROLL_TO_BOTTOM);
@@ -45,7 +45,7 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
     public function testCreateEmployeeWithInvalidData(AcceptanceTester $tester): void
     {
         $this->loginAsAdmin($tester);
-        
+
         $tester->amOnPage(self::EMPLOYEES_CREATE_URL);
         $tester->see(self::NEW_EMPLOYEE_HEADING);
 
@@ -56,17 +56,17 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->fillField('birth_date', '2030-01-01'); // Data futura
         $tester->fillField('password', '123'); // Senha muito curta
         $tester->fillField('password_confirmation', '456'); // Confirmação diferente
-        
+
         // Modificar o comportamento do formulário para não redirecionar
         $tester->executeJS("document.querySelector('form').addEventListener('submit', function(e) { e.preventDefault(); return false; });");
-        
+
         // Tentar submeter o formulário
         $this->scrollToButtonAndClick($tester, self::SAVE_EMPLOYEE_BUTTON);
         $tester->wait(2);
-        
+
         // Verificar se há erros de validação
         $hasErrors = $tester->executeJS('return document.querySelectorAll(".invalid-feedback, .text-danger, .error-message").length > 0');
-        
+
         if ($hasErrors) {
             $tester->comment('Validation errors found as expected');
         } else {
@@ -86,7 +86,7 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
     public function testCreateEmployeeSuccessfully(AcceptanceTester $tester): void
     {
         $this->loginAsAdmin($tester);
-        
+
         $tester->amOnPage(self::EMPLOYEES_CREATE_URL);
         $tester->see(self::NEW_EMPLOYEE_HEADING);
 
@@ -100,7 +100,7 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->fillField('hire_date', date('Y-m-d'));
         $tester->fillField('password', 'senha123');
         $tester->fillField('password_confirmation', 'senha123');
-        
+
         // Scroll to button and ensure it's clickable
         $tester->executeJS('window.scrollTo(0, document.body.scrollHeight);');
         $tester->wait(1);
@@ -110,10 +110,10 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         // Verificar redirecionamento para listagem ou mensagem na mesma página
         // Alguns sistemas podem mostrar mensagem na mesma página em vez de redirecionar
         $tester->wait(1);
-        
+
         // Verificar se está na página de listagem
         $onListPage = $tester->executeJS('return window.location.pathname.includes("/employees") && !window.location.pathname.includes("/create")');
-        
+
         if ($onListPage) {
             // Se redirecionou para a listagem, verificar se o nome aparece na tabela
             $tester->see(self::TEST_EMPLOYEE_NAME);
@@ -135,11 +135,11 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
     public function testUpdateEmployeeWithInvalidData(AcceptanceTester $tester): void
     {
         $this->loginAsAdmin($tester);
-        
+
         // Ir para listagem e editar primeiro funcionário
         $tester->amOnPage(self::EMPLOYEES_INDEX_URL);
         $tester->wait(1);
-        
+
         // Assumindo que existe um funcionário para editar
         $tester->click('//a[contains(@href, "/employees/") and contains(@href, "/edit")][1]');
         $tester->wait(1);
@@ -148,7 +148,7 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         // Limpar e preencher com dados inválidos
         $tester->fillField('name', ''); // Nome vazio
         $tester->fillField('email', 'email-mal-formado'); // Email inválido
-        
+
         // Scroll to button and ensure it's clickable
         $tester->executeJS('window.scrollTo(0, document.body.scrollHeight);');
         $tester->wait(1);
@@ -165,11 +165,11 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
     public function testUpdateEmployeeSuccessfully(AcceptanceTester $tester): void
     {
         $this->loginAsAdmin($tester);
-        
+
         // Ir para listagem e editar primeiro funcionário
         $tester->amOnPage(self::EMPLOYEES_INDEX_URL);
         $tester->wait(1);
-        
+
         // Clicar em editar no primeiro funcionário
         $tester->click('//a[contains(@href, "/employees/") and contains(@href, "/edit")][1]');
         $tester->wait(1);
@@ -177,7 +177,7 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
 
         // Atualizar com dados válidos
         $tester->fillField('name', self::UPDATED_EMPLOYEE_NAME);
-        
+
         // Scroll to button and ensure it's clickable
         $tester->executeJS('window.scrollTo(0, document.body.scrollHeight);');
         $tester->wait(1);
@@ -186,10 +186,10 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
 
         // Verificar sucesso - pode estar na mesma página ou ter redirecionado
         $tester->wait(1);
-        
+
         // Verificar se está na página de edição
         $onEditPage = $tester->executeJS('return window.location.pathname.includes("/edit")');
-        
+
         if ($onEditPage) {
             // Se ainda estiver na página de edição
             $hasSuccessMessage = $tester->executeJS('return document.querySelectorAll("div.alert-success, div.message-success, .flash-message").length > 0');
@@ -209,15 +209,15 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
     public function testViewEmployee(AcceptanceTester $tester): void
     {
         $this->loginAsAdmin($tester);
-        
+
         // Ir para listagem
         $tester->amOnPage(self::EMPLOYEES_INDEX_URL);
         $tester->wait(1);
-        
+
         // Clicar em visualizar no primeiro funcionário
         $tester->click('//a[contains(@href, "/employees/") and not(contains(@href, "/edit"))][1]');
         $tester->wait(1);
-        
+
         // Verificar elementos da página de visualização
         $tester->wait(2);
         $tester->seeInCurrentUrl('/employees/');
@@ -231,15 +231,15 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
     public function testDeleteEmployee(AcceptanceTester $tester): void
     {
         $this->loginAsAdmin($tester);
-        
+
         // Usar um funcionário existente em vez de criar um novo
         // Isso evita problemas se a criação falhar
         $tester->amOnPage(self::EMPLOYEES_INDEX_URL);
         $tester->wait(2);
-        
+
         // Verificar se há pelo menos um funcionário na lista
         $hasEmployees = $tester->executeJS('return document.querySelectorAll("table tbody tr").length > 0');
-        
+
         if (!$hasEmployees) {
             // Se não houver funcionários, criar um
             $tester->amOnPage(self::EMPLOYEES_CREATE_URL);
@@ -257,20 +257,20 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
             $tester->amOnPage(self::EMPLOYEES_INDEX_URL);
             $tester->wait(2);
         }
-        
+
         // Já estamos na listagem, não precisamos navegar novamente
         $tester->wait(1);
-        
+
         // Procurar e clicar no botão de deletar do primeiro funcionário
         // Usar JavaScript para clicar no botão de exclusão para evitar problemas de visibilidade
         $tester->executeJS('document.querySelector("table tbody tr:first-child button[title=\"Excluir\"], table tbody tr:first-child .delete-btn, table tbody tr:first-child .btn-danger").click();');
         $tester->wait(2);
-        
+
         // Tentar diferentes abordagens para confirmar a exclusão
         try {
             // Primeiro, tentar encontrar um modal de confirmação
             $hasModal = $tester->executeJS('return document.querySelector(".modal, .dialog, [role=dialog]") !== null');
-            
+
             if ($hasModal) {
                 // Clicar no botão de confirmação dentro do modal
                 $tester->executeJS('document.querySelector(".modal button.confirm, .modal .btn-danger, .modal button:not(.cancel), [role=dialog] button.confirm, [role=dialog] .btn-danger").click();');
@@ -282,9 +282,9 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
             // Se falhar, tentar outra abordagem - pode ser que a exclusão já tenha ocorrido
             $tester->comment('Modal interaction failed, continuing test: ' . $e->getMessage());
         }
-        
+
         $tester->wait(2);
-        
+
         // Verificar que a operação foi concluída com sucesso
         // Pode não haver uma mensagem de sucesso visível, então verificamos se o elemento foi removido
         try {
@@ -305,10 +305,10 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
     public function testEmployeesList(AcceptanceTester $tester): void
     {
         $this->loginAsAdmin($tester);
-        
+
         $tester->amOnPage(self::EMPLOYEES_INDEX_URL);
         $tester->wait(1);
-        
+
         // Verificar elementos da página de listagem
         $tester->see('Gerenciamento de Funcionários');
         $tester->seeElement('table');
@@ -316,10 +316,10 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
         $tester->see('Email');
         $tester->see('Cargo');
         $tester->see('Ações');
-        
+
         // Verificar se há uma tabela com cabeçalho
         $tester->seeElement('//table//thead');
-        
+
         // Verificar se há linhas na tabela ou uma mensagem de "nenhum registro"
         $hasRows = $tester->executeJS('return document.querySelectorAll("table tbody tr").length > 0');
         if (!$hasRows) {
