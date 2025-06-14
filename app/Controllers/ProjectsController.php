@@ -155,21 +155,15 @@ class ProjectsController extends Controller
                 ];
             }
 
-            // Get all employees for the assignment form
-            error_log('Getting all employees');
             $allEmployees = Employee::all();
-            error_log('All employees count: ' . count($allEmployees));
         } catch (\Exception $e) {
-            error_log('Exception in show method: ' . $e->getMessage());
-            error_log('Exception trace: ' . $e->getTraceAsString());
             FlashMessage::danger('Error loading project data: ' . $e->getMessage());
             $this->redirectTo(route('projects.index'));
             return;
         }
 
-        error_log('Filtering employees');
         // Filter out employees already assigned to the project
-        $availableEmployees = array_filter($allEmployees, function ($employee) use ($projectEmployees) {
+        $availableEmployees = array_filter($allEmployees, function($employee) use ($projectEmployees) {
             foreach ($projectEmployees as $projectEmployee) {
                 if ($projectEmployee->id === $employee->id) {
                     return false;
@@ -177,17 +171,12 @@ class ProjectsController extends Controller
             }
             return true;
         });
-        error_log('Available employees count: ' . count($availableEmployees));
 
         $title = 'Project Details';
-        error_log('Rendering view');
 
         try {
             $this->render('projects/show', compact('project', 'projectTeam', 'availableEmployees', 'title'));
-            error_log('View rendered successfully');
         } catch (\Exception $e) {
-            error_log('Exception in render: ' . $e->getMessage());
-            error_log('Exception trace: ' . $e->getTraceAsString());
             FlashMessage::danger('Error rendering project view: ' . $e->getMessage());
             $this->redirectTo(route('projects.index'));
         }
