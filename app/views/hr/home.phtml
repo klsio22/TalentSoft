@@ -48,12 +48,12 @@
       class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-transform hover:scale-105">
       <div class="flex items-center">
         <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-          <i class="fas fa-clipboard-check text-yellow-600 text-xl"></i>
+          <i class="fas fa-user-shield text-yellow-600 text-xl"></i>
         </div>
         <div>
-          <h3 class="text-lg font-semibold text-gray-800 mb-1">Aprovações</h3>
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">Status</h3>
           <p class="text-3xl font-bold text-yellow-600 mb-1">--</p>
-          <p class="text-sm text-gray-600">Solicitações pendentes de RH</p>
+          <p class="text-sm text-gray-600">Gerenciamento de status de usuários</p>
         </div>
       </div>
     </div>
@@ -120,14 +120,14 @@
           <p class="text-sm text-gray-600">Alocar funcionários em projetos.</p>
         </div>
 
-        <a href="<?= route('approvals.index') ?>"
-          class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md">
+        <div
+          class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md cursor-pointer">
           <h3 class="font-semibold mb-2 text-orange-600">
-            <i class="fas fa-clipboard-check mr-2"></i>
-            Solicitações
+            <i class="fas fa-user-shield mr-2"></i>
+            Gerenciar Status
           </h3>
-          <p class="text-sm text-gray-600">Aprovar ou rejeitar solicitações.</p>
-        </a>
+          <p class="text-sm text-gray-600">Ativar ou desativar acesso de funcionários.</p>
+        </div>
 
         <a href="<?= route('projects.index') ?>"
           class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md">

@@ -47,7 +47,7 @@ class ProjectsController extends Controller
         // Create pagination
         $projects = $this->createPaginator($filteredProjects, $page, $perPage);
 
-        $title = 'Projects List';
+        $title = 'Lista de projetos';
 
         // Prepare query parameters for pagination URLs
         $queryParams = $this->prepareQueryParams($search, $status);
@@ -163,7 +163,7 @@ class ProjectsController extends Controller
         }
 
         // Filter out employees already assigned to the project
-        $availableEmployees = array_filter($allEmployees, function($employee) use ($projectEmployees) {
+        $availableEmployees = array_filter($allEmployees, function ($employee) use ($projectEmployees) {
             foreach ($projectEmployees as $projectEmployee) {
                 if ($projectEmployee->id === $employee->id) {
                     return false;

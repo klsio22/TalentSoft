@@ -1,11 +1,9 @@
 <?php
 
 use App\Controllers\AdminController;
-use App\Controllers\ApprovalsController;
 use App\Controllers\AuthController;
 use App\Controllers\EmployeesController;
 use App\Controllers\EmployeeProjectsController;
-use App\Controllers\ErrorController;
 use App\Controllers\HomeController;
 use App\Controllers\HRController;
 use App\Controllers\NotificationsController;
@@ -26,6 +24,9 @@ Route::get('/user', [UserController::class, 'home'])->name('user.home');
 
 // Profile route - available for all authenticated users
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+
+// O middleware de autenticação é definido no sistema core
+// Comportamento adicional de verificação de status implementado em AuthMiddleware.php
 
 // Middleware for admin and HR routes
 Route::middleware('admin-hr')->group(function () {
@@ -58,13 +59,6 @@ Route::middleware('admin-hr')->group(function () {
     Route::get('/notifications/create', [NotificationsController::class, 'create'])->name('notifications.create');
     Route::post('/notifications', [NotificationsController::class, 'store'])->name('notifications.store');
     Route::get('/employees/{id}/notifications', [NotificationsController::class, 'employeeNotifications'])->name('notifications.employee');
-
-    // Approval admin routes
-    Route::get('/approvals/admin', [ApprovalsController::class, 'index'])->name('approvals.admin');
-    Route::get('/employees/{id}/approvals', [ApprovalsController::class, 'employeeApprovals'])->name('approvals.employee');
-    Route::get('/projects/{id}/approvals', [ApprovalsController::class, 'projectApprovals'])->name('approvals.project');
-    Route::post('/approvals/approve', [ApprovalsController::class, 'approve'])->name('approvals.approve');
-    Route::post('/approvals/reject', [ApprovalsController::class, 'reject'])->name('approvals.reject');
 });
 
 // Routes for authenticated users (any role)
@@ -74,12 +68,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/mark-read', [NotificationsController::class, 'markAsRead'])->name('notifications.mark-read');
     Route::post('/notifications/destroy', [NotificationsController::class, 'destroy'])->name('notifications.destroy');
 
-    // Approval routes
-    Route::get('/approvals', [ApprovalsController::class, 'index'])->name('approvals.index');
-    Route::get('/approvals/create', [ApprovalsController::class, 'create'])->name('approvals.create');
-    Route::post('/approvals', [ApprovalsController::class, 'store'])->name('approvals.store');
-    Route::get('/approvals/{id}', [ApprovalsController::class, 'show'])->name('approvals.show');
-    Route::post('/approvals/destroy', [ApprovalsController::class, 'destroy'])->name('approvals.destroy');
+    // Rotas de aprovações removidas - não serão mais utilizadas
+    // A validação de acesso agora é baseada no status do funcionário
 });
 
 Route::get('/not-found', [ErrorController::class, 'notFound'])->name('error.not_found');

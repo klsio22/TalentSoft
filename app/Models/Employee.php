@@ -91,11 +91,6 @@ class Employee extends Model
         return $this->hasMany(Notification::class, 'employee_id');
     }
 
-    public function approvals(): HasMany
-    {
-        return $this->hasMany(Approval::class, 'employee_id');
-    }
-
     /**
      * @param array<string, mixed> $data
      * @return array<int|string, mixed>
@@ -239,6 +234,11 @@ class Employee extends Model
 
     public function authenticate(string $password): bool
     {
+        // Verificar se o funcionário está ativo
+        if ($this->status !== 'Active') {
+            return false;
+        }
+
         $credential = $this->credential();
 
         if ($credential === null) {

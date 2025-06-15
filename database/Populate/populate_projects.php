@@ -11,9 +11,12 @@ echo "Creating sample projects...\n";
 
 // Project data
 // Define constants for project statuses
-const STATUS_IN_PROGRESS = 'In Progress';
-const STATUS_COMPLETED = 'Completed';
-const STATUS_CANCELED = 'Canceled';
+const STATUS_EM_ANDAMENTO = 'Em andamento';
+const STATUS_CONCLUIDO = 'Concluído';
+const STATUS_CANCELADO = 'Cancelado';
+const STATUS_EM_PAUSA = 'Em pausa';
+const STATUS_EM_TESTE = 'Em teste';
+const STATUS_EM_ABERTO = 'Em aberto';
 
 $projects = [
     [
@@ -21,7 +24,7 @@ $projects = [
         'description' => 'Development of the internal HR management system with employee profiles, project assignments, and performance tracking.',
         'start_date' => '2023-01-15',
         'end_date' => '2023-12-31',
-        'status' => STATUS_COMPLETED,
+        'status' => STATUS_CONCLUIDO,
         'budget' => 150000.00
     ],
     [
@@ -29,7 +32,7 @@ $projects = [
         'description' => 'Creating a mobile application for employees to access company resources, request time off, and view their schedules.',
         'start_date' => '2023-06-01',
         'end_date' => '2024-03-31',
-        'status' => STATUS_IN_PROGRESS,
+        'status' => STATUS_EM_ANDAMENTO,
         'budget' => 85000.00
     ],
     [
@@ -37,7 +40,7 @@ $projects = [
         'description' => 'Migrating all company systems and data to cloud infrastructure to improve scalability and reduce costs.',
         'start_date' => '2023-09-15',
         'end_date' => '2024-06-30',
-        'status' => STATUS_IN_PROGRESS,
+        'status' => STATUS_EM_ANDAMENTO,
         'budget' => 120000.00
     ],
     [
@@ -45,7 +48,7 @@ $projects = [
         'description' => 'Complete overhaul of the company website with modern design, improved UX, and integration with internal systems.',
         'start_date' => '2023-03-01',
         'end_date' => '2023-08-31',
-        'status' => STATUS_COMPLETED,
+        'status' => STATUS_CONCLUIDO,
         'budget' => 45000.00
     ],
     [
@@ -53,7 +56,7 @@ $projects = [
         'description' => 'Building a comprehensive data analytics platform to provide insights into company performance and employee productivity.',
         'start_date' => '2024-01-10',
         'end_date' => '2024-12-15',
-        'status' => STATUS_IN_PROGRESS,
+        'status' => STATUS_EM_ANDAMENTO,
         'budget' => 200000.00
     ],
     [
@@ -61,7 +64,7 @@ $projects = [
         'description' => 'Implementing advanced security measures across all company systems to protect against cyber threats.',
         'start_date' => '2024-02-15',
         'end_date' => '2024-08-31',
-        'status' => STATUS_IN_PROGRESS,
+        'status' => STATUS_EM_TESTE,
         'budget' => 75000.00
     ],
     [
@@ -69,7 +72,7 @@ $projects = [
         'description' => 'Developing a portal for customers to access their account information, submit support tickets, and track orders.',
         'start_date' => '2023-11-01',
         'end_date' => '2024-05-31',
-        'status' => STATUS_IN_PROGRESS,
+        'status' => STATUS_EM_ABERTO,
         'budget' => 95000.00
     ]
 ];

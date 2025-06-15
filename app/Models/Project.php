@@ -35,9 +35,4 @@ class Project extends Model
             'employee_id'
         );
     }
-
-    public function approvals(): HasMany
-    {
-        return $this->hasMany(Approval::class, 'project_id');
-    }
 }
