@@ -82,6 +82,10 @@
             class="nav-link text-blue-100 hover:text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
             <i class="fas fa-users mr-2"></i> Funcionários
           </a>
+          <a href="<?= route('projects.index') ?>"
+            class="nav-link text-blue-100 hover:text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+            <i class="fas fa-project-diagram mr-2"></i> Projetos
+          </a>
           <?php endif; ?>
         </div>
       </div>
@@ -133,6 +137,10 @@
       <a href="<?= route('employees.index') ?>"
         class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
         <i class="fas fa-users mr-3"></i> Funcionários
+      </a>
+      <a href="<?= route('projects.index') ?>"
+        class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
+        <i class="fas fa-project-diagram mr-3"></i> Projetos
       </a>
       <?php endif; ?>
       <a href="<?= route('profile.show') ?>"

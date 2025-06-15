@@ -260,8 +260,8 @@ class ProjectsController extends Controller
                 return;
             }
 
-            // Instead of deleting, set status to 'Inactive'
-            $project->status = 'Inactive';
+            // Instead of deleting, set status to 'Em pausa'
+            $project->status = 'Em pausa';
 
             if ($project->save()) {
                 FlashMessage::success(self::PROJECT_DELETED);
