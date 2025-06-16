@@ -215,6 +215,48 @@ class Employee extends Model
     {
         return self::findBy(['email' => $email]);
     }
+    
+    /**
+     * Busca um funcionário pelo ID do usuário
+     *
+     * @param int $userId ID do usuário
+     * @return Employee|null Funcionário encontrado ou null
+     */
+    public static function findByUserId(int $userId): ?Employee
+    {
+        // Primeiro, buscar todas as credenciais de usuário
+        $credentials = UserCredential::all();
+        
+        // Encontrar a credencial que corresponde ao ID do usuário
+        foreach ($credentials as $credential) {
+            if ($credential->id === $userId) {
+                // Retornar o funcionário associado a esta credencial
+                return self::findById($credential->employee_id);
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Obtém o funcionário associado ao usuário atual
+     *
+     * @return Employee|null Funcionário ou null se não encontrado
+     */
+    public static function getCurrentUserEmployee(): ?Employee
+    {
+        $currentUser = Auth::user();
+        if (!$currentUser) {
+            return null;
+        }
+        
+        $credential = UserCredential::findById($currentUser->id);
+        if (!$credential || !$credential->employee_id) {
+            return null;
+        }
+        
+        return self::findById($credential->employee_id);
+    }
 
     public function isAdmin(): bool
     {

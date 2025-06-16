@@ -1,4 +1,18 @@
 <?php if (\Lib\Authentication\Auth::check()): ?>
+<?php
+  // Buscar notificações não lidas do usuário atual
+  $currentUser = $this->currentUser();
+  $unreadNotifications = [];
+  
+  if ($currentUser) {
+    $notifications = $currentUser->notifications()->get();
+    $unreadNotifications = array_filter($notifications, function($notification) {
+      return $notification->status === 'Unread';
+    });
+  }
+  
+  $unreadCount = count($unreadNotifications);
+?>
 <style>
   .header-glass {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(139, 92, 246, 0.95) 100%);
@@ -58,6 +72,70 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
   }
+  
+  /* Estilos para notificações */
+  .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  .notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 320px;
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    z-index: 50;
+    display: none;
+  }
+  
+  .notification-dropdown.show {
+    display: block;
+  }
+  
+  .notification-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s;
+  }
+  
+  .notification-item:hover {
+    background-color: #f9fafb;
+  }
+  
+  .notification-item.unread {
+    background-color: #f0f9ff;
+  }
+  
+  .notification-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .notification-footer {
+    padding: 12px 16px;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+  }
 </style>
 
 <nav class="header-glass shadow-xl">
@@ -77,6 +155,12 @@
             class="nav-link text-blue-100 hover:text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
             <i class="fas fa-home mr-2"></i> Início
           </a>
+          
+          <!-- Link para projetos do usuário (visível para todos os usuários) -->
+          <a href="<?= route('projects.user') ?>"
+            class="nav-link text-blue-100 hover:text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+            <i class="fas fa-tasks mr-2"></i> Meus Projetos
+          </a>
           <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
           <a href="<?= route('employees.index') ?>"
             class="nav-link text-blue-100 hover:text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
@@ -90,6 +174,76 @@
         </div>
       </div>
       <div class="flex items-center space-x-3">
+        <!-- Notifications -->
+        <div class="relative">
+          <button id="notification-button" 
+            class="nav-link text-blue-100 hover:text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center relative">
+            <i class="fas fa-bell mr-2"></i>
+            <span class="hidden sm:inline">Notificações</span>
+            <?php if ($unreadCount > 0): ?>
+            <span class="notification-badge"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
+            <?php endif; ?>
+          </button>
+          
+          <!-- Dropdown de notificações -->
+          <div id="notification-dropdown" class="notification-dropdown">
+            <div class="notification-header">
+              <span>Notificações</span>
+              <?php if ($unreadCount > 0): ?>
+              <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full"><?= $unreadCount ?> não lida<?= $unreadCount > 1 ? 's' : '' ?></span>
+              <?php endif; ?>
+            </div>
+            
+            <?php if (empty($notifications)): ?>
+            <div class="notification-item">
+              <p class="text-gray-500 text-sm">Nenhuma notificação disponível.</p>
+            </div>
+            <?php else: ?>
+              <?php foreach (array_slice($notifications, 0, 5) as $notification): ?>
+              <div class="notification-item <?= $notification->status === 'Unread' ? 'unread' : '' ?>">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 mr-3">
+                    <?php if ($notification->type === 'Project'): ?>
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                      <i class="fas fa-project-diagram text-blue-600"></i>
+                    </div>
+                    <?php elseif ($notification->type === 'Registration'): ?>
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                      <i class="fas fa-user-plus text-green-600"></i>
+                    </div>
+                    <?php elseif ($notification->type === 'Approval'): ?>
+                    <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                      <i class="fas fa-check-circle text-yellow-600"></i>
+                    </div>
+                    <?php else: ?>
+                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                      <i class="fas fa-info-circle text-gray-600"></i>
+                    </div>
+                    <?php endif; ?>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900"><?= htmlspecialchars($notification->message) ?></p>
+                    <p class="text-xs text-gray-500 mt-1"><?= !empty($notification->sent_date) ? date('d/m/Y H:i', strtotime($notification->sent_date)) : 'Data desconhecida' ?></p>
+                  </div>
+                  <?php if ($notification->status === 'Unread'): ?>
+                  <form action="<?= route('notifications.mark-read') ?>" method="post" class="ml-2">
+                    <input type="hidden" name="id" value="<?= $notification->id ?>">
+                    <button type="submit" class="text-xs text-blue-600 hover:text-blue-800">
+                      <i class="fas fa-check"></i>
+                    </button>
+                  </form>
+                  <?php endif; ?>
+                </div>
+              </div>
+              <?php endforeach; ?>
+            <?php endif; ?>
+            
+            <div class="notification-footer">
+              <a href="<?= route('notifications.index') ?>" class="text-sm text-blue-600 hover:text-blue-800">Ver todas notificações</a>
+            </div>
+          </div>
+        </div>
+        
         <!-- Profile Link -->
         <a href="<?= route('profile.show') ?>"
           class="nav-link text-blue-100 hover:text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center">
@@ -133,6 +287,12 @@
         class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
         <i class="fas fa-home mr-3"></i> Início
       </a>
+      
+      <!-- Link para projetos do usuário no menu mobile -->
+      <a href="<?= route('projects.user') ?>"
+        class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
+        <i class="fas fa-tasks mr-3"></i> Meus Projetos
+      </a>
       <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
       <a href="<?= route('employees.index') ?>"
         class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
@@ -143,6 +303,14 @@
         <i class="fas fa-project-diagram mr-3"></i> Projetos
       </a>
       <?php endif; ?>
+      <a href="<?= route('notifications.index') ?>"
+        class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
+        <i class="fas fa-bell mr-3"></i> Notificações
+        <?php if ($unreadCount > 0): ?>
+        <span class="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full"><?= $unreadCount ?></span>
+        <?php endif; ?>
+      </a>
+      
       <a href="<?= route('profile.show') ?>"
         class="nav-link text-blue-100 hover:text-white block px-4 py-3 rounded-lg text-base font-medium flex items-center">
         <i class="fas fa-user mr-3"></i> Meu Perfil
@@ -165,4 +333,25 @@
 </nav>
 
 <!-- Header-specific scripts are loaded via layout -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Dropdown de notificações
+    const notificationButton = document.getElementById('notification-button');
+    const notificationDropdown = document.getElementById('notification-dropdown');
+    
+    if (notificationButton && notificationDropdown) {
+      notificationButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        notificationDropdown.classList.toggle('show');
+      });
+      
+      // Fechar dropdown ao clicar fora
+      document.addEventListener('click', function(e) {
+        if (!notificationButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
+          notificationDropdown.classList.remove('show');
+        }
+      });
+    }
+  });
+</script>
 <?php endif; ?>

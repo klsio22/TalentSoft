@@ -4,6 +4,7 @@ use App\Controllers\AdminController;
 use App\Controllers\AuthController;
 use App\Controllers\EmployeesController;
 use App\Controllers\EmployeeProjectsController;
+use App\Controllers\ErrorController;
 use App\Controllers\HomeController;
 use App\Controllers\HRController;
 use App\Controllers\NotificationsController;
@@ -44,7 +45,6 @@ Route::middleware('admin-hr')->group(function () {
     Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');
     Route::get('/projects/create', [ProjectsController::class, 'create'])->name('projects.create');
     Route::post('/projects', [ProjectsController::class, 'store'])->name('projects.store');
-    Route::get('/projects/{id}', [ProjectsController::class, 'show'])->name('projects.show');
     Route::get('/projects/{id}/edit', [ProjectsController::class, 'edit'])->name('projects.edit');
     Route::post('/projects/{id}/update', [ProjectsController::class, 'update'])->name('projects.update');
     Route::post('/projects/{id}/destroy', [ProjectsController::class, 'destroy'])->name('projects.destroy');
@@ -67,6 +67,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-read', [NotificationsController::class, 'markAsRead'])->name('notifications.mark-read');
     Route::post('/notifications/destroy', [NotificationsController::class, 'destroy'])->name('notifications.destroy');
+
+    // User projects route
+    Route::get('/my-projects', [ProjectsController::class, 'userProjects'])->name('projects.user');
+    Route::get('/projects/{id}', [ProjectsController::class, 'show'])->name('projects.show');
 
     // Rotas de aprovações removidas - não serão mais utilizadas
     // A validação de acesso agora é baseada no status do funcionário

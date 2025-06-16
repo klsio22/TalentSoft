@@ -4,6 +4,7 @@
       <?= htmlspecialchars($project->name) ?>
     </h1>
     <div class="flex space-x-2">
+      <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
       <a href="<?= route('projects.edit', ['id' => $project->id]) ?>"
         class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
         Editar
@@ -12,6 +13,12 @@
         class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
         Voltar aos Projetos
       </a>
+      <?php else: ?>
+      <a href="<?= route('projects.user') ?>"
+        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+        Voltar aos Meus Projetos
+      </a>
+      <?php endif; ?>
     </div>
   </div>
 
@@ -66,19 +73,22 @@
               <?= htmlspecialchars($project->status) ?>
             </span>
           </div>
+          <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
           <div>
             <h3 class="text-gray-700 font-bold">Orçamento</h3>
             <p class="text-gray-600">
               <?= $project->budget ? 'R$ ' . number_format($project->budget, 2, ',', '.') : 'Não definido' ?>
             </p>
           </div>
+          <?php endif; ?>
         </div>
 
 
       </div>
     </div>
 
-    <!-- Formulário de Atribuição de Funcionário -->
+    <!-- Formulário de Atribuição de Funcionário - Visível apenas para Admin e RH -->
+    <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
     <div class="md:col-span-1">
       <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <h2 class="text-xl font-bold mb-4">Atribuir Funcionário</h2>
@@ -121,6 +131,34 @@
         </form>
       </div>
     </div>
+    <?php else: ?>
+    <!-- Card de informações adicionais para usuários comuns -->
+    <div class="md:col-span-1">
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Informações do Projeto</h2>
+        
+        <div class="mb-4">
+          <h3 class="text-gray-700 font-bold">Tamanho da Equipe</h3>
+          <p class="text-gray-600"><?= count($projectTeam) ?> membro(s)</p>
+        </div>
+        
+        <div class="mb-4">
+          <h3 class="text-gray-700 font-bold">Sua Função</h3>
+          <?php 
+          $currentUserId = \Lib\Authentication\Auth::user()->id;
+          $userRole = 'Não especificada';
+          foreach ($projectTeam as $member) {
+              if ($member['employee']->id === $currentUserId) {
+                  $userRole = $member['role'];
+                  break;
+              }
+          }
+          ?>
+          <p class="text-gray-600"><?= htmlspecialchars($userRole) ?></p>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
   </div>
 
   <!-- Equipe do Projeto -->
@@ -158,6 +196,7 @@
                   title="Ver detalhes">
                   <i class="fas fa-eye text-sm"></i>
                 </a>
+                <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
                 <form action="<?= route('employee-projects.remove') ?>" method="post" class="inline">
                   <input type="hidden" name="project_id" value="<?= $project->id ?>">
                   <input type="hidden" name="employee_id" value="<?= $member['employee']->id ?>">
@@ -167,6 +206,7 @@
                     <i class="fas fa-trash text-sm"></i>
                   </button>
                 </form>
+                <?php endif; ?>
               </div>
             </td>
           </tr>

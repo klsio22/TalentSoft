@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Employee;
 use App\Models\Project;
+use App\Models\UserCredential;
 use Core\Http\Controllers\Controller;
 use Core\Http\Request;
 use Lib\Authentication\Auth;
@@ -26,8 +27,12 @@ class ProjectsController extends Controller
         if (!Auth::check()) {
             $this->redirectTo(route('auth.login'));
         } elseif (!Auth::isHR() && !Auth::isAdmin()) {
-            FlashMessage::danger(self::ACCESS_DENIED);
-            $this->redirectTo(route('user.home'));
+            // Verificar se a rota atual é 'projects.user' (userProjects)
+            $currentRoute = $_SERVER['REQUEST_URI'] ?? '';
+            if (strpos($currentRoute, '/my-projects') === false) {
+                FlashMessage::danger(self::ACCESS_DENIED);
+                $this->redirectTo(route('user.home'));
+            }
         }
     }
 
@@ -129,12 +134,63 @@ class ProjectsController extends Controller
         }
     }
 
+    /**
+     * Verifica se um usuário tem acesso a um projeto específico
+     * Utiliza o método do modelo Project para seguir o padrão MVC
+     *
+     * @param int $projectId ID do projeto
+     * @return bool True se o usuário tem acesso, false caso contrário
+     */
+    private function userHasProjectAccess(int $projectId): bool
+    {
+        // Delega a verificação de acesso ao modelo Project
+        return Project::currentUserHasProjectAccess($projectId);
+    }
+
+    /**
+     * Prepara a equipe do projeto para exibição
+     *
+     * @param Project $project Projeto
+     * @return array Equipe do projeto com detalhes
+     */
+    private function prepareProjectTeam(Project $project): array
+    {
+        $projectEmployees = $project->employees()->get();
+        $employeeRoles = $this->getEmployeeProjectRoles($project->id);
+
+        $projectTeam = [];
+        foreach ($projectEmployees as $employee) {
+            $projectTeam[] = [
+                'employee' => $employee,
+                'role' => $employeeRoles[$employee->id] ?? 'Not specified'
+            ];
+        }
+
+        return $projectTeam;
+    }
+
+    /**
+     * Filtra funcionários disponíveis para atribuição ao projeto
+     *
+     * @param array $allEmployees Todos os funcionários
+     * @param array $projectEmployees Funcionários já atribuídos ao projeto
+     * @return array Funcionários disponíveis
+     */
+    private function filterAvailableEmployees(array $allEmployees, array $projectEmployees): array
+    {
+        return array_filter($allEmployees, function ($employee) use ($projectEmployees) {
+            foreach ($projectEmployees as $projectEmployee) {
+                if ($projectEmployee->id === $employee->id) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
     public function show(Request $request): void
     {
-
-
         $id = (int) $request->getParam('id');
-
         $project = Project::findById($id);
 
         if (!$project) {
@@ -143,41 +199,24 @@ class ProjectsController extends Controller
             return;
         }
 
-        try {
-            $projectEmployees = $project->employees()->get();
-            $employeeRoles = $this->getEmployeeProjectRoles($project->id);
-
-            $projectTeam = [];
-            foreach ($projectEmployees as $employee) {
-                $projectTeam[] = [
-                    'employee' => $employee,
-                    'role' => $employeeRoles[$employee->id] ?? 'Not specified'
-                ];
-            }
-
-            $allEmployees = Employee::all();
-        } catch (\Exception $e) {
-            FlashMessage::danger('Error loading project data: ' . $e->getMessage());
-            $this->redirectTo(route('projects.index'));
+        // Verificar acesso
+        if (!$this->userHasProjectAccess($project->id)) {
+            FlashMessage::danger(self::ACCESS_DENIED);
+            $this->redirectTo(route('projects.user'));
             return;
         }
 
-        // Filter out employees already assigned to the project
-        $availableEmployees = array_filter($allEmployees, function ($employee) use ($projectEmployees) {
-            foreach ($projectEmployees as $projectEmployee) {
-                if ($projectEmployee->id === $employee->id) {
-                    return false;
-                }
-            }
-            return true;
-        });
-
-        $title = 'Project Details';
-
         try {
+            // Preparar dados do projeto
+            $projectTeam = $this->prepareProjectTeam($project);
+            $projectEmployees = $project->employees()->get();
+            $allEmployees = Employee::all();
+            $availableEmployees = $this->filterAvailableEmployees($allEmployees, $projectEmployees);
+            $title = 'Project Details';
+
             $this->render('projects/show', compact('project', 'projectTeam', 'availableEmployees', 'title'));
         } catch (\Exception $e) {
-            FlashMessage::danger('Error rendering project view: ' . $e->getMessage());
+            FlashMessage::danger('Error loading project data: ' . $e->getMessage());
             $this->redirectTo(route('projects.index'));
         }
     }
@@ -273,5 +312,44 @@ class ProjectsController extends Controller
         }
 
         $this->redirectTo(route('projects.index'));
+    }
+
+    /**
+     * Lista os projetos associados ao usuário atual
+     */
+    public function userProjects(): void
+    {
+        // Verificar se o usuário está autenticado
+        if (!Auth::check()) {
+            $this->redirectTo(route('auth.login'));
+            return;
+        }
+
+        $currentUser = Auth::user();
+
+        if (!$currentUser) {
+            FlashMessage::danger('Usuário não encontrado');
+            $this->redirectTo(route('auth.login'));
+            return;
+        }
+
+        // Obter os projetos associados ao usuário atual
+        $userProjects = $currentUser->projects()->get();
+
+        // Obter informações adicionais sobre cada projeto
+        $projectsWithDetails = [];
+        foreach ($userProjects as $project) {
+            $projectEmployees = $project->employees()->get();
+            $employeeRoles = $this->getEmployeeProjectRoles($project->id);
+
+            $projectsWithDetails[] = [
+                'project' => $project,
+                'role' => $employeeRoles[$currentUser->id] ?? 'Não especificado',
+                'team_size' => count($projectEmployees)
+            ];
+        }
+
+        $title = 'Meus Projetos';
+        $this->render('projects/user_projects', compact('projectsWithDetails', 'title'));
     }
 }
