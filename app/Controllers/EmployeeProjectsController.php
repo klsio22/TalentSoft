@@ -15,7 +15,6 @@ class EmployeeProjectsController extends Controller
 
     private const EMPLOYEE_NOT_FOUND = 'Employee not found';
     private const PROJECT_NOT_FOUND = 'Project not found';
-    private const ACCESS_DENIED = 'Access denied';
     private const ASSIGNMENT_CREATED = 'Employee assigned to project successfully!';
     private const ASSIGNMENT_REMOVED = 'Employee removed from project successfully!';
     private const MY_PROJECTS = 'My Projects';
@@ -247,17 +246,18 @@ class EmployeeProjectsController extends Controller
         $roles = [];
         try {
             $pdo = \Core\Database\Database::getDatabaseConn();
-            $query = "SELECT employee_id, role FROM employee_projects WHERE project_id = :project_id";
+            $query = "SELECT employee_id, role FROM Employee_Projects WHERE project_id = :project_id";
             $stmt = $pdo->prepare($query);
             $stmt->bindValue(':project_id', $projectId);
             $stmt->execute();
             $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($results as $result) {
-                $roles[$result['employee_id']] = $result['role'] ?? 'Membro da equipe';
+                $roles[$result['employee_id']] = !empty($result['role']) ? $result['role'] : 'Membro da equipe';
             }
         } catch (\Exception $e) {
             // Log error and continue with empty roles array
+            error_log("Erro ao buscar roles dos funcionários: " . $e->getMessage());
         }
 
         return $roles;

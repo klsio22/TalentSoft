@@ -157,7 +157,7 @@ class ProjectsController extends Controller
         foreach ($projectEmployees as $employee) {
             $projectTeam[] = [
                 'employee' => $employee,
-                'role' => $employeeRoles[$employee->id] ?? 'Not specified'
+                'role' => isset($employeeRoles[$employee->id]) ? $employeeRoles[$employee->id] : 'Membro da equipe'
             ];
         }
 

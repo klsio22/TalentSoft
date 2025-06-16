@@ -53,23 +53,22 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <h3 class="text-gray-700 font-bold">Status</h3>
-            <span
-              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                            <?php
-                            $statusColor = 'bg-gray-100 text-gray-800';
-                            if (in_array($project->status, ['Em andamento', 'Em teste', 'Em revisão'])) {
-                                $statusColor = 'bg-blue-100 text-blue-800';
-                            } elseif (in_array($project->status, ['Concluído', 'Em Produção'])) {
-                                $statusColor = 'bg-green-100 text-green-800';
-                            } elseif (in_array($project->status, ['Cancelado', 'Em pausa'])) {
-                                $statusColor = 'bg-red-100 text-red-800';
-                            } elseif (in_array($project->status, ['Em aprovação cliente', 'Em aprovação interna'])) {
-                                $statusColor = 'bg-yellow-100 text-yellow-800';
-                            } elseif ($project->status === 'Em espera') {
-                                $statusColor = 'bg-purple-100 text-purple-800';
-                            }
-                            echo $statusColor;
-                            ?>">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+              <?php
+              $statusColor = 'bg-gray-100 text-gray-800';
+              if ($project->status === 'Concluído') {
+                  $statusColor = 'bg-green-100 text-green-800';
+              } elseif (in_array($project->status, ['Em andamento', 'Em teste', 'Em revisão'])) {
+                  $statusColor = 'bg-blue-100 text-blue-800';
+              } elseif (in_array($project->status, ['Cancelado', 'Em pausa'])) {
+                  $statusColor = 'bg-red-100 text-red-800';
+              } elseif (in_array($project->status, ['Em aprovação cliente', 'Em aprovação interna'])) {
+                  $statusColor = 'bg-yellow-100 text-yellow-800';
+              } elseif ($project->status === 'Em espera') {
+                  $statusColor = 'bg-purple-100 text-purple-800';
+              }
+              echo $statusColor;
+              ?>">
               <?= htmlspecialchars($project->status) ?>
             </span>
           </div>
@@ -82,8 +81,6 @@
           </div>
           <?php endif; ?>
         </div>
-
-
       </div>
     </div>
 
@@ -125,7 +122,7 @@
             <button
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit">
-              Atribuir
+              Atribuir Funcionário
             </button>
           </div>
         </form>
@@ -136,15 +133,17 @@
     <div class="md:col-span-1">
       <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <h2 class="text-xl font-bold mb-4">Informações do Projeto</h2>
-        
+
         <div class="mb-4">
           <h3 class="text-gray-700 font-bold">Tamanho da Equipe</h3>
-          <p class="text-gray-600"><?= count($projectTeam) ?> membro(s)</p>
+          <p class="text-gray-600">
+            <?= count($projectTeam) ?> membro(s)
+          </p>
         </div>
-        
+
         <div class="mb-4">
           <h3 class="text-gray-700 font-bold">Sua Função</h3>
-          <?php 
+          <?php
           $currentUserId = \Lib\Authentication\Auth::user()->id;
           $userRole = 'Não especificada';
           foreach ($projectTeam as $member) {
@@ -154,7 +153,9 @@
               }
           }
           ?>
-          <p class="text-gray-600"><?= htmlspecialchars($userRole) ?></p>
+          <p class="text-gray-600">
+            <?= htmlspecialchars($userRole) ?>
+          </p>
         </div>
       </div>
     </div>
@@ -175,7 +176,7 @@
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Funcionário</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Função</th>
+              Função no Projeto</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações
             </th>
           </tr>
@@ -187,7 +188,34 @@
               <?= htmlspecialchars($member['employee']->name) ?>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <?= htmlspecialchars($member['role']) ?>
+              <?php
+              $roleClass = '';
+              $roleName = htmlspecialchars($member['role']);
+
+              // Destacar papéis importantes
+              if (stripos($roleName, 'gerente') !== false || stripos($roleName, 'líder') !== false ||
+                  stripos($roleName, 'coordenador') !== false || stripos($roleName, 'manager') !== false) {
+                  $roleClass = 'bg-purple-100 text-purple-800';
+              } elseif (stripos($roleName, 'desenvolvedor') !== false || stripos($roleName, 'developer') !== false ||
+                       stripos($roleName, 'programador') !== false) {
+                  $roleClass = 'bg-green-100 text-green-800';
+              } elseif (stripos($roleName, 'designer') !== false) {
+                  $roleClass = 'bg-pink-100 text-pink-800';
+              } elseif (stripos($roleName, 'analista') !== false || stripos($roleName, 'analyst') !== false) {
+                  $roleClass = 'bg-yellow-100 text-yellow-800';
+              } elseif (stripos($roleName, 'tester') !== false || stripos($roleName, 'qa') !== false ||
+                       stripos($roleName, 'engineer') !== false) {
+                  $roleClass = 'bg-red-100 text-red-800';
+              } elseif (stripos($roleName, 'devops') !== false) {
+                  $roleClass = 'bg-indigo-100 text-indigo-800';
+              }
+
+              if (!empty($roleClass)) {
+                  echo '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' . $roleClass . '">' . $roleName . '</span>';
+              } else {
+                  echo $roleName;
+              }
+              ?>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               <div class="flex space-x-2">
@@ -200,9 +228,10 @@
                 <form action="<?= route('employee-projects.remove') ?>" method="post" class="inline">
                   <input type="hidden" name="project_id" value="<?= $project->id ?>">
                   <input type="hidden" name="employee_id" value="<?= $member['employee']->id ?>">
-                  <button type="submit" 
+                  <button type="submit"
                     class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
-                    title="Remover">
+                    title="Remover do projeto"
+                    onclick="return confirm('Tem certeza que deseja remover este funcionário do projeto?')">
                     <i class="fas fa-trash text-sm"></i>
                   </button>
                 </form>
