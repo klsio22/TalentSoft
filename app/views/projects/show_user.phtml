@@ -1,0 +1,143 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">
+      <?= htmlspecialchars($project->name) ?>
+    </h1>
+    <div class="flex space-x-2">
+      <a href="<?= route('projects.user') ?>"
+        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+        Voltar aos Meus Projetos
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Detalhes do Projeto -->
+    <div class="md:col-span-2">
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Detalhes do Projeto</h2>
+
+        <div class="mb-4">
+          <h3 class="text-gray-700 font-bold">Descrição</h3>
+          <p class="text-gray-600">
+            <?= nl2br(htmlspecialchars($project->description ?? 'Nenhuma descrição fornecida')) ?>
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <h3 class="text-gray-700 font-bold">Data de Início</h3>
+            <p class="text-gray-600">
+              <?= $project->start_date ? date('d/m/Y', strtotime($project->start_date)) : 'Não definida' ?>
+            </p>
+          </div>
+          <div>
+            <h3 class="text-gray-700 font-bold">Data de Término</h3>
+            <p class="text-gray-600">
+              <?= $project->end_date ? date('d/m/Y', strtotime($project->end_date)) : 'Não definida' ?>
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <h3 class="text-gray-700 font-bold">Status</h3>
+            <span
+              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                            <?php
+                            $statusColor = 'bg-gray-100 text-gray-800';
+                            if (in_array($project->status, ['Em andamento', 'Em teste', 'Em revisão'])) {
+                                $statusColor = 'bg-blue-100 text-blue-800';
+                            } elseif (in_array($project->status, ['Concluído', 'Em Produção'])) {
+                                $statusColor = 'bg-green-100 text-green-800';
+                            } elseif (in_array($project->status, ['Cancelado', 'Em pausa'])) {
+                                $statusColor = 'bg-red-100 text-red-800';
+                            } elseif (in_array($project->status, ['Em aprovação cliente', 'Em aprovação interna'])) {
+                                $statusColor = 'bg-yellow-100 text-yellow-800';
+                            } elseif ($project->status === 'Em espera') {
+                                $statusColor = 'bg-purple-100 text-purple-800';
+                            }
+                            echo $statusColor;
+                            ?>">
+              <?= htmlspecialchars($project->status) ?>
+            </span>
+          </div>
+          <!-- Sem campo de orçamento para usuários comuns -->
+        </div>
+      </div>
+    </div>
+
+    <div class="md:col-span-1">
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Meu Papel no Projeto</h2>
+        <?php
+        $userEmployee = \App\Models\Employee::getCurrentUserEmployee();
+        $employeeRole = "Membro da equipe";
+        if ($userEmployee) {
+            foreach ($projectTeam as $member) {
+                if ($member['employee']->id == $userEmployee->id) {
+                    $employeeRole = $member['role'];
+                    break;
+                }
+            }
+        }
+        ?>
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-info-circle text-blue-500"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-blue-700">
+                Seu papel neste projeto: <strong><?= htmlspecialchars($employeeRole) ?></strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Equipe do Projeto -->
+  <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mt-4">
+    <h2 class="text-xl font-bold mb-4">Equipe do Projeto</h2>
+
+    <?php if (empty($projectTeam)): ?>
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-yellow-700">
+            Nenhum funcionário atribuído a este projeto ainda.
+          </p>
+        </div>
+      </div>
+    </div>
+    <?php else: ?>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="py-2 px-4 border-b text-left">Nome</th>
+            <th class="py-2 px-4 border-b text-left">Email</th>
+            <th class="py-2 px-4 border-b text-left">Cargo</th>
+            <th class="py-2 px-4 border-b text-left">Papel no Projeto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($projectTeam as $member): ?>
+          <tr>
+            <td class="py-2 px-4 border-b"><?= htmlspecialchars($member['employee']->name) ?></td>
+            <td class="py-2 px-4 border-b"><?= htmlspecialchars($member['employee']->email) ?></td>
+            <td class="py-2 px-4 border-b"><?= htmlspecialchars($member['employee']->role()->name ?? 'Não definido') ?></td>
+            <td class="py-2 px-4 border-b"><?= htmlspecialchars($member['role']) ?></td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+    <?php endif; ?>
+  </div>
+</div>

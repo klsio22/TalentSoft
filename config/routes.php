@@ -69,7 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/destroy', [NotificationsController::class, 'destroy'])->name('notifications.destroy');
 
     // User projects route
-    Route::get('/my-projects', [ProjectsController::class, 'userProjects'])->name('projects.user');
+    Route::get('/my-projects', [EmployeeProjectsController::class, 'userProjects'])->name('projects.user');
     Route::get('/projects/{id}', [ProjectsController::class, 'show'])->name('projects.show');
 
     // Rotas de aprovações removidas - não serão mais utilizadas

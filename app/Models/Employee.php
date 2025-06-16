@@ -57,7 +57,6 @@ class Employee extends Model
         Validations::uniqueness('cpf', $this);
     }
 
-
     /**
      * @return UserCredential|null
      */
@@ -97,125 +96,14 @@ class Employee extends Model
      */
     public static function createWithCredentials(array $data): array
     {
-        $processedData = self::preprocessEmployeeData($data);
-
-        $validationResult = self::validateEmployeeData($processedData);
-        if (!$validationResult['isValid']) {
-            return [false, $validationResult['message'], null];
-        }
-
-        return self::createEmployeeWithCredentials($processedData);
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     * @return array<string, mixed>
-     */
-    private static function preprocessEmployeeData(array $data): array
-    {
-        if (isset($data['salary']) && !empty($data['salary'])) {
-            $data['salary'] = str_replace(['R$', ' ', '.'], '', $data['salary']);
-            $data['salary'] = str_replace(',', '.', $data['salary']);
-        } else {
-            $data['salary'] = null;
-        }
-
-        if (isset($data['hire_date']) && !empty($data['hire_date']) && strtotime($data['hire_date']) !== false) {
-            $data['hire_date'] = date('Y-m-d', strtotime($data['hire_date']));
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     * @return array{isValid: bool, message: string}
-     */
-    private static function validateEmployeeData(array $data): array
-    {
-        $validationErrors = self::checkAllRequiredFields($data);
-        if (!empty($validationErrors)) {
-            return ['isValid' => false, 'message' => $validationErrors];
-        }
-
-        if ($data['password'] !== ($data['password_confirmation'] ?? '')) {
-            return ['isValid' => false, 'message' => "A senha e a confirmação de senha não conferem"];
-        }
-
-        return ['isValid' => true, 'message' => ''];
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private static function checkAllRequiredFields(array $data): string
-    {
-        $requiredFields = ['name', 'cpf', 'email', 'role_id', 'hire_date'];
-
-        foreach ($requiredFields as $field) {
-            if (empty($data[$field])) {
-                return "Campo obrigatório não preenchido: {$field}";
-            }
-        }
-
-        if (empty($data['password'])) {
-            return "A senha é obrigatória para um novo funcionário";
-        }
-
-        return '';
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     * @return array{0: bool, 1: string, 2: ?Employee}
-     */
-    private static function createEmployeeWithCredentials(array $data): array
-    {
-        $employeeData = [];
-        foreach (self::$columns as $field) {
-            if (isset($data[$field])) {
-                $employeeData[$field] = $data[$field];
-            }
-        }
-
-        $employee = new Employee($employeeData);
-
-        if (!$employee->save()) {
-            // Construir resposta de erro do funcionário
-            $errors = [];
-            foreach (self::$columns as $field) {
-                if ($employee->errors($field)) {
-                    $errors[] = "{$field}: " . $employee->errors($field);
-                }
-            }
-            $errorMessage = !empty($errors) ? implode("; ", $errors) : "Erro ao salvar funcionário";
-            return [false, $errorMessage, null];
-        }
-
-        // Criar credenciais do usuário
-        $credentials = new UserCredential([
-            'employee_id' => $employee->id,
-            'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
-            'last_updated' => date('Y-m-d H:i:s')
-        ]);
-
-        // Use magic __set method to set password
-        $credentials->password = $data['password'];
-        $credentials->password_confirmation = $data['password_confirmation'] ?? '';
-
-        if (!$credentials->save()) {
-            $employee->destroy();
-            return [false, "Erro ao salvar credenciais do usuário", null];
-        }
-
-        return [true, '', $employee];
+        return EmployeeFactory::createWithCredentials($data);
     }
 
     public static function findByEmail(string $email): ?Employee
     {
         return self::findBy(['email' => $email]);
     }
-    
+
     /**
      * Busca um funcionário pelo ID do usuário
      *
@@ -224,20 +112,9 @@ class Employee extends Model
      */
     public static function findByUserId(int $userId): ?Employee
     {
-        // Primeiro, buscar todas as credenciais de usuário
-        $credentials = UserCredential::all();
-        
-        // Encontrar a credencial que corresponde ao ID do usuário
-        foreach ($credentials as $credential) {
-            if ($credential->id === $userId) {
-                // Retornar o funcionário associado a esta credencial
-                return self::findById($credential->employee_id);
-            }
-        }
-        
-        return null;
+        return EmployeeAuthentication::findByUserId($userId);
     }
-    
+
     /**
      * Obtém o funcionário associado ao usuário atual
      *
@@ -245,49 +122,39 @@ class Employee extends Model
      */
     public static function getCurrentUserEmployee(): ?Employee
     {
-        $currentUser = Auth::user();
-        if (!$currentUser) {
-            return null;
-        }
-        
-        $credential = UserCredential::findById($currentUser->id);
-        if (!$credential || !$credential->employee_id) {
-            return null;
-        }
-        
-        return self::findById($credential->employee_id);
+        return EmployeeAuthentication::getCurrentUserEmployee();
     }
 
     public function isAdmin(): bool
     {
-        return strtolower($this->role()->name) === 'admin';
+        $role = $this->role();
+        if (!$role) {
+            return false;
+        }
+        return strtolower($role->name) === 'admin';
     }
 
     public function isHR(): bool
     {
-        return strtolower($this->role()->name) === 'hr';
+        $role = $this->role();
+        if (!$role) {
+            return false;
+        }
+        return strtolower($role->name) === 'hr';
     }
-
 
     public function isUser(): bool
     {
-        return strtolower($this->role()->name) === 'user';
+        $role = $this->role();
+        if (!$role) {
+            return false;
+        }
+        return strtolower($role->name) === 'user';
     }
 
     public function authenticate(string $password): bool
     {
-        // Verificar se o funcionário está ativo
-        if ($this->status !== 'Active') {
-            return false;
-        }
-
-        $credential = $this->credential();
-
-        if ($credential === null) {
-            return false;
-        }
-
-        return password_verify($password, $credential->password_hash);
+        return EmployeeAuthentication::authenticate($this, $password);
     }
 
     /**
@@ -301,32 +168,7 @@ class Employee extends Model
      */
     public static function filterEmployees(array $allEmployees, ?string $search, ?int $roleId, ?string $status): array
     {
-        $filteredEmployees = [];
-
-        foreach ($allEmployees as $employee) {
-            $matchesSearch = true;
-            $matchesRole = true;
-            $matchesStatus = true;
-
-            if ($search) {
-                $matchesSearch = (stripos($employee->name, $search) !== false ||
-                                 stripos($employee->email, $search) !== false);
-            }
-
-            if ($roleId) {
-                $matchesRole = $employee->role_id == $roleId;
-            }
-
-            if ($status) {
-                $matchesStatus = $employee->status === $status;
-            }
-
-            if ($matchesSearch && $matchesRole && $matchesStatus) {
-                $filteredEmployees[] = $employee;
-            }
-        }
-
-        return $filteredEmployees;
+        return EmployeeFilter::filter($allEmployees, $search, $roleId, $status);
     }
 
     /**
@@ -339,70 +181,6 @@ class Employee extends Model
      */
     public static function createPaginator(array $employees, int $page, int $perPage): object
     {
-        $total = count($employees);
-        $totalPages = ceil($total / $perPage);
-        $page = max(1, min($page, $totalPages ?: 1)); // Garantir que a página é válida
-        $offset = ($page - 1) * $perPage;
-        $paginatedEmployees = array_slice($employees, $offset, $perPage);
-
-        return new class ($paginatedEmployees, $total, $page, $perPage) {
-            /** @var array<int, \App\Models\Employee> */
-            private array $items;
-            private int $total;
-            private int $page;
-            private int $perPage;
-
-            /**
-             * @param array<int, \App\Models\Employee> $items
-             * @param int $total
-             * @param int $page
-             * @param int $perPage
-             */
-            public function __construct(array $items, int $total, int $page, int $perPage)
-            {
-                $this->items = $items;
-                $this->total = $total;
-                $this->page = $page;
-                $this->perPage = $perPage;
-            }
-
-            /**
-             * @return array<int, \App\Models\Employee>
-             */
-            public function items(): array
-            {
-                return $this->items;
-            }
-
-            public function total(): int
-            {
-                return $this->total;
-            }
-
-            public function getPage(): int
-            {
-                return $this->page;
-            }
-
-            public function perPage(): int
-            {
-                return $this->perPage;
-            }
-
-            public function getTotalPages(): int
-            {
-                return (int)ceil($this->total / $this->perPage);
-            }
-
-            public function totalOfRegisters(): int
-            {
-                return $this->total;
-            }
-
-            public function totalOfRegistersOfPage(): int
-            {
-                return count($this->items);
-            }
-        };
+        return EmployeePaginator::paginate($employees, $page, $perPage);
     }
 }

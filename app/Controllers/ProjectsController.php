@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Controllers\EmployeeProjectsController;
 use App\Models\Employee;
 use App\Models\Project;
 use App\Models\UserCredential;
@@ -26,13 +27,6 @@ class ProjectsController extends Controller
 
         if (!Auth::check()) {
             $this->redirectTo(route('auth.login'));
-        } elseif (!Auth::isHR() && !Auth::isAdmin()) {
-            // Verificar se a rota atual é 'projects.user' (userProjects)
-            $currentRoute = $_SERVER['REQUEST_URI'] ?? '';
-            if (strpos($currentRoute, '/my-projects') === false) {
-                FlashMessage::danger(self::ACCESS_DENIED);
-                $this->redirectTo(route('user.home'));
-            }
         }
     }
 
@@ -136,15 +130,16 @@ class ProjectsController extends Controller
 
     /**
      * Verifica se um usuário tem acesso a um projeto específico
-     * Utiliza o método do modelo Project para seguir o padrão MVC
+     * Utiliza o método centralizado no EmployeeProjectsController
      *
      * @param int $projectId ID do projeto
      * @return bool True se o usuário tem acesso, false caso contrário
      */
     private function userHasProjectAccess(int $projectId): bool
     {
-        // Delega a verificação de acesso ao modelo Project
-        return Project::currentUserHasProjectAccess($projectId);
+        // Utiliza o controlador de funcionários-projetos para verificação de acesso
+        $employeeProjectsController = new EmployeeProjectsController();
+        return $employeeProjectsController->hasProjectAccess($projectId);
     }
 
     /**
@@ -199,7 +194,26 @@ class ProjectsController extends Controller
             return;
         }
 
-        // Verificar acesso
+        // Para admin e HR, sem verificação adicional
+        if (Auth::isAdmin() || Auth::isHR()) {
+            try {
+                // Preparar dados do projeto
+                $projectTeam = $this->prepareProjectTeam($project);
+                $projectEmployees = $project->employees()->get();
+                $allEmployees = Employee::all();
+                $availableEmployees = $this->filterAvailableEmployees($allEmployees, $projectEmployees);
+                $title = 'Project Details';
+
+                // Admin e HR veem a view original com todos os detalhes
+                $this->render('projects/show', compact('project', 'projectTeam', 'availableEmployees', 'title'));
+            } catch (\Exception $e) {
+                FlashMessage::danger('Error loading project data: ' . $e->getMessage());
+                $this->redirectTo(route('projects.index'));
+            }
+            return;
+        }
+
+        // Para usuários comuns, verificação de acesso
         if (!$this->userHasProjectAccess($project->id)) {
             FlashMessage::danger(self::ACCESS_DENIED);
             $this->redirectTo(route('projects.user'));
@@ -207,17 +221,15 @@ class ProjectsController extends Controller
         }
 
         try {
-            // Preparar dados do projeto
+            // Preparar dados do projeto para usuário comum
             $projectTeam = $this->prepareProjectTeam($project);
-            $projectEmployees = $project->employees()->get();
-            $allEmployees = Employee::all();
-            $availableEmployees = $this->filterAvailableEmployees($allEmployees, $projectEmployees);
             $title = 'Project Details';
 
-            $this->render('projects/show', compact('project', 'projectTeam', 'availableEmployees', 'title'));
+            // Usuários comuns veem a view simplificada sem orçamento
+            $this->render('projects/show_user', compact('project', 'projectTeam', 'title'));
         } catch (\Exception $e) {
             FlashMessage::danger('Error loading project data: ' . $e->getMessage());
-            $this->redirectTo(route('projects.index'));
+            $this->redirectTo(route('projects.user'));
         }
     }
 
@@ -268,23 +280,17 @@ class ProjectsController extends Controller
         }
     }
 
+    /**
+     * Obtem os papéis dos funcionários em um projeto
+     * Delega para o método centralizado no EmployeeProjectsController
+     *
+     * @param int $projectId ID do projeto
+     * @return array Array associativo com [employee_id => role]
+     */
     private function getEmployeeProjectRoles(int $projectId): array
     {
-        $roles = [];
-        $pdo = \Core\Database\Database::getDatabaseConn();
-
-        $sql = "SELECT employee_id, role FROM Employee_Projects WHERE project_id = :project_id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':project_id', $projectId);
-        $stmt->execute();
-
-        $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        foreach ($results as $row) {
-            $roles[$row['employee_id']] = $row['role'];
-        }
-
-        return $roles;
+        $employeeProjectsController = new EmployeeProjectsController();
+        return $employeeProjectsController->getEmployeeProjectRoles($projectId);
     }
 
     public function destroy(Request $request): void
@@ -316,40 +322,13 @@ class ProjectsController extends Controller
 
     /**
      * Lista os projetos associados ao usuário atual
+     * Redireciona para o método userProjects do EmployeeProjectsController
+     * Este método existe apenas para manter compatibilidade com rotas existentes
      */
     public function userProjects(): void
     {
-        // Verificar se o usuário está autenticado
-        if (!Auth::check()) {
-            $this->redirectTo(route('auth.login'));
-            return;
-        }
-
-        $currentUser = Auth::user();
-
-        if (!$currentUser) {
-            FlashMessage::danger('Usuário não encontrado');
-            $this->redirectTo(route('auth.login'));
-            return;
-        }
-
-        // Obter os projetos associados ao usuário atual
-        $userProjects = $currentUser->projects()->get();
-
-        // Obter informações adicionais sobre cada projeto
-        $projectsWithDetails = [];
-        foreach ($userProjects as $project) {
-            $projectEmployees = $project->employees()->get();
-            $employeeRoles = $this->getEmployeeProjectRoles($project->id);
-
-            $projectsWithDetails[] = [
-                'project' => $project,
-                'role' => $employeeRoles[$currentUser->id] ?? 'Não especificado',
-                'team_size' => count($projectEmployees)
-            ];
-        }
-
-        $title = 'Meus Projetos';
-        $this->render('projects/user_projects', compact('projectsWithDetails', 'title'));
+        // Delega para o EmployeeProjectsController
+        $employeeProjectsController = new EmployeeProjectsController();
+        $employeeProjectsController->userProjects();
     }
 }

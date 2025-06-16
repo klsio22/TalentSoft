@@ -36,7 +36,7 @@ class Project extends Model
             'employee_id'
         );
     }
-    
+
     /**
      * Verifica se um usuário tem acesso a este projeto
      *
@@ -48,16 +48,16 @@ class Project extends Model
         if (Auth::isAdmin() || Auth::isHR()) {
             return true;
         }
-        
+
         // Verificar se o usuário atual é um funcionário associado a este projeto
         $employee = Employee::getCurrentUserEmployee();
         if (!$employee) {
             return false;
         }
-        
+
         return $this->isEmployeeAssociated($employee);
     }
-    
+
     /**
      * Verifica se um funcionário está associado a este projeto
      *
@@ -66,17 +66,31 @@ class Project extends Model
      */
     public function isEmployeeAssociated(Employee $employee): bool
     {
+        if (!$employee || !$employee->id) {
+            return false;
+        }
+        
         $projectEmployees = $this->employees()->get();
         
+        // Verificação mais robusta
+        if (empty($projectEmployees)) {
+            return false;
+        }
+
+        $employeeId = (int)$employee->id;
+        
         foreach ($projectEmployees as $projectEmployee) {
-            if ((int)$projectEmployee->id === (int)$employee->id) {
+            // Garantir que estamos comparando IDs como inteiros
+            $projectEmployeeId = (int)$projectEmployee->id;
+            
+            if ($projectEmployeeId === $employeeId) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Verifica se um usuário tem acesso a um projeto específico (método estático)
      *
@@ -89,7 +103,7 @@ class Project extends Model
         if (!$project) {
             return false;
         }
-        
+
         return $project->currentUserHasAccess();
     }
 }
