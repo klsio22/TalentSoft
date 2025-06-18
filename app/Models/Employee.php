@@ -101,10 +101,7 @@ class Employee extends Model
         );
     }
 
-    public function notifications(): HasMany
-    {
-        return $this->hasMany(Notification::class, 'employee_id');
-    }
+
 
     /**
      * @param array<string, mixed> $data

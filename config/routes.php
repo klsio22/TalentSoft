@@ -7,7 +7,7 @@ use App\Controllers\EmployeeProjectsController;
 use App\Controllers\ErrorController;
 use App\Controllers\HomeController;
 use App\Controllers\HRController;
-use App\Controllers\NotificationsController;
+
 use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
 use App\Controllers\UserController;
@@ -55,19 +55,12 @@ Route::middleware('admin-hr')->group(function () {
     Route::post('/employee-projects/update-role', [EmployeeProjectsController::class, 'updateEmployeeRole'])->name('employee_projects.update_role');
     Route::get('/employees/{id}/projects', [EmployeeProjectsController::class, 'employeeProjects'])->name('employee-projects.employee');
 
-    // Notification admin routes
-    Route::get('/notifications/admin', [NotificationsController::class, 'adminIndex'])->name('notifications.admin');
-    Route::get('/notifications/create', [NotificationsController::class, 'create'])->name('notifications.create');
-    Route::post('/notifications', [NotificationsController::class, 'store'])->name('notifications.store');
-    Route::get('/employees/{id}/notifications', [NotificationsController::class, 'employeeNotifications'])->name('notifications.employee');
+
 });
 
 // Routes for authenticated users (any role)
 Route::middleware('auth')->group(function () {
-    // Notification routes
-    Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications/mark-read', [NotificationsController::class, 'markAsRead'])->name('notifications.mark-read');
-    Route::post('/notifications/destroy', [NotificationsController::class, 'destroy'])->name('notifications.destroy');
+
 
     // User projects route
     Route::get('/my-projects', [EmployeeProjectsController::class, 'userProjects'])->name('projects.user');
