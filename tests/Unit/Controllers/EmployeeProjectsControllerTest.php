@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Testes unitários para o controlador EmployeeProjectsController
- * 
+ *
  * Nota: Estes testes são simplificados e não executam o código real do controlador
  * devido às limitações do ambiente de teste (falta de driver PDO, problemas com rotas, etc.)
  * Em um ambiente real, seria necessário configurar um banco de dados de teste
@@ -22,10 +22,10 @@ class EmployeeProjectsControllerTest extends TestCase
     {
         // Verificar se a classe existe
         $this->assertTrue(class_exists(EmployeeProjectsController::class));
-        
+
         // Verificar se é uma subclasse de Controller
         $this->assertTrue(is_subclass_of(EmployeeProjectsController::class, 'Core\Http\Controllers\Controller'));
-        
+
         // Verificar se os métodos esperados existem
         $methods = get_class_methods(EmployeeProjectsController::class);
         $this->assertContains('__construct', $methods);
@@ -34,7 +34,7 @@ class EmployeeProjectsControllerTest extends TestCase
         $this->assertContains('employeeProjects', $methods);
         $this->assertContains('userProjects', $methods);
     }
-    
+
     /**
      * Testa a existência das constantes no controlador
      */
@@ -43,7 +43,7 @@ class EmployeeProjectsControllerTest extends TestCase
         // Obter todas as constantes da classe
         $reflection = new \ReflectionClass(EmployeeProjectsController::class);
         $constants = $reflection->getConstants();
-        
+
         // Verificar se as constantes esperadas existem
         $this->assertArrayHasKey('EMPLOYEE_NOT_FOUND', $constants);
         $this->assertArrayHasKey('PROJECT_NOT_FOUND', $constants);

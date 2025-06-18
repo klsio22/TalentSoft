@@ -116,12 +116,12 @@ class HRControllerTest extends ControllerTestCase
             ->disableOriginalConstructor() // Desabilitar o construtor original para evitar redirecionamento prematuro
             ->onlyMethods(['redirectTo'])
             ->getMock();
-            
+
         // Configurar expectativa para o método redirectTo
         $mockController->expects($this->once())
             ->method('redirectTo')
             ->with($this->stringContains('login'));
-            
+
         // Chamar o construtor explicitamente para acionar o redirecionamento
         $reflection = new \ReflectionClass(HRController::class);
         $constructor = $reflection->getConstructor();
@@ -147,12 +147,12 @@ class HRControllerTest extends ControllerTestCase
             ->disableOriginalConstructor() // Desabilitar o construtor original para evitar redirecionamento prematuro
             ->onlyMethods(['redirectTo'])
             ->getMock();
-            
+
         // Configurar expectativa para o método redirectTo
         $mockController->expects($this->once())
             ->method('redirectTo')
             ->with($this->stringContains('/user'));
-            
+
         // Chamar o construtor explicitamente para acionar o redirecionamento
         $reflection = new \ReflectionClass(HRController::class);
         $constructor = $reflection->getConstructor();
@@ -290,7 +290,7 @@ class HRControllerTest extends ControllerTestCase
 
         // Verificar se a view correta é renderizada
         $this->assertStringContainsString('View: hr/home', $output);
-        
+
         // Verificar se a notificação foi definida
         // Nota: Não podemos verificar diretamente a mensagem flash, mas podemos verificar
         // se o método foi chamado através de um mock mais complexo se necessário

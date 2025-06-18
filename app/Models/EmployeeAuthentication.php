@@ -58,7 +58,7 @@ class EmployeeAuthentication
     public static function authenticate(Employee $employee, string $password): bool
     {
         // Verificar se o funcionário está ativo
-        if ($employee->status !== 'Active') {
+        if (strtolower($employee->status) !== 'active') {
             return false;
         }
 

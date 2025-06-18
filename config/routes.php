@@ -7,7 +7,6 @@ use App\Controllers\EmployeeProjectsController;
 use App\Controllers\ErrorController;
 use App\Controllers\HomeController;
 use App\Controllers\HRController;
-
 use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
 use App\Controllers\UserController;
@@ -54,8 +53,6 @@ Route::middleware('admin-hr')->group(function () {
     Route::post('/employee-projects/remove', [EmployeeProjectsController::class, 'removeEmployee'])->name('employee-projects.remove');
     Route::post('/employee-projects/update-role', [EmployeeProjectsController::class, 'updateEmployeeRole'])->name('employee_projects.update_role');
     Route::get('/employees/{id}/projects', [EmployeeProjectsController::class, 'employeeProjects'])->name('employee-projects.employee');
-
-
 });
 
 // Routes for authenticated users (any role)

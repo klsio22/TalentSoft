@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Testes unitários para o controlador ProjectsController
- * 
+ *
  * Nota: Estes testes são simplificados e não executam o código real do controlador
  * devido às limitações do ambiente de teste (falta de driver PDO, problemas com rotas, etc.)
  * Em um ambiente real, seria necessário configurar um banco de dados de teste
@@ -27,10 +27,10 @@ class ProjectsControllerTest extends TestCase
     {
         // Verificar se a classe existe
         $this->assertTrue(class_exists(ProjectsController::class));
-        
+
         // Verificar se é uma subclasse de Controller
         $this->assertTrue(is_subclass_of(ProjectsController::class, 'Core\Http\Controllers\Controller'));
-        
+
         // Verificar se os métodos esperados existem
         $methods = get_class_methods(ProjectsController::class);
         $this->assertContains('__construct', $methods);
@@ -41,7 +41,7 @@ class ProjectsControllerTest extends TestCase
         $this->assertContains('edit', $methods);
         $this->assertContains('update', $methods);
     }
-    
+
     /**
      * Testa a existência das constantes no controlador
      */
@@ -50,7 +50,7 @@ class ProjectsControllerTest extends TestCase
         // Obter todas as constantes da classe
         $reflection = new \ReflectionClass(ProjectsController::class);
         $constants = $reflection->getConstants();
-        
+
         // Verificar se as constantes esperadas existem
         $this->assertArrayHasKey('PROJECT_NOT_FOUND', $constants);
         $this->assertArrayHasKey('ACCESS_DENIED', $constants);
@@ -58,10 +58,10 @@ class ProjectsControllerTest extends TestCase
         $this->assertArrayHasKey('PROJECT_UPDATED', $constants);
         $this->assertArrayHasKey('PROJECT_DELETED', $constants);
     }
-    
+
     /**
      * Testa o comportamento de autenticação do controlador
-     * 
+     *
      * Nota: Este teste verifica apenas a estrutura do construtor
      * sem executar o código real devido às limitações do ambiente de teste
      */
@@ -71,13 +71,13 @@ class ProjectsControllerTest extends TestCase
         $reflection = new \ReflectionClass(ProjectsController::class);
         $constructor = $reflection->getConstructor();
         $this->assertNotNull($constructor, 'O controlador deve ter um construtor');
-        
+
         // Verificar se o construtor chama o construtor pai
         $constructorCode = file_get_contents($reflection->getFileName());
         $constructorPos = strpos($constructorCode, 'public function __construct');
         $constructorEndPos = strpos($constructorCode, '}', $constructorPos);
         $constructorBody = substr($constructorCode, $constructorPos, $constructorEndPos - $constructorPos);
-        
+
         $this->assertStringContainsString('parent::__construct()', $constructorBody, 'O construtor deve chamar o construtor pai');
         $this->assertStringContainsString('Auth::check()', $constructorBody, 'O construtor deve verificar a autenticação');
         $this->assertStringContainsString('redirectTo', $constructorBody, 'O construtor deve redirecionar quando não autenticado');

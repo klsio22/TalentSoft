@@ -116,12 +116,12 @@ class UserControllerTest extends ControllerTestCase
             ->disableOriginalConstructor() // Desabilitar o construtor original para evitar redirecionamento prematuro
             ->onlyMethods(['redirectTo'])
             ->getMock();
-            
+
         // Configurar expectativa para o método redirectTo
         $mockController->expects($this->once())
             ->method('redirectTo')
             ->with($this->stringContains('login'));
-            
+
         // Chamar o construtor explicitamente para acionar o redirecionamento
         $reflection = new \ReflectionClass(UserController::class);
         $constructor = $reflection->getConstructor();
@@ -303,7 +303,7 @@ class UserControllerTest extends ControllerTestCase
 
         // Verificar se a view correta é renderizada
         $this->assertStringContainsString('View: user/home', $output);
-        
+
         // Verificar se a mensagem de perfil atualizado foi definida
         // Nota: Não podemos verificar diretamente a mensagem flash, mas podemos verificar
         // se o método foi chamado através de um mock mais complexo se necessário

@@ -15,7 +15,6 @@ class AdminControllerTest extends ControllerTestCase
 {
     // Constantes para mensagens de teste
     private const USER_SHOULD_BE_LOGGED_IN = 'O usuário deve estar logado';
-    private const USER_SHOULD_BE_ADMIN = 'O usuário deve ser admin';
     private const USER_SHOULD_NOT_BE_ADMIN = 'O usuário não deve ser admin';
 
     private Role $adminRole;
@@ -102,12 +101,12 @@ class AdminControllerTest extends ControllerTestCase
             ->disableOriginalConstructor() // Desabilitar o construtor original para evitar redirecionamento prematuro
             ->onlyMethods(['redirectTo'])
             ->getMock();
-            
+
         // Configurar expectativa para o método redirectTo
         $mockController->expects($this->once())
             ->method('redirectTo')
             ->with($this->stringContains('login'));
-            
+
         // Chamar o construtor explicitamente para acionar o redirecionamento
         $reflection = new \ReflectionClass(AdminController::class);
         $constructor = $reflection->getConstructor();
@@ -132,12 +131,12 @@ class AdminControllerTest extends ControllerTestCase
             ->disableOriginalConstructor() // Desabilitar o construtor original para evitar redirecionamento prematuro
             ->onlyMethods(['redirectTo'])
             ->getMock();
-            
+
         // Configurar expectativa para o método redirectTo
         $mockController->expects($this->once())
             ->method('redirectTo')
             ->with($this->stringContains('/user'));
-            
+
         // Chamar o construtor explicitamente para acionar o redirecionamento
         $reflection = new \ReflectionClass(AdminController::class);
         $constructor = $reflection->getConstructor();
@@ -168,7 +167,7 @@ class AdminControllerTest extends ControllerTestCase
             {
                 echo "View: $view";
                 foreach ($data as $key => $value) {
-                    if (is_object($value)) {
+                    if (isset($value) && is_object($value)) {
                         echo "\nData[$key]: " . get_class($value);
                     } else {
                         echo "\nData[$key]: $value";
@@ -215,7 +214,7 @@ class AdminControllerTest extends ControllerTestCase
             {
                 echo "View: $view";
                 foreach ($data as $key => $value) {
-                    if (is_object($value)) {
+                    if (isset($value) && is_object($value)) {
                         echo "\nData[$key]: " . get_class($value);
                     } else {
                         echo "\nData[$key]: $value";
@@ -231,7 +230,7 @@ class AdminControllerTest extends ControllerTestCase
 
         // Verificar se a view correta é renderizada
         $this->assertStringContainsString('View: admin/home', $output);
-        
+
         // Verificar se a mensagem de boas-vindas foi definida
         // Nota: Não podemos verificar diretamente a mensagem flash, mas podemos verificar
         // se o método foi chamado através de um mock mais complexo se necessário

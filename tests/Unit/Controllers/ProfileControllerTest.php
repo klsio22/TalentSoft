@@ -78,12 +78,12 @@ class ProfileControllerTest extends ControllerTestCase
             ->disableOriginalConstructor() // Desabilitar o construtor original para evitar redirecionamento prematuro
             ->onlyMethods(['redirectTo'])
             ->getMock();
-            
+
         // Configurar expectativa para o método redirectTo
         $mockController->expects($this->once())
             ->method('redirectTo')
             ->with($this->stringContains('login'));
-            
+
         // Chamar o construtor explicitamente para acionar o redirecionamento
         $reflection = new \ReflectionClass(ProfileController::class);
         $constructor = $reflection->getConstructor();

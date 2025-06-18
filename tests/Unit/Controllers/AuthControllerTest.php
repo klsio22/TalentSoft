@@ -50,7 +50,7 @@ class AuthControllerTest extends ControllerTestCase
             'hire_date' => date('Y-m-d')
         ]);
         $this->assertTrue($this->mockEmployee->save(), 'Falha ao salvar employee do mock');
-        
+
         // Criar credenciais para o funcionário
         $credentials = new UserCredential([
             'employee_id' => $this->mockEmployee->id,
@@ -152,32 +152,32 @@ class AuthControllerTest extends ControllerTestCase
         $controller = $this->getMockBuilder(AuthController::class)
             ->disableOriginalConstructor()
             ->getMock();
-            
+
         // Não vamos configurar expectativas de chamada de método
         // pois não estamos realmente executando o método login
-            
+
         // Verificar a estrutura da classe Auth para simular autenticação bem-sucedida
-        
+
         // Configurar o mock para retornar true para check()
         $authReflection = new \ReflectionClass(Auth::class);
         $checkMethod = $authReflection->getMethod('check');
-        
+
         // Verificar se o método check() existe e é estático
         $this->assertTrue($checkMethod->isStatic(), 'O método Auth::check() deve ser estático');
-        
+
         // Como não podemos mockar métodos estáticos diretamente, vamos verificar apenas
         // a estrutura do controlador e seu comportamento esperado
-        
+
         // Verificar se o controlador tem um método login
         $this->assertTrue(method_exists($controller, 'login'), 'O controlador deve ter um método login');
-        
+
         // Verificar se o método login aceita um parâmetro Request
         $controllerReflection = new \ReflectionClass(AuthController::class);
         $loginMethod = $controllerReflection->getMethod('login');
         $parameters = $loginMethod->getParameters();
         $this->assertGreaterThanOrEqual(1, count($parameters), 'O método login deve aceitar pelo menos um parâmetro');
         $this->assertEquals('request', $parameters[0]->getName(), 'O primeiro parâmetro do método login deve ser $request');
-        
+
         // Teste passou se chegamos até aqui sem erros
 
         $this->cleanupEnvironment();
@@ -210,7 +210,7 @@ class AuthControllerTest extends ControllerTestCase
 
         // Executar login
         $request = new Request();
-        
+
         ob_start();
         $controller->login($request);
         $output = ob_get_clean();
@@ -247,7 +247,7 @@ class AuthControllerTest extends ControllerTestCase
 
         // Executar login
         $request = new Request();
-        
+
         ob_start();
         $controller->login($request);
         $output = ob_get_clean();
