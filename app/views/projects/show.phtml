@@ -191,7 +191,7 @@
               <?php
               $roleName = htmlspecialchars($member['role']);
               $roleClass = '';
-              
+
               // Destacar papéis importantes
               if (stripos($roleName, 'gerente') !== false || stripos($roleName, 'líder') !== false ||
                   stripos($roleName, 'coordenador') !== false || stripos($roleName, 'manager') !== false) {
@@ -229,7 +229,7 @@
                       'bg-fuchsia-100 text-fuchsia-800 border border-fuchsia-200',
                       'bg-rose-100 text-rose-800 border border-rose-200',
                   ];
-                  
+
                   // Usar o primeiro caractere do papel para selecionar uma cor
                   $firstChar = strtolower(substr($roleName, 0, 1));
                   $charCode = ord($firstChar) - 97; // 'a' começa em 97 na tabela ASCII
@@ -238,7 +238,7 @@
                   }
                   $roleClass = $colors[$charCode % count($colors)];
               }
-              
+
               // Exibir o papel com estilo
               echo '<span class="px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full ' . $roleClass . '">' . $roleName . '</span>';
               ?>
@@ -251,11 +251,22 @@
                   <i class="fas fa-eye text-sm"></i>
                 </a>
                 <?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
+                <!-- Botão para editar função -->
+                <button type="button"
+                  class="inline-flex items-center justify-center w-8 h-8 bg-yellow-100 hover:bg-yellow-200 text-yellow-600 rounded-lg transition-colors duration-200"
+                  title="Editar função"
+                  data-project-id="<?= $project->id ?>"
+                  data-employee-id="<?= $member['employee']->id ?>"
+                  data-role="<?= htmlspecialchars($member['role'], ENT_QUOTES, 'UTF-8') ?>"
+                  onclick="openRoleEditModalFromButton(this)">
+                  <i class="fas fa-edit text-sm"></i>
+                </button>
+
                 <form action="<?= route('employee-projects.remove') ?>" method="post" class="inline">
                   <input type="hidden" name="project_id" value="<?= $project->id ?>">
                   <input type="hidden" name="employee_id" value="<?= $member['employee']->id ?>">
                   <button type="submit"
-                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
+                    class="inline-flex items-center justify-center w-8 h-10 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
                     title="Remover do projeto"
                     onclick="return confirm('Tem certeza que deseja remover este funcionário do projeto?')">
                     <i class="fas fa-trash text-sm"></i>
@@ -272,3 +283,64 @@
     <?php endif; ?>
   </div>
 </div>
+
+<?php if (\Lib\Authentication\Auth::isAdmin() || \Lib\Authentication\Auth::isHR()): ?>
+<!-- Modal de Edição de Função -->
+<div id="roleEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-medium text-gray-900">Editar Função</h3>
+      <button type="button" onclick="closeRoleEditModal()" class="text-gray-400 hover:text-gray-500">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form id="updateRoleForm" action="<?= route('employee_projects.update_role') ?>" method="post">
+      <input type="hidden" id="modal_project_id" name="project_id">
+      <input type="hidden" id="modal_employee_id" name="employee_id">
+
+      <div class="mb-4">
+        <label for="new_role" class="block text-sm font-medium text-gray-700 mb-1">Nova Função:</label>
+        <input type="text" id="modal_new_role" name="new_role"
+          class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2"
+          required>
+      </div>
+
+      <div class="mt-5 sm:mt-6 flex justify-end space-x-2">
+        <button type="button" onclick="closeRoleEditModal()"
+          class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none">
+          Cancelar
+        </button>
+        <button type="submit"
+          class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none">
+          Salvar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openRoleEditModalFromButton(button) {
+    const projectId = button.dataset.projectId;
+    const employeeId = button.dataset.employeeId;
+    const currentRole = button.dataset.role;
+    
+    document.getElementById('modal_project_id').value = projectId;
+    document.getElementById('modal_employee_id').value = employeeId;
+    document.getElementById('modal_new_role').value = currentRole;
+    document.getElementById('roleEditModal').classList.remove('hidden');
+  }
+  
+  function openRoleEditModal(projectId, employeeId, currentRole) {
+    document.getElementById('modal_project_id').value = projectId;
+    document.getElementById('modal_employee_id').value = employeeId;
+    document.getElementById('modal_new_role').value = currentRole;
+    document.getElementById('roleEditModal').classList.remove('hidden');
+  }
+
+  function closeRoleEditModal() {
+    document.getElementById('roleEditModal').classList.add('hidden');
+  }
+</script>
+<?php endif; ?>

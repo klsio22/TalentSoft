@@ -141,15 +141,15 @@ class EmployeeProject extends Model
     {
         $roles = [];
         try {
-            $pdo = Database::getDatabaseConn();
-            $query = "SELECT employee_id, role FROM Employee_Projects WHERE project_id = :project_id";
-            $stmt = $pdo->prepare($query);
-            $stmt->bindValue(':project_id', $projectId);
-            $stmt->execute();
-            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            // Usando o método where do framework para buscar os registros
+            $employeeProjects = self::where([
+                'project_id' => $projectId
+            ]);
 
-            foreach ($results as $result) {
-                $roles[$result['employee_id']] = !empty($result['role']) ? $result['role'] : 'Membro da equipe';
+            // Construir o array associativo com employee_id => role
+            foreach ($employeeProjects as $employeeProject) {
+                $roleValue = $employeeProject->role;
+                $roles[$employeeProject->employee_id] = !empty($roleValue) ? $roleValue : 'Membro da equipe';
             }
         } catch (\Exception $e) {
             // Log error and continue with empty roles array
@@ -157,5 +157,77 @@ class EmployeeProject extends Model
         }
 
         return $roles;
+    }
+
+    /**
+     * Atualiza o papel de um funcionário em um projeto específico
+     *
+     * @param int $employeeId ID do funcionário
+     * @param int $projectId ID do projeto
+     * @param string $newRole Novo papel do funcionário no projeto
+     * @return bool True se a atualização foi bem-sucedida, false caso contrário
+     */
+    public static function updateEmployeeRole(int $employeeId, int $projectId, string $newRole): bool
+    {
+        try {
+            // Verificar se o funcionário está atribuído ao projeto
+            if (!self::isEmployeeAssignedToProject($employeeId, $projectId)) {
+                return false;
+            }
+
+            // Buscar o registro da relação entre funcionário e projeto
+            $employeeProject = self::findEmployeeProject($employeeId, $projectId);
+
+            if ($employeeProject === null) {
+                return false;
+            }
+
+            // Atualizar o papel usando o model
+            $employeeProject->role = $newRole;
+            $result = $employeeProject->save();
+
+            return $result;
+        } catch (\Exception $e) {
+            error_log("Erro ao atualizar papel do funcionário: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Busca o registro da relação entre funcionário e projeto
+     *
+     * @param int $employeeId ID do funcionário
+     * @param int $projectId ID do projeto
+     * @return EmployeeProject|null Instância da relação ou null se não existir
+     */
+    public static function findEmployeeProject(int $employeeId, int $projectId): ?self
+    {
+        // Usando o método findBy do framework para buscar pela condição composta
+        return self::findBy([
+            'employee_id' => $employeeId,
+            'project_id' => $projectId
+        ]);
+    }
+
+    /**
+     * Verifica se o usuário atual é administrador ou RH
+     *
+     * @return bool True se o usuário é admin ou RH, false caso contrário
+     */
+    public static function currentUserCanManageRoles(): bool
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return false;
+        }
+
+        // Obter o funcionário associado ao usuário
+        $employee = Employee::getCurrentUserEmployee();
+        if (!$employee) {
+            return false;
+        }
+
+        // Verificar se o funcionário tem papel de administrador ou RH
+        return $employee->isAdmin() || $employee->isHR();
     }
 }

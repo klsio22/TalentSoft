@@ -33,6 +33,22 @@ class Employee extends Model
     ];
 
     /**
+     * Get the employee's role for a specific project
+     *
+     * @param int $projectId ID of the project
+     * @return string|null The role of the employee in the project, or null if not found
+     */
+    public function getRoleForProject(int $projectId): ?string
+    {
+        $employeeProject = EmployeeProject::findBy([
+            'employee_id' => $this->id,
+            'project_id' => $projectId
+        ]);
+        
+        return $employeeProject ? $employeeProject->role : null;
+    }
+    
+    /**
      * @return array<int, string>
      */
     public static function getColumns(): array
