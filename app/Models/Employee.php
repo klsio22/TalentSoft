@@ -44,10 +44,10 @@ class Employee extends Model
             'employee_id' => $this->id,
             'project_id' => $projectId
         ]);
-        
+
         return $employeeProject ? $employeeProject->role : null;
     }
-    
+
     /**
      * @return array<int, string>
      */
