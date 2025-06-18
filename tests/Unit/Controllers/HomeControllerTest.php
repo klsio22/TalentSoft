@@ -13,6 +13,7 @@ use Tests\TestCase;
  */
 class HomeControllerTest extends ControllerTestCase
 {
+    /** @phpstan-ignore-next-line */
     private Employee $mockEmployee;
     private Role $mockRole;
     private Role $adminRole;

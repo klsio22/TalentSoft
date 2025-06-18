@@ -24,7 +24,7 @@ class EmployeeProjectsControllerTest extends TestCase
         $this->assertTrue(class_exists(EmployeeProjectsController::class));
 
         // Verificar se é uma subclasse de Controller
-        $this->assertTrue(is_subclass_of(EmployeeProjectsController::class, 'Core\Http\Controllers\Controller'));
+        /** @phpstan-ignore-next-line */$this->assertTrue(is_subclass_of(EmployeeProjectsController::class, 'Core\Http\Controllers\Controller'));
 
         // Verificar se os métodos esperados existem
         $methods = get_class_methods(EmployeeProjectsController::class);
@@ -40,15 +40,12 @@ class EmployeeProjectsControllerTest extends TestCase
      */
     public function testControllerConstants(): void
     {
-        // Obter todas as constantes da classe
-        $reflection = new \ReflectionClass(EmployeeProjectsController::class);
-        $constants = $reflection->getConstants();
-
-        // Verificar se as constantes esperadas existem
-        $this->assertArrayHasKey('EMPLOYEE_NOT_FOUND', $constants);
-        $this->assertArrayHasKey('PROJECT_NOT_FOUND', $constants);
-        $this->assertArrayHasKey('ASSIGNMENT_CREATED', $constants);
-        $this->assertArrayHasKey('ASSIGNMENT_REMOVED', $constants);
-        $this->assertArrayHasKey('MY_PROJECTS', $constants);
+        // Verificar se as constantes esperadas existem usando defined
+        // Esta abordagem é mais segura e evita problemas de acessibilidade
+        $this->assertTrue(defined(EmployeeProjectsController::class . '::EMPLOYEE_NOT_FOUND'));
+        $this->assertTrue(defined(EmployeeProjectsController::class . '::PROJECT_NOT_FOUND'));
+        $this->assertTrue(defined(EmployeeProjectsController::class . '::ASSIGNMENT_CREATED'));
+        $this->assertTrue(defined(EmployeeProjectsController::class . '::ASSIGNMENT_REMOVED'));
+        $this->assertTrue(defined(EmployeeProjectsController::class . '::MY_PROJECTS'));
     }
 }

@@ -36,7 +36,9 @@ class RouterTest extends TestCase
         $rOne = Router::getInstance();
 
         $this->expectException(\Error::class);
-        clone $rOne;
+        $cloned = clone $rOne; // Armazenar em variável para evitar aviso do PHPStan
+        // A linha acima deve lançar uma exceção, então esta linha nunca será executada
+        $this->assertNull($cloned); // Para evitar aviso de variável não utilizada
     }
 
     public function test_should_not_be_able_to_instantiate_router(): void

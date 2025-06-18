@@ -66,7 +66,7 @@ class Project extends Model
      */
     public function isEmployeeAssociated(Employee $employee): bool
     {
-        if (!$employee || !$employee->id) {
+        if (!$employee->id) {
             return false;
         }
 
@@ -89,6 +89,33 @@ class Project extends Model
         }
 
         return false;
+    }
+
+    /**
+     * Obtém todos os projetos associados a um funcionário específico
+     *
+     * @param int $employeeId ID do funcionário
+     * @return array<int, Project> Lista de projetos do funcionário
+     */
+    public static function getEmployeeProjects(int $employeeId): array
+    {
+        $employee = Employee::findById($employeeId);
+        
+        if (!$employee) {
+            return [];
+        }
+        
+        $projects = $employee->projects()->get();
+        
+        // Garantir que todos os elementos do array são instâncias de Project
+        $typedProjects = [];
+        foreach ($projects as $project) {
+            if ($project instanceof Project) {
+                $typedProjects[] = $project;
+            }
+        }
+        
+        return $typedProjects;
     }
 
     /**

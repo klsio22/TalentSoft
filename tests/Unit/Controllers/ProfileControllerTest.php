@@ -108,7 +108,7 @@ class ProfileControllerTest extends ControllerTestCase
                 // Sobrescrever o construtor para evitar redirecionamentos
             }
 
-            public $redirectUrl = '';
+            public string $redirectUrl = '';
 
             public function redirectTo(string $url): void
             {

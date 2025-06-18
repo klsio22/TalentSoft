@@ -18,8 +18,8 @@ class ErrorControllerTest extends TestCase
     {
         // Criar controlador mockado
         $controller = new class extends ErrorController {
-            public $viewData = [];
-            public $viewName = '';
+            public array $viewData = []; /** @phpstan-var array<string, mixed> */ /** @var array<string, string|int> $viewData */
+            public string $viewName = '';
 
             public function render(string $view, array $data = []): void
             {
@@ -50,8 +50,8 @@ class ErrorControllerTest extends TestCase
     {
         // Criar controlador mockado
         $controller = new class extends ErrorController {
-            public $viewData = [];
-            public $viewName = '';
+            public array $viewData = []; /** @phpstan-var array<string, mixed> */ /** @var array<string, string|int> $viewData */
+            public string $viewName = '';
 
             public function render(string $view, array $data = []): void
             {

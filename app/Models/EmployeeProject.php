@@ -14,14 +14,68 @@ class EmployeeProject extends Model
     protected static string $table = 'Employee_Projects';
     protected static array $columns = ['employee_id', 'project_id', 'role'];
 
-  /**
-   * Atribui um funcionário a um projeto com um papel específico
-   *
-   * @param int $employeeId ID do funcionário
-   * @param int $projectId ID do projeto
-   * @param string $role Papel do funcionário no projeto
-   * @return bool True se a atribuição foi bem-sucedida, false caso contrário
-   */
+    /**
+     * ID do funcionário associado ao projeto
+     * @var int
+     * @property-read int $employee_id Nome original da coluna no banco de dados
+     */
+    public int $employeeId;
+
+    /**
+     * ID do projeto associado ao funcionário
+     * @var int
+     * @property-read int $project_id Nome original da coluna no banco de dados
+     */
+    public int $projectId;
+
+    /**
+     * Papel/função do funcionário no projeto
+     * @var string
+     */
+    public string $role;
+
+    /**
+     * Método mágico para acessar propriedades usando os nomes originais das colunas
+     * @param string $name Nome da propriedade
+     * @return mixed Valor da propriedade
+     */
+    public function __get(string $name): mixed
+    {
+        if ($name === 'employee_id') {
+            return $this->employeeId;
+        }
+        if ($name === 'project_id') {
+            return $this->projectId;
+        }
+        return parent::__get($name);
+    }
+
+    /**
+     * Método mágico para definir propriedades usando os nomes originais das colunas
+     * @param string $name Nome da propriedade
+     * @param mixed $value Valor a ser definido
+     */
+    public function __set(string $name, $value): void
+    {
+        if ($name === 'employee_id') {
+            $this->employeeId = $value;
+            return;
+        }
+        if ($name === 'project_id') {
+            $this->projectId = $value;
+            return;
+        }
+        parent::__set($name, $value);
+    }
+
+    /**
+     * Atribui um funcionário a um projeto com um papel específico
+     *
+     * @param int $employeeId ID do funcionário
+     * @param int $projectId ID do projeto
+     * @param string $role Papel do funcionário no projeto
+     * @return bool True se a atribuição foi bem-sucedida, false caso contrário
+     */
     public static function assignEmployeeToProject(int $employeeId, int $projectId, string $role = ''): bool
     {
         $project = Project::findById($projectId);
@@ -90,13 +144,12 @@ class EmployeeProject extends Model
    * Obtém os projetos de um funcionário com detalhes adicionais
    *
    * @param Employee $employee Funcionário
-   * @return array Array de projetos com detalhes
+   * @return array<int, array<string, mixed>> Array de projetos com detalhes
    */
     public static function getEmployeeProjectsWithDetails(Employee $employee): array
     {
-        if (!$employee) {
-            return [];
-        }
+        // O objeto Employee já foi verificado antes de chamar este método
+        // então não precisamos verificar novamente
 
         $userProjects = $employee->projects()->get();
         $projectsWithDetails = [];
@@ -135,7 +188,7 @@ class EmployeeProject extends Model
    * Retorna o papel de cada funcionário em um projeto específico
    *
    * @param int $projectId ID do projeto
-   * @return array Array associativo com [employee_id => role]
+   * @return array<int, string> Array associativo com [employee_id => role]
    */
     public static function getEmployeeProjectRoles(int $projectId): array
     {
@@ -149,7 +202,7 @@ class EmployeeProject extends Model
           // Construir o array associativo com employee_id => role
             foreach ($employeeProjects as $employeeProject) {
                   $roleValue = $employeeProject->role;
-                  $roles[$employeeProject->employee_id] = !empty($roleValue) ? $roleValue : 'Membro da equipe';
+                  $roles[$employeeProject->employeeId] = !empty($roleValue) ? $roleValue : 'Membro da equipe';
             }
         } catch (\Exception $e) {
           // Log error and continue with empty roles array

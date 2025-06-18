@@ -168,8 +168,8 @@ class EmployeeProjectTest extends TestCase
         // Obter projetos com detalhes
         $projectsWithDetails = EmployeeProject::getEmployeeProjectsWithDetails($this->testEmployee);
 
-        $this->assertIsArray($projectsWithDetails);
-        $this->assertNotEmpty($projectsWithDetails);
+        // Verificar que temos resultados
+        $this->assertNotEmpty($projectsWithDetails, 'O array de projetos não deve estar vazio');
 
         // Verificar estrutura do resultado
         $firstProject = $projectsWithDetails[0];
@@ -211,7 +211,9 @@ class EmployeeProjectTest extends TestCase
         );
 
         $this->assertNotNull($employeeProject);
-        $this->assertEquals('Gerente de Projeto', $employeeProject->role);
+        /** @var string $employeeProjectRole */
+        $employeeProjectRole = $employeeProject->role;
+        $this->assertEquals('Gerente de Projeto', $employeeProjectRole);
     }
 
     /**
@@ -241,8 +243,15 @@ class EmployeeProjectTest extends TestCase
         );
 
         $this->assertNotNull($employeeProject);
-        $this->assertEquals($this->testEmployee->id, $employeeProject->employee_id);
-        $this->assertEquals($this->testProject->id, $employeeProject->project_id);
-        $this->assertEquals('Desenvolvedor', $employeeProject->role);
+        /** @var int $employeeId */
+        $employeeId = $employeeProject->employeeId;
+        /** @var int $projectId */
+        $projectId = $employeeProject->projectId;
+        /** @var string $role */
+        $role = $employeeProject->role;
+
+        $this->assertEquals($this->testEmployee->id, $employeeId);
+        $this->assertEquals($this->testProject->id, $projectId);
+        $this->assertEquals('Desenvolvedor', $role);
     }
 }

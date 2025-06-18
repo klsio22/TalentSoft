@@ -146,7 +146,7 @@ class ProjectsController extends Controller
      * Prepara a equipe do projeto para exibição
      *
      * @param Project $project Projeto
-     * @return array Equipe do projeto com detalhes
+     * @return array<int, array<string, mixed>> Equipe do projeto com detalhes
      */
     private function prepareProjectTeam(Project $project): array
     {
@@ -167,9 +167,9 @@ class ProjectsController extends Controller
     /**
      * Filtra funcionários disponíveis para atribuição ao projeto
      *
-     * @param array $allEmployees Todos os funcionários
-     * @param array $projectEmployees Funcionários já atribuídos ao projeto
-     * @return array Funcionários disponíveis
+     * @param array<int, object> $allEmployees Todos os funcionários
+     * @param array<int, object> $projectEmployees Funcionários já atribuídos ao projeto
+     * @return array<int, object> Funcionários disponíveis
      */
     private function filterAvailableEmployees(array $allEmployees, array $projectEmployees): array
     {
@@ -285,7 +285,7 @@ class ProjectsController extends Controller
      * Delega para o método centralizado no EmployeeProjectsController
      *
      * @param int $projectId ID do projeto
-     * @return array Array associativo com [employee_id => role]
+     * @return array<int, string> Array associativo com [employee_id => role]
      */
     private function getEmployeeProjectRoles(int $projectId): array
     {

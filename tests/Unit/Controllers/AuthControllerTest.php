@@ -199,7 +199,7 @@ class AuthControllerTest extends ControllerTestCase
 
         // Criar controlador mockado
         $controller = new class extends AuthController {
-            public $redirectUrl = '';
+            public string $redirectUrl = '';
 
             public function redirectTo(string $url): void
             {
@@ -236,7 +236,7 @@ class AuthControllerTest extends ControllerTestCase
 
         // Criar controlador mockado
         $controller = new class extends AuthController {
-            public $redirectUrl = '';
+            public string $redirectUrl = '';
 
             public function redirectTo(string $url): void
             {
@@ -271,7 +271,7 @@ class AuthControllerTest extends ControllerTestCase
 
         // Criar controlador mockado
         $controller = new class extends AuthController {
-            public $redirectUrl = '';
+            public string $redirectUrl = '';
 
             public function redirectTo(string $url): void
             {
