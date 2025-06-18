@@ -189,32 +189,58 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               <?php
-              $roleClass = '';
               $roleName = htmlspecialchars($member['role']);
-
+              $roleClass = '';
+              
               // Destacar papéis importantes
               if (stripos($roleName, 'gerente') !== false || stripos($roleName, 'líder') !== false ||
                   stripos($roleName, 'coordenador') !== false || stripos($roleName, 'manager') !== false) {
-                  $roleClass = 'bg-purple-100 text-purple-800';
+                  $roleClass = 'bg-purple-100 text-purple-800 border border-purple-200';
               } elseif (stripos($roleName, 'desenvolvedor') !== false || stripos($roleName, 'developer') !== false ||
                        stripos($roleName, 'programador') !== false) {
-                  $roleClass = 'bg-green-100 text-green-800';
+                  $roleClass = 'bg-green-100 text-green-800 border border-green-200';
               } elseif (stripos($roleName, 'designer') !== false) {
-                  $roleClass = 'bg-pink-100 text-pink-800';
+                  $roleClass = 'bg-pink-100 text-pink-800 border border-pink-200';
               } elseif (stripos($roleName, 'analista') !== false || stripos($roleName, 'analyst') !== false) {
-                  $roleClass = 'bg-yellow-100 text-yellow-800';
+                  $roleClass = 'bg-yellow-100 text-yellow-800 border border-yellow-200';
               } elseif (stripos($roleName, 'tester') !== false || stripos($roleName, 'qa') !== false ||
                        stripos($roleName, 'engineer') !== false) {
-                  $roleClass = 'bg-red-100 text-red-800';
+                  $roleClass = 'bg-red-100 text-red-800 border border-red-200';
               } elseif (stripos($roleName, 'devops') !== false) {
-                  $roleClass = 'bg-indigo-100 text-indigo-800';
-              }
-
-              if (!empty($roleClass)) {
-                  echo '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' . $roleClass . '">' . $roleName . '</span>';
+                  $roleClass = 'bg-indigo-100 text-indigo-800 border border-indigo-200';
               } else {
-                  echo $roleName;
+                  // Gerar uma cor baseada no primeiro caractere do papel para papéis não listados
+                  $colors = [
+                      'bg-blue-100 text-blue-800 border border-blue-200',
+                      'bg-green-100 text-green-800 border border-green-200',
+                      'bg-yellow-100 text-yellow-800 border border-yellow-200',
+                      'bg-red-100 text-red-800 border border-red-200',
+                      'bg-indigo-100 text-indigo-800 border border-indigo-200',
+                      'bg-purple-100 text-purple-800 border border-purple-200',
+                      'bg-pink-100 text-pink-800 border border-pink-200',
+                      'bg-cyan-100 text-cyan-800 border border-cyan-200',
+                      'bg-teal-100 text-teal-800 border border-teal-200',
+                      'bg-orange-100 text-orange-800 border border-orange-200',
+                      'bg-amber-100 text-amber-800 border border-amber-200',
+                      'bg-lime-100 text-lime-800 border border-lime-200',
+                      'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                      'bg-sky-100 text-sky-800 border border-sky-200',
+                      'bg-violet-100 text-violet-800 border border-violet-200',
+                      'bg-fuchsia-100 text-fuchsia-800 border border-fuchsia-200',
+                      'bg-rose-100 text-rose-800 border border-rose-200',
+                  ];
+                  
+                  // Usar o primeiro caractere do papel para selecionar uma cor
+                  $firstChar = strtolower(substr($roleName, 0, 1));
+                  $charCode = ord($firstChar) - 97; // 'a' começa em 97 na tabela ASCII
+                  if ($charCode < 0 || $charCode >= count($colors)) {
+                      $charCode = 0;
+                  }
+                  $roleClass = $colors[$charCode % count($colors)];
               }
+              
+              // Exibir o papel com estilo
+              echo '<span class="px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full ' . $roleClass . '">' . $roleName . '</span>';
               ?>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

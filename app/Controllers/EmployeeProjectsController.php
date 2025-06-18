@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Employee;
+use App\Models\EmployeeProject;
 use App\Models\Project;
 use Core\Http\Controllers\Controller;
 use Core\Http\Request;
@@ -35,10 +36,12 @@ class EmployeeProjectsController extends Controller
             $projectId = (int) $data['project_id'];
             $employeeId = (int) $data['employee_id'];
             $role = $data['role'] ?? '';
+            $redirectUrl = route('projects.show', ['id' => $projectId]);
 
             $project = Project::findById($projectId);
             $employee = Employee::findById($employeeId);
 
+            // Validate project and employee
             if (!$project) {
                 FlashMessage::danger(self::PROJECT_NOT_FOUND);
                 $this->redirectTo(route('projects.index'));
@@ -47,41 +50,23 @@ class EmployeeProjectsController extends Controller
 
             if (!$employee) {
                 FlashMessage::danger(self::EMPLOYEE_NOT_FOUND);
-                $this->redirectTo(route('projects.show', ['id' => $projectId]));
+                $this->redirectTo($redirectUrl);
                 return;
             }
 
-          // Check if the employee is already assigned to the project
-            if (!($project instanceof Project) || !method_exists($project, 'employees')) {
-                FlashMessage::danger('Erro: Projeto inválido');
-                $this->redirectTo(route('projects.index'));
-                return;
+            // Attempt to assign the employee to the project using the model
+            $result = EmployeeProject::assignEmployeeToProject($employeeId, $projectId, $role);
+
+            if ($result) {
+                FlashMessage::success(self::ASSIGNMENT_CREATED);
+            } else {
+                FlashMessage::warning('Employee is already assigned to this project');
             }
-
-            $existingAssignments = $project->employees()->get();
-            foreach ($existingAssignments as $existingEmployee) {
-                if ($existingEmployee->id === $employeeId) {
-                    FlashMessage::warning('Employee is already assigned to this project');
-                    $this->redirectTo(route('projects.show', ['id' => $projectId]));
-                    return;
-                }
-            }
-
-          // Assign employee to project with role
-            if (!($project instanceof Project) || !method_exists($project, 'employees')) {
-                FlashMessage::danger('Erro: Projeto inválido');
-                $this->redirectTo(route('projects.index'));
-                return;
-            }
-
-            $project->employees()->attach($employeeId, ['role' => $role]);
-
-            FlashMessage::success(self::ASSIGNMENT_CREATED);
         } catch (\Exception $e) {
             FlashMessage::danger($e->getMessage());
         }
 
-        $this->redirectTo(route('projects.show', ['id' => $projectId]));
+        $this->redirectTo($redirectUrl ?? route('projects.show', ['id' => $projectId]));
     }
 
     public function removeEmployee(Request $request): void
@@ -90,6 +75,7 @@ class EmployeeProjectsController extends Controller
             $data = $request->getParams();
             $projectId = (int) $data['project_id'];
             $employeeId = (int) $data['employee_id'];
+            $redirectUrl = route('projects.show', ['id' => $projectId]);
 
             $project = Project::findById($projectId);
             $employee = Employee::findById($employeeId);
@@ -102,25 +88,23 @@ class EmployeeProjectsController extends Controller
 
             if (!$employee) {
                 FlashMessage::danger(self::EMPLOYEE_NOT_FOUND);
-                $this->redirectTo(route('projects.show', ['id' => $projectId]));
+                $this->redirectTo($redirectUrl);
                 return;
             }
 
-          // Remove employee from project
-            if (!($project instanceof Project) || !method_exists($project, 'employees')) {
-                FlashMessage::danger('Erro: Projeto inválido');
-                $this->redirectTo(route('projects.index'));
-                return;
+            // Remove employee from project using the model
+            $result = EmployeeProject::removeEmployeeFromProject($employeeId, $projectId);
+
+            if ($result) {
+                FlashMessage::success(self::ASSIGNMENT_REMOVED);
+            } else {
+                FlashMessage::danger('Erro ao remover funcionário do projeto');
             }
-
-            $project->employees()->detach($employeeId);
-
-            FlashMessage::success(self::ASSIGNMENT_REMOVED);
         } catch (\Exception $e) {
             FlashMessage::danger($e->getMessage());
         }
 
-        $this->redirectTo(route('projects.show', ['id' => $projectId]));
+        $this->redirectTo($redirectUrl ?? route('projects.show', ['id' => $projectId]));
     }
 
     public function employeeProjects(int $employeeId): void
@@ -168,27 +152,8 @@ class EmployeeProjectsController extends Controller
             return;
         }
 
-        // Obter os projetos associados ao funcionário atual
-        $userProjects = $employee->projects()->get();
-
-        // Obter informações adicionais sobre cada projeto
-        $projectsWithDetails = [];
-        foreach ($userProjects as $project) {
-            // Garantir que o projeto é uma instância válida
-            if (!($project instanceof Project) || !method_exists($project, 'employees')) {
-                // Se não for um projeto válido, pule para o próximo
-                continue;
-            }
-
-            $projectEmployees = $project->employees()->get();
-            $employeeRoles = $this->getEmployeeProjectRoles($project->id);
-
-            $projectsWithDetails[] = [
-                'project' => $project,
-                'role' => $employeeRoles[$employee->id] ?? 'Não especificado',
-                'team_size' => count($projectEmployees)
-            ];
-        }
+        // Obter projetos com detalhes usando o modelo
+        $projectsWithDetails = EmployeeProject::getEmployeeProjectsWithDetails($employee);
 
         $title = self::MY_PROJECTS;
         $this->render('projects/user_projects', compact('projectsWithDetails', 'title'));
@@ -203,29 +168,7 @@ class EmployeeProjectsController extends Controller
      */
     public function hasProjectAccess(int $projectId): bool
     {
-        // Admin e HR sempre têm acesso
-        if (Auth::isAdmin() || Auth::isHR()) {
-            return true;
-        }
-
-        $hasAccess = false;
-        $employee = Employee::getCurrentUserEmployee();
-
-        // Verifica se o funcionário existe e se o projeto está na lista de projetos dele
-        if ($employee) {
-            // Obtém todos os projetos do funcionário atual
-            $employeeProjects = $employee->projects()->get();
-
-            // Verifica se o projeto está na lista de projetos do funcionário
-            foreach ($employeeProjects as $project) {
-                if ((int)$project->id === (int)$projectId) {
-                    $hasAccess = true;
-                    break;
-                }
-            }
-        }
-
-        return $hasAccess;
+        return EmployeeProject::currentUserHasProjectAccess($projectId);
     }
 
     /**
@@ -237,29 +180,6 @@ class EmployeeProjectsController extends Controller
      */
     public function getEmployeeProjectRoles(int $projectId): array
     {
-        $project = Project::findById($projectId);
-
-        if (!$project) {
-            return [];
-        }
-
-        $roles = [];
-        try {
-            $pdo = \Core\Database\Database::getDatabaseConn();
-            $query = "SELECT employee_id, role FROM Employee_Projects WHERE project_id = :project_id";
-            $stmt = $pdo->prepare($query);
-            $stmt->bindValue(':project_id', $projectId);
-            $stmt->execute();
-            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-            foreach ($results as $result) {
-                $roles[$result['employee_id']] = !empty($result['role']) ? $result['role'] : 'Membro da equipe';
-            }
-        } catch (\Exception $e) {
-            // Log error and continue with empty roles array
-            error_log("Erro ao buscar roles dos funcionários: " . $e->getMessage());
-        }
-
-        return $roles;
+        return EmployeeProject::getEmployeeProjectRoles($projectId);
     }
 }
