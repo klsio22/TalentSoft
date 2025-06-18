@@ -4,7 +4,8 @@
       <ul class="flex space-x-2">
         <?php if (\Lib\Authentication\Auth::isAdmin()): ?>
         <li><a href="<?= route('admin.home') ?>" class="text-blue-600 hover:text-blue-800">Painel de Administrador</a>
-          <span class="mx-2">/</span></li>
+          <span class="mx-2">/</span>
+        </li>
         <?php elseif (\Lib\Authentication\Auth::isHR()): ?>
         <li><a href="<?= route('hr.home') ?>" class="text-blue-600 hover:text-blue-800">Painel de RH</a> <span
             class="mx-2">/</span></li>

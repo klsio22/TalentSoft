@@ -69,20 +69,20 @@ class Project extends Model
         if (!$employee || !$employee->id) {
             return false;
         }
-        
+
         $projectEmployees = $this->employees()->get();
-        
+
         // Verificação mais robusta
         if (empty($projectEmployees)) {
             return false;
         }
 
         $employeeId = (int)$employee->id;
-        
+
         foreach ($projectEmployees as $projectEmployee) {
             // Garantir que estamos comparando IDs como inteiros
             $projectEmployeeId = (int)$projectEmployee->id;
-            
+
             if ($projectEmployeeId === $employeeId) {
                 return true;
             }

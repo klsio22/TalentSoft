@@ -190,7 +190,6 @@
           <tr>
             <th class="py-2 px-4 border-b text-left">Nome</th>
             <th class="py-2 px-4 border-b text-left">Email</th>
-            <th class="py-2 px-4 border-b text-left">Cargo</th>
             <th class="py-2 px-4 border-b text-left">Papel no Projeto</th>
           </tr>
         </thead>
@@ -216,9 +215,6 @@
             </td>
             <td class="py-2 px-4 border-b">
               <?= htmlspecialchars($member['employee']->email) ?>
-            </td>
-            <td class="py-2 px-4 border-b">
-              <?= htmlspecialchars($member['employee']->role()->name ?? 'Não definido') ?>
             </td>
             <td class="py-2 px-4 border-b">
               <?php
