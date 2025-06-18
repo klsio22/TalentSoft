@@ -15,6 +15,7 @@ class HomeControllerTest extends ControllerTestCase
 {
     /** @phpstan-ignore-next-line */
     private Employee $mockEmployee;
+    /** @phpstan-ignore-next-line */
     private Role $mockRole;
     private Role $adminRole;
     private Role $hrRole;
