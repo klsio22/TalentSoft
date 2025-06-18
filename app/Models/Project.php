@@ -100,13 +100,13 @@ class Project extends Model
     public static function getEmployeeProjects(int $employeeId): array
     {
         $employee = Employee::findById($employeeId);
-        
+
         if (!$employee) {
             return [];
         }
-        
+
         $projects = $employee->projects()->get();
-        
+
         // Garantir que todos os elementos do array são instâncias de Project
         $typedProjects = [];
         foreach ($projects as $project) {
@@ -114,7 +114,7 @@ class Project extends Model
                 $typedProjects[] = $project;
             }
         }
-        
+
         return $typedProjects;
     }
 

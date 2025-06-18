@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 class ProjectsControllerTest extends TestCase
 {
     // Removidas constantes não utilizadas que geravam erros no PHPStan
-    
+
     /**
      * Testa a estrutura básica do controlador
      */

@@ -141,7 +141,7 @@ class EmployeeProjectsController extends Controller
         $userId = Auth::user()->id;
         $this->employeeProjects($userId);
     }
-    
+
     /**
      * Atualiza a função de um funcionário em um projeto específico
      *
@@ -153,42 +153,42 @@ class EmployeeProjectsController extends Controller
         // Inicializar variáveis para evitar erro de variável não definida
         $projectId = 0;
         $redirectUrl = '';
-        
+
         try {
             $data = $request->getParams();
             $projectId = (int) $data['project_id'];
             $employeeId = (int) $data['employee_id'];
             $newRole = $data['new_role'] ?? '';
             $redirectUrl = route('projects.show', ['id' => $projectId]);
-            
+
             $project = Project::findById($projectId);
             $employee = Employee::findById($employeeId);
-            
+
             if (!$project) {
                 FlashMessage::danger(self::PROJECT_NOT_FOUND);
                 $this->redirectTo(route('projects.index'));
                 return;
             }
-            
+
             if (!$employee) {
                 FlashMessage::danger(self::EMPLOYEE_NOT_FOUND);
                 $this->redirectTo($redirectUrl);
                 return;
             }
-            
+
             // Buscar a relação entre funcionário e projeto
             $employeeProject = EmployeeProject::findEmployeeProject($employeeId, $projectId);
-            
+
             if (!$employeeProject) {
                 FlashMessage::danger('Funcionário não está associado a este projeto');
                 $this->redirectTo($redirectUrl);
                 return;
             }
-            
+
             // Atualizar a função do funcionário no projeto
             $employeeProject->role = $newRole;
             $result = $employeeProject->save();
-            
+
             if ($result) {
                 FlashMessage::success('Função do funcionário atualizada com sucesso!');
             } else {
@@ -197,7 +197,7 @@ class EmployeeProjectsController extends Controller
         } catch (\Exception $e) {
             FlashMessage::danger($e->getMessage());
         }
-        
+
         // Usar verificação de string vazia em vez de operador de coalescência nula
         $this->redirectTo($redirectUrl !== '' ? $redirectUrl : route('projects.show', ['id' => $projectId]));
     }
