@@ -4,7 +4,6 @@ namespace Tests\Unit\Models;
 
 use App\Models\Employee;
 use App\Models\Role;
-use App\Models\UserCredential;
 use Tests\TestCase;
 
 /**

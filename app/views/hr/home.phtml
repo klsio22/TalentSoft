@@ -48,12 +48,12 @@
       class="glass-effect p-6 rounded-xl shadow-lg border border-white/20 transform transition-transform hover:scale-105">
       <div class="flex items-center">
         <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-          <i class="fas fa-clipboard-check text-yellow-600 text-xl"></i>
+          <i class="fas fa-user-shield text-yellow-600 text-xl"></i>
         </div>
         <div>
-          <h3 class="text-lg font-semibold text-gray-800 mb-1">Aprovações</h3>
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">Status</h3>
           <p class="text-3xl font-bold text-yellow-600 mb-1">--</p>
-          <p class="text-sm text-gray-600">Solicitações pendentes de RH</p>
+          <p class="text-sm text-gray-600">Gerenciamento de status de usuários</p>
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@
     <!-- Quick Actions -->
     <div class="mt-8 pt-6 border-t border-gray-200">
       <h3 class="text-lg font-semibold text-gray-800 mb-4">Recursos de RH</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <a href="<?= route('employees.index') ?>"
           class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md">
           <h3 class="font-semibold mb-2 text-blue-600">
@@ -111,23 +111,14 @@
           <p class="text-sm text-gray-600">Adicionar novos funcionários ao sistema.</p>
         </a>
 
-        <div
-          class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md cursor-pointer">
-          <h3 class="font-semibold mb-2 text-purple-600">
-            <i class="fas fa-user-check mr-2"></i>
-            Gerenciar Alocações
+        <a href="<?= route('projects.index') ?>"
+          class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md">
+          <h3 class="font-semibold mb-2 text-green-600">
+            <i class="fas fa-project-diagram mr-2"></i>
+            Gerenciar Projetos
           </h3>
-          <p class="text-sm text-gray-600">Alocar funcionários em projetos.</p>
-        </div>
-
-        <div
-          class="bg-white/60 p-4 rounded-lg border border-green-100 hover:bg-white/80 transition duration-200 transform hover:scale-105 shadow-md cursor-pointer">
-          <h3 class="font-semibold mb-2 text-orange-600">
-            <i class="fas fa-clipboard-check mr-2"></i>
-            Solicitações
-          </h3>
-          <p class="text-sm text-gray-600">Aprovar ou rejeitar solicitações.</p>
-        </div>
+          <p class="text-sm text-gray-600">Criar e administrar projetos.</p>
+        </a>
       </div>
     </div>
   </div>

@@ -56,7 +56,23 @@ CREATE TABLE
     description TEXT,
     start_date DATE,
     end_date DATE,
-    status ENUM ('In Progress', 'Completed', 'Canceled') DEFAULT 'In Progress'
+    status ENUM (
+      'Em aberto', 
+      'Em teste', 
+      'Interno', 
+      'Em andamento', 
+      'Em aprovação cliente', 
+      'Em aprovação interna', 
+      'Em revisão', 
+      'Em cache', 
+      'Em espera', 
+      'Cancelado', 
+      'Em pausa', 
+      'Concluído', 
+      'Colocar em produção', 
+      'Em Produção'
+    ) DEFAULT 'Em aberto',
+    budget DECIMAL(10, 2) DEFAULT 0.00
   );
 
 -- Tabela de relacionamento entre funcionários e projetos
@@ -91,21 +107,9 @@ CREATE TABLE
     FOREIGN KEY (employee_id) REFERENCES Employees (id)
   );
 
--- Tabela de aprovações
-DROP TABLE IF EXISTS Approvals;
-
-CREATE TABLE
-  Approvals (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    employee_id INT NOT NULL,
-    project_id INT NULL,
-    type ENUM ('Hire', 'Termination', 'Project', 'Other') NOT NULL,
-    status ENUM ('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    approval_date TIMESTAMP NULL,
-    FOREIGN KEY (employee_id) REFERENCES Employees (id),
-    FOREIGN KEY (project_id) REFERENCES Projects (id)
-  );
+-- Tabela de aprovações foi removida
+-- O controle de acesso agora é feito através do campo status na tabela Employees
+-- status ENUM ('Active', 'Inactive') DEFAULT 'Active'
 
 -- Inserir papéis padrão
 INSERT INTO

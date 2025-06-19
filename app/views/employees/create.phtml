@@ -385,7 +385,8 @@ use Core\Constants\CssClasses;
                 <!-- Toggle switch -->
                 <input type="checkbox" id="statusToggle" name="status" value="Active" class="sr-only"
                   <?=($employee->status ?? 'Active') === 'Active' ? 'checked' : '' ?>>
-                <label for="statusToggle" class="flex items-center cursor-pointer">
+                <!-- Explicitly associate label with input using for attribute -->
+                <label for="statusToggle" class="flex items-center cursor-pointer" aria-label="Status do Funcionário">
                   <div class="relative">
                     <div
                       class="block bg-gray-300 w-14 h-8 rounded-full transition-colors duration-200 ease-in-out toggle-bg">

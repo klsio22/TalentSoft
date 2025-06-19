@@ -1,0 +1,282 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center">
+      <h1 class="text-2xl font-bold">
+        <?= htmlspecialchars($project->name) ?>
+      </h1>
+      <?php if ($project->start_date && $project->end_date): ?>
+      <span class="ml-4 text-sm text-gray-500">
+        Duração:
+        <?= date('d/m/Y', strtotime($project->start_date)) ?> -
+        <?= date('d/m/Y', strtotime($project->end_date)) ?>
+      </span>
+      <?php endif; ?>
+    </div>
+    <div class="flex space-x-2">
+      <a href="<?= route('projects.user') ?>"
+        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+            clip-rule="evenodd" />
+        </svg>
+        Voltar aos Meus Projetos
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Detalhes do Projeto -->
+    <div class="md:col-span-2">
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Detalhes do Projeto</h2>
+
+        <div class="mb-4">
+          <h3 class="text-gray-700 font-bold">Descrição</h3>
+          <p class="text-gray-600">
+            <?= nl2br(htmlspecialchars($project->description ?? 'Nenhuma descrição fornecida')) ?>
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <h3 class="text-gray-700 font-bold">Data de Início</h3>
+            <p class="text-gray-600">
+              <?= $project->start_date ? date('d/m/Y', strtotime($project->start_date)) : 'Não definida' ?>
+            </p>
+          </div>
+          <div>
+            <h3 class="text-gray-700 font-bold">Data de Término</h3>
+            <p class="text-gray-600">
+              <?= $project->end_date ? date('d/m/Y', strtotime($project->end_date)) : 'Não definida' ?>
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <h3 class="text-gray-700 font-bold">Status</h3>
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+              <?php
+              $statusColor = 'bg-gray-100 text-gray-800';
+              if ($project->status === 'Concluído') {
+                  $statusColor = 'bg-green-100 text-green-800';
+              } elseif (in_array($project->status, ['Em andamento', 'Em teste', 'Em revisão'])) {
+                  $statusColor = 'bg-blue-100 text-blue-800';
+              } elseif (in_array($project->status, ['Cancelado', 'Em pausa'])) {
+                  $statusColor = 'bg-red-100 text-red-800';
+              } elseif (in_array($project->status, ['Em aprovação cliente', 'Em aprovação interna'])) {
+                  $statusColor = 'bg-yellow-100 text-yellow-800';
+              } elseif ($project->status === 'Em espera') {
+                  $statusColor = 'bg-purple-100 text-purple-800';
+              }
+              echo $statusColor;
+              ?>">
+              <?= htmlspecialchars($project->status) ?>
+            </span>
+          </div>
+          <!-- Sem campo de orçamento para usuários comuns -->
+        </div>
+      </div>
+    </div>
+
+    <div class="md:col-span-1">
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Meu Papel no Projeto</h2>
+        <?php
+        $userEmployee = \App\Models\Employee::getCurrentUserEmployee();
+        $employeeRole = "Membro da equipe";
+        $teamSize = 0;
+
+        if (!empty($projectTeam)) {
+            $teamSize = count($projectTeam);
+            if ($userEmployee) {
+                foreach ($projectTeam as $member) {
+                    if ($member['employee']->id == $userEmployee->id) {
+                        $employeeRole = $member['role'];
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Definir classe de cor com base no papel
+        $roleClass = 'bg-blue-100 text-blue-800';
+        if (stripos($employeeRole, 'gerente') !== false || stripos($employeeRole, 'líder') !== false) {
+            $roleClass = 'bg-purple-100 text-purple-800';
+        } elseif (stripos($employeeRole, 'desenvolvedor') !== false) {
+            $roleClass = 'bg-green-100 text-green-800';
+        }
+        ?>
+
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-info-circle text-blue-500"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-blue-700 mb-2">
+                Seu papel neste projeto:
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $roleClass ?>">
+                  <?= htmlspecialchars($employeeRole) ?>
+                </span>
+              </p>
+              <p class="text-xs text-blue-600">
+                Equipe do projeto: <strong>
+                  <?= $teamSize ?> membro
+                  <?= $teamSize != 1 ? 's' : '' ?>
+                </strong>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-sm">
+          <h3 class="font-medium text-gray-700 mb-2">Responsabilidades típicas:</h3>
+          <ul class="list-disc pl-5 text-gray-600 space-y-1">
+            <?php if (stripos($employeeRole, 'gerente') !== false || stripos($employeeRole, 'líder') !== false): ?>
+            <li>Coordenar a equipe do projeto</li>
+            <li>Garantir entregas no prazo</li>
+            <li>Gerenciar recursos do projeto</li>
+            <li>Comunicar atualizações aos stakeholders</li>
+            <?php elseif (stripos($employeeRole, 'desenvolvedor') !== false): ?>
+            <li>Implementar funcionalidades</li>
+            <li>Corrigir bugs reportados</li>
+            <li>Revisar código de outros membros</li>
+            <li>Manter documentação técnica</li>
+            <?php elseif (stripos($employeeRole, 'designer') !== false): ?>
+            <li>Criar interfaces e experiências</li>
+            <li>Desenvolver protótipos</li>
+            <li>Colaborar com a equipe de desenvolvimento</li>
+            <li>Manter consistência visual</li>
+            <?php elseif (stripos($employeeRole, 'test') !== false || stripos($employeeRole, 'qa') !== false): ?>
+            <li>Testar funcionalidades</li>
+            <li>Documentar casos de teste</li>
+            <li>Reportar bugs encontrados</li>
+            <li>Validar correções</li>
+            <?php else: ?>
+            <li>Colaborar com a equipe do projeto</li>
+            <li>Entregar tarefas designadas</li>
+            <li>Participar de reuniões de equipe</li>
+            <li>Comunicar impedimentos</li>
+            <?php endif; ?>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Equipe do Projeto -->
+  <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mt-4">
+    <h2 class="text-xl font-bold mb-4">Equipe do Projeto</h2>
+
+    <?php if (empty($projectTeam)): ?>
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-yellow-700">
+            Nenhum funcionário atribuído a este projeto ainda.
+          </p>
+        </div>
+      </div>
+    </div>
+    <?php else: ?>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="py-2 px-4 border-b text-left">Nome</th>
+            <th class="py-2 px-4 border-b text-left">Email</th>
+            <th class="py-2 px-4 border-b text-left">Papel no Projeto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          $userEmployee = \App\Models\Employee::getCurrentUserEmployee();
+          foreach ($projectTeam as $member):
+            $isCurrentUser = $userEmployee && $member['employee']->id == $userEmployee->id;
+            $rowClass = $isCurrentUser ? 'bg-blue-50' : '';
+          ?>
+          <tr class="<?= $rowClass ?>">
+            <td class="py-2 px-4 border-b">
+              <?php if ($isCurrentUser): ?>
+              <div class="flex items-center">
+                <span class="font-bold">
+                  <?= htmlspecialchars($member['employee']->name) ?>
+                </span>
+                <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Você</span>
+              </div>
+              <?php else: ?>
+              <?= htmlspecialchars($member['employee']->name) ?>
+              <?php endif; ?>
+            </td>
+            <td class="py-2 px-4 border-b">
+              <?= htmlspecialchars($member['employee']->email) ?>
+            </td>
+            <td class="py-2 px-4 border-b">
+              <?php
+              $roleName = htmlspecialchars($member['role']);
+              $roleClass = '';
+              
+              // Destacar papéis importantes
+              if (stripos($roleName, 'gerente') !== false || stripos($roleName, 'líder') !== false ||
+                  stripos($roleName, 'coordenador') !== false || stripos($roleName, 'manager') !== false) {
+                  $roleClass = 'bg-purple-100 text-purple-800 border border-purple-200';
+              } elseif (stripos($roleName, 'desenvolvedor') !== false || stripos($roleName, 'developer') !== false ||
+                       stripos($roleName, 'programador') !== false) {
+                  $roleClass = 'bg-green-100 text-green-800 border border-green-200';
+              } elseif (stripos($roleName, 'designer') !== false) {
+                  $roleClass = 'bg-pink-100 text-pink-800 border border-pink-200';
+              } elseif (stripos($roleName, 'analista') !== false || stripos($roleName, 'analyst') !== false) {
+                  $roleClass = 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+              } elseif (stripos($roleName, 'tester') !== false || stripos($roleName, 'qa') !== false ||
+                       stripos($roleName, 'engineer') !== false) {
+                  $roleClass = 'bg-red-100 text-red-800 border border-red-200';
+              } elseif (stripos($roleName, 'devops') !== false) {
+                  $roleClass = 'bg-indigo-100 text-indigo-800 border border-indigo-200';
+              } else {
+                  // Gerar uma cor baseada no primeiro caractere do papel para papéis não listados
+                  $colors = [
+                      'bg-blue-100 text-blue-800 border border-blue-200',
+                      'bg-green-100 text-green-800 border border-green-200',
+                      'bg-yellow-100 text-yellow-800 border border-yellow-200',
+                      'bg-red-100 text-red-800 border border-red-200',
+                      'bg-indigo-100 text-indigo-800 border border-indigo-200',
+                      'bg-purple-100 text-purple-800 border border-purple-200',
+                      'bg-pink-100 text-pink-800 border border-pink-200',
+                      'bg-cyan-100 text-cyan-800 border border-cyan-200',
+                      'bg-teal-100 text-teal-800 border border-teal-200',
+                      'bg-orange-100 text-orange-800 border border-orange-200',
+                      'bg-amber-100 text-amber-800 border border-amber-200',
+                      'bg-lime-100 text-lime-800 border border-lime-200',
+                      'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                      'bg-sky-100 text-sky-800 border border-sky-200',
+                      'bg-violet-100 text-violet-800 border border-violet-200',
+                      'bg-fuchsia-100 text-fuchsia-800 border border-fuchsia-200',
+                      'bg-rose-100 text-rose-800 border border-rose-200',
+                  ];
+                  
+                  // Usar o primeiro caractere do papel para selecionar uma cor
+                  $firstChar = strtolower(substr($roleName, 0, 1));
+                  $charCode = ord($firstChar) - 97; // 'a' começa em 97 na tabela ASCII
+                  if ($charCode < 0 || $charCode >= count($colors)) {
+                      $charCode = 0;
+                  }
+                  $roleClass = $colors[$charCode % count($colors)];
+              }
+              
+              // Exibir o papel com estilo
+              echo '<span class="px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full ' . $roleClass . '">' . $roleName . '</span>';
+              ?>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+    <?php endif; ?>
+  </div>
+</div>

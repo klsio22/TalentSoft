@@ -68,6 +68,16 @@ class Controller
         return;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $errors
+     */
+    protected function renderWithErrors(string $view, array $data = [], array $errors = []): void
+    {
+        $data['errors'] = $errors;
+        $this->render($view, $data);
+    }
+
     protected function redirectTo(string $location): void
     {
         header('Location: ' . $location);
