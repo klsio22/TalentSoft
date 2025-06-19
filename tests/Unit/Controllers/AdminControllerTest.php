@@ -16,6 +16,7 @@ class AdminControllerTest extends ControllerTestCase
     // Constantes para mensagens de teste
     private const USER_SHOULD_BE_LOGGED_IN = 'O usuário deve estar logado';
     private const USER_SHOULD_NOT_BE_ADMIN = 'O usuário não deve ser admin';
+    private const USER_SHOULD_BE_ADMIN = 'O usuário deve ser admin';
 
     private Role $adminRole;
     private Role $userRole;
@@ -153,8 +154,8 @@ class AdminControllerTest extends ControllerTestCase
             session_start();
         }
         $_SESSION['employee']['id'] = $this->adminEmployee->id;
-        $this->assertTrue(Auth::check(), 'O usuário deve estar logado');
-        $this->assertTrue(Auth::isAdmin(), 'O usuário deve ser admin');
+        $this->assertTrue(Auth::check(), self::USER_SHOULD_BE_LOGGED_IN);
+        $this->assertTrue(Auth::isAdmin(), self::USER_SHOULD_BE_ADMIN);
 
         // Criar controlador mockado que não redireciona no construtor
         $controller = new class extends AdminController {
@@ -198,9 +199,8 @@ class AdminControllerTest extends ControllerTestCase
         }
         $_SESSION['employee']['id'] = $this->adminEmployee->id;
         $this->assertTrue(Auth::check(), 'O usuário deve estar logado');
-        $this->assertTrue(Auth::isAdmin(), 'O usuário deve ser admin');
+        $this->assertTrue(Auth::isAdmin(), self::USER_SHOULD_BE_ADMIN);
 
-        // Configurar parâmetro welcome
         $_GET['welcome'] = 'true';
 
         // Criar controlador mockado que não redireciona no construtor
