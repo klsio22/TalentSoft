@@ -19,8 +19,8 @@
         <p class="text-gray-600">Visualize todos os projetos aos quais você está associado</p>
       </div>
       <div class="flex-shrink-0">
-        <div
-          class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-lg">
+        <div class="inline-flex items-center justify-center w-16 h-16
+             bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-lg">
           <i class="fas fa-project-diagram text-white text-xl"></i>
         </div>
       </div>

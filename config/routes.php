@@ -49,10 +49,22 @@ Route::middleware('admin-hr')->group(function () {
     Route::post('/projects/{id}/destroy', [ProjectsController::class, 'destroy'])->name('projects.destroy');
 
     // Employee-Project relationship routes
-    Route::post('/employee-projects/assign', [EmployeeProjectsController::class, 'assignEmployee'])->name('employee-projects.assign');
-    Route::post('/employee-projects/remove', [EmployeeProjectsController::class, 'removeEmployee'])->name('employee-projects.remove');
-    Route::post('/employee-projects/update-role', [EmployeeProjectsController::class, 'updateEmployeeRole'])->name('employee_projects.update_role');
-    Route::get('/employees/{id}/projects', [EmployeeProjectsController::class, 'employeeProjects'])->name('employee-projects.employee');
+    Route::post(
+        '/employee-projects/assign',
+        [EmployeeProjectsController::class, 'assignEmployee']
+    )->name('employee-projects.assign');
+    Route::post(
+        '/employee-projects/remove',
+        [EmployeeProjectsController::class, 'removeEmployee']
+    )->name('employee-projects.remove');
+    Route::post(
+        '/employee-projects/update-role',
+        [EmployeeProjectsController::class, 'updateEmployeeRole']
+    )->name('employee_projects.update_role');
+    Route::get(
+        '/employees/{id}/projects',
+        [EmployeeProjectsController::class, 'employeeProjects']
+    )->name('employee-projects.employee');
 });
 
 // Routes for authenticated users (any role)

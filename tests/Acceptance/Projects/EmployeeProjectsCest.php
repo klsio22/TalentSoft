@@ -12,7 +12,8 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
     private const DEFAULT_PASSWORD = '123456';
     private const PROJECTS_INDEX_URL = '/projects';
     private const EMPLOYEES_INDEX_URL = '/employees';
-    private const SUCCESS_MESSAGE_SELECTOR = '//div[contains(@class, "alert") or contains(@class, "message") or contains(@class, "flash-message")]';
+    private const SUCCESS_MESSAGE_SELECTOR = '//div[contains(@class, "alert") or
+        contains(@class, "message") or contains(@class, "flash-message")]';
     private const SCROLL_TO_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';
     private const TEST_PROJECT_NAME = 'Projeto Teste para Funcionários';
     private const TEST_EMPLOYEE_NAME = 'Funcionário Teste';
@@ -57,7 +58,10 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
                 $tester->click('button');
             } catch (\Exception $e2) {
                 // Abordagem 3: Tentar submeter o formulário diretamente se existir
-                $tester->executeJS('const form = document.querySelector("form"); if (form) { form.submit(); } else { console.log("No form found"); }');
+                $tester->executeJS(
+                    'const form = document.querySelector("form"); ' .
+                    'if (form) { form.submit(); } else { console.log("No form found"); }'
+                );
             }
         }
 
@@ -98,7 +102,10 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
         // Salvar o projeto usando seletores mais genéricos
         $tester->executeJS(self::SCROLL_TO_BOTTOM);
         $tester->wait(1);
-        $tester->click('//button[contains(text(), "Salvar")] | //input[@value="Salvar"] | //button[@type="submit"] | //input[@type="submit"]');
+        $tester->click(
+            '//button[contains(text(), "Salvar")] | //input[@value="Salvar"] | ' .
+            '//button[@type="submit"] | //input[@type="submit"]'
+        );
         $tester->wait(2);
 
         return $projectName;
@@ -197,8 +204,8 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
         // Verificar se há um botão ou link para adicionar funcionários
         $addEmployeeButtonExists = $tester->executeJS('return (
             document.querySelector("button[data-toggle=\'modal\'], a[data-toggle=\'modal\']") !== null ||
-            Array.from(document.querySelectorAll("button, a")).some(el => 
-                el.textContent.includes("Add Employee") || 
+            Array.from(document.querySelectorAll("button, a")).some(el =>
+                el.textContent.includes("Add Employee") ||
                 el.textContent.includes("Adicionar Funcionário") ||
                 el.textContent.includes("Adicionar")
             )
@@ -209,9 +216,9 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
             $tester->executeJS('
                 // Tenta encontrar o botão por diferentes abordagens
                 const modalButton = document.querySelector("button[data-toggle=\'modal\'], a[data-toggle=\'modal\']") || 
-                Array.from(document.querySelectorAll("button, a")).find(el => 
-                    el.textContent.includes("Add Employee") || 
-                    el.textContent.includes("Adicionar Funcionário") || 
+                Array.from(document.querySelectorAll("button, a")).find(el =>
+                    el.textContent.includes("Add Employee") ||
+                    el.textContent.includes("Adicionar Funcionário") ||
                     el.textContent.includes("Adicionar")
                 );
                 
@@ -224,16 +231,23 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
             $tester->wait(1);
 
             // Verificar se o modal está aberto
-            $modalIsOpen = $tester->executeJS('return document.querySelector(".modal.show, .modal[style*=\'display: block\']") !== null');
+            $modalIsOpen = $tester->executeJS(
+                'return document.querySelector(".modal.show, .modal[style*=\'display: block\']") !== null'
+            );
 
             if ($modalIsOpen) {
                 // Selecionar um funcionário no dropdown (assumindo que já existe pelo menos um funcionário)
-                $hasEmployeeSelect = $tester->executeJS('return document.querySelector("select[name=\'employee_id\']") !== null');
+                $hasEmployeeSelect = $tester->executeJS(
+                    'return document.querySelector("select[name=\'employee_id\']") !== null'
+                );
 
                 if (!$hasEmployeeSelect) {
                     // Se não houver funcionários disponíveis, criar um
                     $tester->comment('Nenhum funcionário disponível, criando um novo...');
-                    $tester->executeJS('document.querySelector(".modal.show .close, .modal.show .btn-secondary, .modal[style*=\'display: block\'] .close").click();');
+                    $tester->executeJS(
+                        'document.querySelector(".modal.show .close, .modal.show .btn-secondary, ' .
+                        '.modal[style*=\'display: block\'] .close").click();'
+                    );
                     $tester->wait(1);
 
                     $this->createTestEmployee($tester); // Criar funcionário de teste
@@ -261,7 +275,16 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
                     $tester->wait(1);
 
                     // Abrir o modal novamente
-                    $tester->executeJS('document.querySelector("button[data-toggle=\'modal\'], a[data-toggle=\'modal\'], button:contains(\'Add Employee\'), a:contains(\'Add Employee\')").click();');
+                    $tester->executeJS('
+                        // Tenta encontrar o botão por diferentes abordagens
+                        var modalButton = document.querySelector("button[data-toggle=\'modal\']")
+                            || document.querySelector("a[data-toggle=\'modal\']")
+                            || document.querySelector("button:contains(\'Add Employee\')")
+                            || document.querySelector("a:contains(\'Add Employee\')")
+                        if (modalButton) {
+                            modalButton.click();
+                        }
+                    ');
                     $tester->wait(1);
                 }
 
@@ -278,10 +301,15 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
                     $tester->see('sucesso', self::SUCCESS_MESSAGE_SELECTOR);
                     $tester->comment('Funcionário adicionado com sucesso ao projeto');
                 } catch (\Exception $e) {
-                    $tester->comment('Não foi possível encontrar mensagem de sucesso, verificando se o funcionário foi adicionado...');
+                    $tester->comment(
+                        'Não foi possível encontrar mensagem de sucesso, verificando se o funcionário foi adicionado...'
+                    );
 
                     // Verificar se o funcionário aparece na lista de equipe do projeto
-                    $tester->see(self::TEST_EMPLOYEE_ROLE, '//table[contains(@class, "team-table") or contains(@id, "team-table")]');
+                    $tester->see(
+                        self::TEST_EMPLOYEE_ROLE,
+                        '//table[contains(@class, "team-table") or contains(@id, "team-table")]'
+                    );
                 }
             } else {
                 $tester->comment('Modal não foi aberto, pulando teste de associação');
@@ -303,15 +331,23 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
 
         // Agora, vamos atualizar a função do funcionário
         // Verificar se há um botão ou link para editar a função do funcionário
-        $editRoleButtonExists = $tester->executeJS('return document.querySelector("button[title=\'Editar Função\'], a[title=\'Editar Função\'], .edit-role-btn") !== null');
+        $editRoleButtonExists = $tester->executeJS(
+            'return document.querySelector("button[title=\'Editar Função\'], a[title=\'Editar Função\'], ' .
+            '.edit-role-btn") !== null'
+        );
 
         if ($editRoleButtonExists) {
             // Clicar no botão para abrir o modal de edição de função
-            $tester->executeJS('document.querySelector("button[title=\'Editar Função\'], a[title=\'Editar Função\'], .edit-role-btn").click();');
+            $tester->executeJS(
+                'document.querySelector("button[title=\'Editar Função\'], a[title=\'Editar Função\'], ' .
+                '.edit-role-btn").click();'
+            );
             $tester->wait(1);
 
             // Verificar se o modal está aberto
-            $modalIsOpen = $tester->executeJS('return document.querySelector(".modal.show, .modal[style*=\'display: block\']") !== null');
+            $modalIsOpen = $tester->executeJS(
+                'return document.querySelector(".modal.show, .modal[style*=\'display: block\']") !== null'
+            );
 
             if ($modalIsOpen) {
                 // Atualizar a função do funcionário
@@ -329,7 +365,10 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
                     $tester->comment('Não foi possível encontrar mensagem de sucesso, verificando se a função foi atualizada...');
 
                     // Verificar se a nova função aparece na lista de equipe do projeto
-                    $tester->see(self::TEST_EMPLOYEE_NEW_ROLE, '//table[contains(@class, "team-table") or contains(@id, "team-table")]');
+                    $tester->see(
+                        self::TEST_EMPLOYEE_NEW_ROLE,
+                        '//table[contains(@class, "team-table") or contains(@id, "team-table")]'
+                    );
                 }
             } else {
                 $tester->comment('Modal não foi aberto, pulando teste de atualização de função');
@@ -351,11 +390,28 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
 
         // Agora, vamos remover o funcionário do projeto
         // Verificar se há um botão ou link para remover o funcionário
-        $removeButtonExists = $tester->executeJS('return document.querySelector("button[title=\'Remover\'], a[title=\'Remover\'], .remove-employee-btn, form[action*=\'/employee-projects/remove\'] button") !== null');
+        $removeButtonExists = $tester->executeJS('
+            // Buscar botão de remoção por diferentes seletores
+            return document.querySelector(
+                "button[title=\'Remover\'], " +
+                "a[title=\'Remover\'], " +
+                ".remove-employee-btn, " +
+                "form[action*=\'/employee-projects/remove\'] button"
+            ) !== null;
+        ');
 
         if ($removeButtonExists) {
             // Usar JavaScript para clicar no botão de remoção para evitar problemas de visibilidade
-            $tester->executeJS('document.querySelector("button[title=\'Remover\'], a[title=\'Remover\'], .remove-employee-btn, form[action*=\'/employee-projects/remove\'] button").click();');
+            $tester->executeJS('
+                // Buscar e clicar no botão de remoção
+                const removeButton = document.querySelector(
+                    "button[title=\'Remover\'], " +
+                    "a[title=\'Remover\'], " +
+                    ".remove-employee-btn, " +
+                    "form[action*=\'/employee-projects/remove\'] button"
+                );
+                if (removeButton) removeButton.click();
+            ');
             $tester->wait(2);
 
             // Tentar diferentes abordagens para confirmar a remoção
@@ -365,7 +421,11 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
 
                 if ($hasModal) {
                     // Clicar no botão de confirmação dentro do modal
-                    $tester->executeJS('document.querySelector(".modal button.confirm, .modal .btn-danger, .modal button:not(.cancel), [role=dialog] button.confirm, [role=dialog] .btn-danger").click();');
+                    $tester->executeJS(
+                        'document.querySelector(".modal button.confirm, .modal .btn-danger, ' .
+                        '.modal button:not(.cancel), [role=dialog] button.confirm, ' .
+                        '[role=dialog] .btn-danger").click();'
+                    );
                 } else {
                     // Se não houver modal, pode ser um alerta do navegador
                     $tester->acceptPopup();
@@ -382,10 +442,14 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
                 $tester->see('sucesso', self::SUCCESS_MESSAGE_SELECTOR);
                 $tester->comment('Funcionário removido com sucesso do projeto');
             } catch (\Exception $e) {
-                $tester->comment('Não foi possível encontrar mensagem de sucesso, verificando se o funcionário foi removido...');
+                $tester->comment(
+                    'Não foi possível encontrar mensagem de sucesso, verificando se o funcionário foi removido...'
+                );
 
                 // Verificar se o funcionário não aparece mais na lista de equipe do projeto
-                $employeeStillPresent = $tester->executeJS('return document.querySelector("table tbody tr td:contains(\'' . self::TEST_EMPLOYEE_ROLE . '\')") !== null');
+                $employeeStillPresent = $tester->executeJS(
+                    'return document.querySelector("table tbody tr td:contains(\'' . self::TEST_EMPLOYEE_ROLE . '\')") !== null'
+                );
                 if (!$employeeStillPresent) {
                     $tester->comment('Funcionário foi removido com sucesso do projeto');
                 }

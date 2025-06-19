@@ -17,7 +17,8 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
     private const UPDATE_PROJECT_BUTTON = 'Salvar Alterações';
     private const NEW_PROJECT_HEADING = 'New Project';
     private const EDIT_PROJECT_HEADING = 'Edit Project';
-    private const SUCCESS_MESSAGE_SELECTOR = '//div[contains(@class, "alert") or contains(@class, "message") or contains(@class, "flash-message")]';
+    private const SUCCESS_MESSAGE_SELECTOR = '//div[contains(@class, "alert") or contains(@class, "message")
+        or contains(@class, "flash-message")]';
     private const TEST_PROJECT_NAME = 'Projeto Teste';
     private const UPDATED_PROJECT_NAME = 'Projeto Atualizado Teste';
     private const SCROLL_TO_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';
@@ -59,7 +60,10 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
                 $tester->click('button');
             } catch (\Exception $e2) {
                 // Abordagem 3: Tentar submeter o formulário diretamente se existir
-                $tester->executeJS('const form = document.querySelector("form"); if (form) { form.submit(); } else { console.log("No form found"); }');
+                $tester->executeJS(
+                    'const form = document.querySelector("form"); ' .
+                    'if (form) { form.submit(); } else { console.log("No form found"); }'
+                );
             }
         }
 
@@ -71,7 +75,11 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
         $tester->executeJS(self::SCROLL_TO_BOTTOM);
         $tester->wait(1);
         // Usar seletores mais robustos para os botões
-        $tester->click('//button[contains(text(), "' . $buttonText . '")] | //input[@value="' . $buttonText . '"] | //a[contains(text(), "' . $buttonText . '")]');
+        $tester->click(
+            '//button[contains(text(), "' . $buttonText . '")] | ' .
+            '//input[@value="' . $buttonText . '"] | ' .
+            '//a[contains(text(), "' . $buttonText . '")]'
+        );
     }
 
     /**
@@ -158,7 +166,8 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
         // Verificar se há mensagem de sucesso ou se o projeto foi criado
         try {
             // Tentar encontrar mensagem de sucesso
-            $hasSuccessMessage = $tester->executeJS('return document.querySelector(".alert-success, .alert.success, [class*=\"success\"]") !== null');
+            $hasSuccessMessage = $tester->executeJS('return document.querySelector(".alert-success, .alert.success, ' .
+                '[class*=\"success\"]") !== null');
 
             if ($hasSuccessMessage) {
                 $tester->comment('Success message found');
@@ -192,7 +201,8 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
                 // Verificar se o projeto foi criado usando JavaScript para ser mais flexível
                 $projectFound = $tester->executeJS('return (
                     document.body.textContent.includes("' . addslashes($projectName) . '") ||
-                    Array.from(document.querySelectorAll("table tr td")).some(td => td.textContent.includes("' . addslashes($projectName) . '"))
+                    Array.from(document.querySelectorAll("table tr td"))' .
+                    '.some(td => td.textContent.includes("' . addslashes($projectName) . '"))
                 )');
 
                 if ($projectFound) {
@@ -202,11 +212,13 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
 
                 // Se não encontrar o projeto, tentar buscar por ele
                 try {
-                    $tester->fillField('//input[@type="search"] | //input[@name="search"] | //input[contains(@class, "search")]', $projectName);
+                    $tester->fillField('//input[@type="search"] | //input[@name="search"] | ' .
+                        '//input[contains(@class, "search")]', $projectName);
                     $tester->wait(1);
 
                     // Verificar novamente se o projeto aparece na tabela após a busca
-                    $projectExists = $tester->executeJS('return document.body.textContent.includes("' . addslashes($projectName) . '")');
+                    $projectExists = $tester->executeJS('return document.body.textContent.includes("' .
+                        addslashes($projectName) . '")');
 
                     if ($projectExists) {
                         $tester->comment('Project found after search');
@@ -266,7 +278,10 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
         $tester->seeInCurrentUrl('/projects/');
 
         // Verificar elementos esperados na página de detalhes usando seletores mais flexíveis
-        $hasProjectDetailsTitle = $tester->executeJS('return document.querySelector("h1, h2, h3, .page-title, .card-header").textContent.includes("Project") || document.querySelector("h1, h2, h3, .page-title, .card-header").textContent.includes("projeto") || document.querySelector("h1, h2, h3, .page-title, .card-header").textContent.includes("Detalhes")');
+        $hasProjectDetailsTitle = $tester->executeJS('return document.querySelector("h1, h2, h3, .page-title, .card-header")' .
+            '.textContent.includes("Project") || document.querySelector("h1, h2, h3, .page-title, .card-header")' .
+            '.textContent.includes("projeto") || document.querySelector("h1, h2, h3, .page-title, .card-header")' .
+            '.textContent.includes("Detalhes")');
 
         if ($hasProjectDetailsTitle) {
             $tester->comment('Project details title found');
@@ -279,7 +294,8 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
         $tester->see('Status', self::PROJECT_FORM_SELECTOR);
 
         // Verificar se há uma seção para a equipe do projeto
-        $hasTeamSection = $tester->executeJS('return document.querySelector("h2, h3, .card-header, div.team-section, table.team-table") !== null');
+        $hasTeamSection = $tester->executeJS('return document.querySelector("h2, h3, .card-header, div.team-section, ' .
+            'table.team-table") !== null');
 
         if ($hasTeamSection) {
             $tester->comment('Project team section found');
@@ -407,7 +423,8 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
             $tester->comment('Success message found');
         } catch (\Exception $e) {
             // Se não encontrou mensagem de sucesso, verificar se está na página de detalhes do projeto
-            $onShowPage = $tester->executeJS('return window.location.pathname.includes("/projects/") && !window.location.pathname.includes("/edit")');
+            $onShowPage = $tester->executeJS('return window.location.pathname.includes("/projects/") && ' .
+                '!window.location.pathname.includes("/edit")');
             if ($onShowPage) {
                 $tester->see($updatedProjectName);
                 $tester->comment('Project updated successfully and redirected to show page');
@@ -441,7 +458,8 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
         }
 
         // Verificar se existe um botão de exclusão antes de tentar clicar
-        $deleteButtonExists = $tester->executeJS('return document.querySelector("table tbody tr:first-child button[title=\"Excluir\"], ' .
+        $deleteButtonExists = $tester->executeJS('return document.querySelector(' .
+            '"table tbody tr:first-child button[title=\"Excluir\"], ' .
             'table tbody tr:first-child .delete-btn, table tbody tr:first-child .btn-danger, ' .
             'table tbody tr:first-child form[action*=\"/delete\"] button") !== null');
 
@@ -488,7 +506,8 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
             $tester->wait(2);
 
             // Verificar se há um projeto com status "Em pausa" na lista
-            $hasDeactivatedProject = $tester->executeJS('return Array.from(document.querySelectorAll("table tbody tr")).some(row => row.textContent.includes("Em pausa"))');
+            $hasDeactivatedProject = $tester->executeJS('return Array.from(document.querySelectorAll("table tbody tr"))' .
+                '.some(row => row.textContent.includes("Em pausa"))');
             if ($hasDeactivatedProject) {
                 $tester->comment('Project was successfully deactivated (status changed to "Em pausa")');
             }
@@ -507,7 +526,9 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
 
         // Verificar elementos da página de listagem
         // Verificar elementos da página de listagem - título pode variar
-        $hasProjectsTitle = $tester->executeJS('return document.querySelector("h1, h2, h3, .page-title").textContent.includes("Project") || document.querySelector("h1, h2, h3, .page-title").textContent.includes("projeto")');
+        $hasProjectsTitle = $tester->executeJS('return document.querySelector("h1, h2, h3, .page-title")' .
+            '.textContent.includes("Project") || document.querySelector("h1, h2, h3, .page-title")' .
+            '.textContent.includes("projeto")');
 
         if ($hasProjectsTitle) {
             $tester->comment('Projects list title found');
@@ -544,10 +565,14 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
         // Tentar diferentes abordagens para clicar em visualizar um projeto
         try {
             // Abordagem 1: Tentar clicar em um link de visualização específico
-            $hasViewLink = $tester->executeJS('return document.querySelector("a[title=\'Visualizar\'], a[title=\'View\'], a[aria-label=\'Visualizar\'], a[aria-label=\'View\'], a.view-btn, a.btn-view") !== null');
+            $hasViewLink = $tester->executeJS('return document.querySelector(' .
+                '"a[title=\'Visualizar\'], a[title=\'View\'], a[aria-label=\'Visualizar\'], ' .
+                'a[aria-label=\'View\'], a.view-btn, a.btn-view") !== null');
 
             if ($hasViewLink) {
-                $tester->click('//a[contains(@title, "Visualizar") or contains(@title, "View") or contains(@aria-label, "Visualizar") or contains(@aria-label, "View") or contains(@class, "view-btn") or contains(@class, "btn-view")][1]');
+                $tester->click('//a[contains(@title, "Visualizar") or contains(@title, "View") or ' .
+                    'contains(@aria-label, "Visualizar") or contains(@aria-label, "View") or ' .
+                    'contains(@class, "view-btn") or contains(@class, "btn-view")][1]');
                 $tester->comment('Clicked on view link using title/aria-label/class');
             } else {
                 // Abordagem 2: Tentar clicar em um link que leva para a página de detalhes
@@ -576,7 +601,8 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
             $tester->comment('Not on project details page, trying to navigate directly');
 
             // Tentar obter o ID do primeiro projeto e navegar diretamente
-            $projectId = $tester->executeJS('return document.querySelector("table tbody tr") ? document.querySelector("table tbody tr").getAttribute("data-id") || "1" : "1"');
+            $projectId = $tester->executeJS('return document.querySelector("table tbody tr") ? ' .
+                'document.querySelector("table tbody tr").getAttribute("data-id") || "1" : "1"');
             $tester->amOnPage("/projects/{$projectId}");
             $tester->wait(1);
         }
