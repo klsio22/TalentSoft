@@ -31,7 +31,7 @@ class EmployeeProjectsController extends Controller
 
     public function assignEmployee(Request $request): void
     {
-        // Inicializar variáveis para evitar erro de variável não definida
+      // Inicializar variáveis para evitar erro de variável não definida
         $projectId = 0;
         $redirectUrl = '';
 
@@ -70,13 +70,13 @@ class EmployeeProjectsController extends Controller
             FlashMessage::danger($e->getMessage());
         }
 
-        // Corrigido: Usar verificação de string vazia em vez de operador de coalescência nula
+      // Corrigido: Usar verificação de string vazia em vez de operador de coalescência nula
         $this->redirectTo($redirectUrl !== '' ? $redirectUrl : route('projects.show', ['id' => $projectId]));
     }
 
     public function removeEmployee(Request $request): void
     {
-        // Inicializar variáveis para evitar erro de variável não definida
+      // Inicializar variáveis para evitar erro de variável não definida
         $projectId = 0;
         $redirectUrl = '';
 
@@ -113,7 +113,7 @@ class EmployeeProjectsController extends Controller
             FlashMessage::danger($e->getMessage());
         }
 
-        // Corrigido: Usar verificação de string vazia em vez de operador de coalescência nula
+      // Corrigido: Usar verificação de string vazia em vez de operador de coalescência nula
         $this->redirectTo($redirectUrl !== '' ? $redirectUrl : route('projects.show', ['id' => $projectId]));
     }
 
@@ -129,10 +129,27 @@ class EmployeeProjectsController extends Controller
 
         $projects = Project::getEmployeeProjects($employeeId);
 
+      // Formatar os projetos no formato esperado pela view
+        $projectsWithDetails = [];
+        foreach ($projects as $project) {
+          // Buscar a função do funcionário neste projeto
+            $employeeProject = EmployeeProject::findEmployeeProject($employeeId, $project->id);
+            $role = $employeeProject ? $employeeProject->role : 'Membro';
+
+          // Contar membros da equipe
+            $teamCount = count($project->employees()->get());
+
+            $projectsWithDetails[] = [
+            'project' => $project,
+            'role' => $role,
+            'team_count' => $teamCount
+            ];
+        }
+
         $this->render('employee_projects/index', [
-            'title' => self::MY_PROJECTS,
-            'employee' => $employee,
-            'projects' => $projects
+        'title' => self::MY_PROJECTS,
+        'employee' => $employee,
+        'projectsWithDetails' => $projectsWithDetails
         ]);
     }
 
@@ -142,15 +159,15 @@ class EmployeeProjectsController extends Controller
         $this->employeeProjects($userId);
     }
 
-    /**
-     * Atualiza a função de um funcionário em um projeto específico
-     *
-     * @param Request $request Dados da requisição
-     * @return void
-     */
+  /**
+   * Atualiza a função de um funcionário em um projeto específico
+   *
+   * @param Request $request Dados da requisição
+   * @return void
+   */
     public function updateEmployeeRole(Request $request): void
     {
-        // Inicializar variáveis para evitar erro de variável não definida
+      // Inicializar variáveis para evitar erro de variável não definida
         $projectId = 0;
         $redirectUrl = '';
 
@@ -176,7 +193,7 @@ class EmployeeProjectsController extends Controller
                 return;
             }
 
-            // Buscar a relação entre funcionário e projeto
+          // Buscar a relação entre funcionário e projeto
             $employeeProject = EmployeeProject::findEmployeeProject($employeeId, $projectId);
 
             if (!$employeeProject) {
@@ -185,7 +202,7 @@ class EmployeeProjectsController extends Controller
                 return;
             }
 
-            // Atualizar a função do funcionário no projeto
+          // Atualizar a função do funcionário no projeto
             $employeeProject->role = $newRole;
             $result = $employeeProject->save();
 
@@ -198,16 +215,16 @@ class EmployeeProjectsController extends Controller
             FlashMessage::danger($e->getMessage());
         }
 
-        // Usar verificação de string vazia em vez de operador de coalescência nula
+      // Usar verificação de string vazia em vez de operador de coalescência nula
         $this->redirectTo($redirectUrl !== '' ? $redirectUrl : route('projects.show', ['id' => $projectId]));
     }
 
-    /**
-     * Verifica se o usuário atual tem acesso ao projeto
-     *
-     * @param int $projectId ID do projeto
-     * @return bool True se o usuário tem acesso, false caso contrário
-     */
+  /**
+   * Verifica se o usuário atual tem acesso ao projeto
+   *
+   * @param int $projectId ID do projeto
+   * @return bool True se o usuário tem acesso, false caso contrário
+   */
     public function hasProjectAccess(int $projectId): bool
     {
         $userId = Auth::user()->id;
@@ -215,10 +232,10 @@ class EmployeeProjectsController extends Controller
         return $employeeProject !== null;
     }
 
-    /**
-     * @param int $projectId
-     * @return array<int, string>
-     */
+  /**
+   * @param int $projectId
+   * @return array<int, string>
+   */
     public function getEmployeeProjectRoles(int $projectId): array
     {
         return EmployeeProject::getEmployeeProjectRoles($projectId);
