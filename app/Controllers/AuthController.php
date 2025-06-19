@@ -43,7 +43,7 @@ class AuthController extends Controller
         $employee = Employee::findByEmail($email);
 
         if (!$employee || !$employee->authenticate($password)) {
-            FlashMessage::danger('Email ou senha incorretos');
+            FlashMessage::danger('Email ou senha incorretos ou não possui acesso');
             $this->redirectTo(route('auth.login'));
             return;
         }
