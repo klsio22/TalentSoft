@@ -14,11 +14,11 @@ class EmployeeProjectsController extends Controller
 {
     protected string $layout = 'application';
 
-    public const EMPLOYEE_NOT_FOUND = 'Employee not found';
-    public const PROJECT_NOT_FOUND = 'Project not found';
-    public const ASSIGNMENT_CREATED = 'Employee assigned to project successfully!';
-    public const ASSIGNMENT_REMOVED = 'Employee removed from project successfully!';
-    public const MY_PROJECTS = 'My Projects';
+    public const EMPLOYEE_NOT_FOUND = 'Funcionário não encontrado';
+    public const PROJECT_NOT_FOUND = 'Projeto não encontrado';
+    public const ASSIGNMENT_CREATED = 'Funcionário atribuído ao projeto com sucesso!';
+    public const ASSIGNMENT_REMOVED = 'Funcionário removido do projeto com sucesso!';
+    public const MY_PROJECTS = 'Meus Projetos';
 
     public function __construct()
     {
@@ -64,7 +64,7 @@ class EmployeeProjectsController extends Controller
             if ($result) {
                 FlashMessage::success(self::ASSIGNMENT_CREATED);
             } else {
-                FlashMessage::warning('Employee is already assigned to this project');
+                FlashMessage::warning('Funcionário já está atribuído a este projeto');
             }
         } catch (\Exception $e) {
             FlashMessage::danger($e->getMessage());

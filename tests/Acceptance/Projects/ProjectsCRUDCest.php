@@ -15,10 +15,10 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
     private const PROJECT_FORM_SELECTOR = '//form | //div | //table';
     private const HAS_TABLE_ROWS_JS = 'return document.querySelectorAll("table tbody tr").length > 0';
     private const UPDATE_PROJECT_BUTTON = 'Salvar Alterações';
-    private const NEW_PROJECT_HEADING = 'New Project';
-    private const EDIT_PROJECT_HEADING = 'Edit Project';
-    private const SUCCESS_MESSAGE_SELECTOR = '//div[contains(@class, "alert") or contains(@class, "message")
-        or contains(@class, "flash-message")]';
+    private const NEW_PROJECT_HEADING = 'Novo Projeto';
+    private const EDIT_PROJECT_HEADING = 'Editar Projeto';
+    private const SUCCESS_MESSAGE_SELECTOR =
+        '//div[contains(@class, "alert") or contains(@class, "message") or contains(@class, "flash-message")]';
     private const TEST_PROJECT_NAME = 'Projeto Teste';
     private const UPDATED_PROJECT_NAME = 'Projeto Atualizado Teste';
     private const SCROLL_TO_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';

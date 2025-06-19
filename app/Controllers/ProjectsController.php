@@ -15,11 +15,11 @@ class ProjectsController extends Controller
 {
     protected string $layout = 'application';
 
-    private const PROJECT_NOT_FOUND = 'Project not found';
-    private const ACCESS_DENIED = 'Access denied';
-    private const PROJECT_CREATED = 'Project created successfully!';
-    private const PROJECT_UPDATED = 'Project updated successfully!';
-    private const PROJECT_DELETED = 'Project deactivated successfully!';
+    private const PROJECT_NOT_FOUND = 'Projeto não encontrado';
+    private const ACCESS_DENIED = 'Acesso negado';
+    private const PROJECT_CREATED = 'Projeto criado com sucesso!';
+    private const PROJECT_UPDATED = 'Projeto atualizado com sucesso!';
+    private const PROJECT_DELETED = 'Projeto desativado com sucesso!';
 
     public function __construct()
     {
@@ -105,7 +105,7 @@ class ProjectsController extends Controller
     public function create(): void
     {
         $project = new Project();
-        $title = 'New Project';
+        $title = 'Novo Projeto';
 
         $this->render('projects/create', compact('project', 'title'));
     }
@@ -207,7 +207,7 @@ class ProjectsController extends Controller
                 // Admin e HR veem a view original com todos os detalhes
                 $this->render('projects/show', compact('project', 'projectTeam', 'availableEmployees', 'title'));
             } catch (\Exception $e) {
-                FlashMessage::danger('Error loading project data: ' . $e->getMessage());
+                FlashMessage::danger('Erro ao carregar dados do projeto: ' . $e->getMessage());
                 $this->redirectTo(route('projects.index'));
             }
             return;
@@ -228,7 +228,7 @@ class ProjectsController extends Controller
             // Usuários comuns veem a view simplificada sem orçamento
             $this->render('projects/show_user', compact('project', 'projectTeam', 'title'));
         } catch (\Exception $e) {
-            FlashMessage::danger('Error loading project data: ' . $e->getMessage());
+            FlashMessage::danger('Erro ao carregar dados do projeto: ' . $e->getMessage());
             $this->redirectTo(route('projects.user'));
         }
     }
@@ -244,7 +244,7 @@ class ProjectsController extends Controller
             return;
         }
 
-        $title = 'Edit Project';
+        $title = 'Editar Projeto';
         $this->render('projects/edit', compact('project', 'title'));
     }
 
@@ -311,7 +311,7 @@ class ProjectsController extends Controller
             if ($project->save()) {
                 FlashMessage::success(self::PROJECT_DELETED);
             } else {
-                FlashMessage::danger('Failed to deactivate project');
+                FlashMessage::danger('Falha ao desativar o projeto');
             }
         } catch (\Exception $e) {
             FlashMessage::danger($e->getMessage());

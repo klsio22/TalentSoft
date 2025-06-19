@@ -12,8 +12,8 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
     private const DEFAULT_PASSWORD = '123456';
     private const PROJECTS_INDEX_URL = '/projects';
     private const EMPLOYEES_INDEX_URL = '/employees';
-    private const SUCCESS_MESSAGE_SELECTOR = '//div[contains(@class, "alert") or
-        contains(@class, "message") or contains(@class, "flash-message")]';
+    private const SUCCESS_MESSAGE_SELECTOR =
+        '//div[contains(@class, "alert") or contains(@class, "message") or contains(@class, "flash-message")]';
     private const SCROLL_TO_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';
     private const TEST_PROJECT_NAME = 'Projeto Teste para Funcionários';
     private const TEST_EMPLOYEE_NAME = 'Funcionário Teste';
@@ -81,7 +81,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
     private function createTestProject(AcceptanceTester $tester): string
     {
         $tester->amOnPage('/projects/create');
-        $tester->see('New Project');
+        $tester->see('Novo Projeto');
 
         // Gerar nome único para o projeto
         $projectName = self::TEST_PROJECT_NAME . ' ' . uniqid();
@@ -215,13 +215,13 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
             // Clicar no botão para abrir o modal de adicionar funcionário
             $tester->executeJS('
                 // Tenta encontrar o botão por diferentes abordagens
-                const modalButton = document.querySelector("button[data-toggle=\'modal\'], a[data-toggle=\'modal\']") || 
+                const modalButton = document.querySelector("button[data-toggle=\'modal\'], a[data-toggle=\'modal\']") ||
                 Array.from(document.querySelectorAll("button, a")).find(el =>
                     el.textContent.includes("Add Employee") ||
                     el.textContent.includes("Adicionar Funcionário") ||
                     el.textContent.includes("Adicionar")
                 );
-                
+
                 if (modalButton) {
                     modalButton.click();
                 } else {
@@ -432,7 +432,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
                 }
             } catch (\Exception $e) {
                 // Se falhar, tentar outra abordagem - pode ser que a remoção já tenha ocorrido
-                $tester->comment('Modal interaction failed, continuing test: ' . $e->getMessage());
+                $tester->comment('Interação com o modal falhou, continuando teste: ' . $e->getMessage());
             }
 
             $tester->wait(2);
@@ -440,7 +440,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
             // Verificar que a operação foi concluída com sucesso
             try {
                 $tester->see('sucesso', self::SUCCESS_MESSAGE_SELECTOR);
-                $tester->comment('Funcionário removido com sucesso do projeto');
+                $tester->comment('Funcionário removido do projeto com sucesso!');
             } catch (\Exception $e) {
                 $tester->comment(
                     'Não foi possível encontrar mensagem de sucesso, verificando se o funcionário foi removido...'
@@ -451,7 +451,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
                     'return document.querySelector("table tbody tr td:contains(\'' . self::TEST_EMPLOYEE_ROLE . '\')") !== null'
                 );
                 if (!$employeeStillPresent) {
-                    $tester->comment('Funcionário foi removido com sucesso do projeto');
+                    $tester->comment('Funcionário foi removido do projeto com sucesso!');
                 }
             }
         } else {
