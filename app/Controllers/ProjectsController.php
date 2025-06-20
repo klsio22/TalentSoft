@@ -106,13 +106,17 @@ class ProjectsController extends Controller
     {
         try {
             $data = $request->getParams();
-            $project = new Project($data);
+
+            // Filtrar os dados para incluir apenas as colunas válidas
+            $validData = array_intersect_key($data, array_flip(Project::columns()));
+            $project = new Project($validData);
 
             if ($project->save()) {
                 FlashMessage::success(self::PROJECT_CREATED);
                 $this->redirectTo(route('projects.show', ['id' => $project->id]));
             } else {
-                $this->renderWithErrors('projects/create', compact('project'), $project->errors());
+                $title = 'Novo Projeto'; // Definir o título quando há erro de validação
+                $this->renderWithErrors('projects/create', compact('project', 'title'), $project->errors());
             }
         } catch (\Exception $e) {
             FlashMessage::danger($e->getMessage());
@@ -246,7 +250,8 @@ class ProjectsController extends Controller
                 FlashMessage::success(self::PROJECT_UPDATED);
                 $this->redirectTo(route('projects.show', ['id' => $project->id]));
             } else {
-                $this->renderWithErrors('projects/edit', compact('project'), $project->errors());
+                $title = 'Editar Projeto'; // Definir o título quando há erro de validação
+                $this->renderWithErrors('projects/edit', compact('project', 'title'), $project->errors());
             }
         } catch (\Exception $e) {
             FlashMessage::danger($e->getMessage());
