@@ -5,7 +5,6 @@ namespace App\Controllers;
 use App\Controllers\EmployeeProjectsController;
 use App\Models\Employee;
 use App\Models\Project;
-use App\Models\UserCredential;
 use Core\Http\Controllers\Controller;
 use Core\Http\Request;
 use Lib\Authentication\Auth;
@@ -63,14 +62,7 @@ class ProjectsController extends Controller
      */
     private function filterProjects(array $projects, ?string $search, ?string $status): array
     {
-        return array_filter($projects, function ($project) use ($search, $status) {
-            $matchesSearch = !$search || stripos($project->name, $search) !== false ||
-                            stripos($project->description ?? '', $search) !== false;
-
-            $matchesStatus = !$status || $project->status === $status;
-
-            return $matchesSearch && $matchesStatus;
-        });
+        return Project::filterProjects($projects, $search, $status);
     }
 
     /**
@@ -110,17 +102,29 @@ class ProjectsController extends Controller
         $this->render('projects/create', compact('project', 'title'));
     }
 
+    /**
+     * Armazena um novo projeto
+     * Filtra os dados para incluir apenas as colunas válidas
+     * Redireciona para a página de detalhes do projeto criado ou exibe erros de validação
+     *
+     * @param Request $request Dados da requisição
+     * @return void
+     */
     public function store(Request $request): void
     {
         try {
             $data = $request->getParams();
-            $project = new Project($data);
+
+            // Filtrar os dados para incluir apenas as colunas válidas
+            $validData = array_intersect_key($data, array_flip(Project::columns()));
+            $project = new Project($validData);
 
             if ($project->save()) {
                 FlashMessage::success(self::PROJECT_CREATED);
                 $this->redirectTo(route('projects.show', ['id' => $project->id]));
             } else {
-                $this->renderWithErrors('projects/create', compact('project'), $project->errors());
+                $title = 'Novo Projeto'; // Definir o título quando há erro de validação
+                $this->renderWithErrors('projects/create', compact('project', 'title'), $project->errors());
             }
         } catch (\Exception $e) {
             FlashMessage::danger($e->getMessage());
@@ -150,18 +154,7 @@ class ProjectsController extends Controller
      */
     private function prepareProjectTeam(Project $project): array
     {
-        $projectEmployees = $project->employees()->get();
-        $employeeRoles = $this->getEmployeeProjectRoles($project->id);
-
-        $projectTeam = [];
-        foreach ($projectEmployees as $employee) {
-            $projectTeam[] = [
-                'employee' => $employee,
-                'role' => isset($employeeRoles[$employee->id]) ? $employeeRoles[$employee->id] : 'Membro da equipe'
-            ];
-        }
-
-        return $projectTeam;
+        return $project->prepareProjectTeam();
     }
 
     /**
@@ -173,14 +166,7 @@ class ProjectsController extends Controller
      */
     private function filterAvailableEmployees(array $allEmployees, array $projectEmployees): array
     {
-        return array_filter($allEmployees, function ($employee) use ($projectEmployees) {
-            foreach ($projectEmployees as $projectEmployee) {
-                if ($projectEmployee->id === $employee->id) {
-                    return false;
-                }
-            }
-            return true;
-        });
+        return Employee::filterAvailableEmployees($allEmployees, $projectEmployees);
     }
 
     public function show(Request $request): void
@@ -272,7 +258,8 @@ class ProjectsController extends Controller
                 FlashMessage::success(self::PROJECT_UPDATED);
                 $this->redirectTo(route('projects.show', ['id' => $project->id]));
             } else {
-                $this->renderWithErrors('projects/edit', compact('project'), $project->errors());
+                $title = 'Editar Projeto'; // Definir o título quando há erro de validação
+                $this->renderWithErrors('projects/edit', compact('project', 'title'), $project->errors());
             }
         } catch (\Exception $e) {
             FlashMessage::danger($e->getMessage());
@@ -280,18 +267,7 @@ class ProjectsController extends Controller
         }
     }
 
-    /**
-     * Obtem os papéis dos funcionários em um projeto
-     * Delega para o método centralizado no EmployeeProjectsController
-     *
-     * @param int $projectId ID do projeto
-     * @return array<int, string> Array associativo com [employee_id => role]
-     */
-    private function getEmployeeProjectRoles(int $projectId): array
-    {
-        $employeeProjectsController = new EmployeeProjectsController();
-        return $employeeProjectsController->getEmployeeProjectRoles($projectId);
-    }
+    // Método removido para evitar código não utilizado
 
     public function destroy(Request $request): void
     {

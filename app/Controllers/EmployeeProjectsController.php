@@ -233,6 +233,7 @@ class EmployeeProjectsController extends Controller
     }
 
   /**
+   * @deprecated Use EmployeeProject::getEmployeeProjectRoles() diretamente
    * @param int $projectId
    * @return array<int, string>
    */
