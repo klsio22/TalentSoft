@@ -95,6 +95,8 @@ abstract class Model
     }
 
     /**
+     * Retorna a lista de colunas do modelo
+     *
      * @return array<int, string>
      */
     public static function columns(): array
