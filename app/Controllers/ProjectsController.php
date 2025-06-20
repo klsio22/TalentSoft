@@ -18,7 +18,6 @@ class ProjectsController extends Controller
     private const ACCESS_DENIED = 'Acesso negado';
     private const PROJECT_CREATED = 'Projeto criado com sucesso!';
     private const PROJECT_UPDATED = 'Projeto atualizado com sucesso!';
-    private const PROJECT_DELETED = 'Projeto desativado com sucesso!';
 
     public function __construct()
     {
@@ -272,27 +271,51 @@ class ProjectsController extends Controller
     public function destroy(Request $request): void
     {
         try {
-            $id = (int) $request->getParam('id');
+            // Debug: Log da requisição recebida
+            error_log('ProjectsController::destroy - Método chamado');
+            error_log('Request params: ' . print_r($request->getParams(), true));
+
+            // Obtém o ID do projeto a partir dos parâmetros da requisição
+            $id = (int) ($request->getParam('id'));
+            error_log('ID do projeto para destruir: ' . $id);
+
+            if (!$id) {
+                error_log('ID do projeto não fornecido ou inválido');
+                FlashMessage::danger('ID do projeto não fornecido');
+                $this->redirectTo(route('projects.index'));
+                return;
+            }
+
             $project = Project::findById($id);
+            error_log('Projeto encontrado: ' . ($project ? 'Sim' : 'Não'));
 
             if (!$project) {
+                error_log('Projeto não encontrado para ID: ' . $id);
                 FlashMessage::danger(self::PROJECT_NOT_FOUND);
                 $this->redirectTo(route('projects.index'));
                 return;
             }
 
-            // Instead of deleting, set status to 'Em pausa'
-            $project->status = 'Em pausa';
+            // Log do status anterior
+            error_log('Status anterior do projeto: ' . $project->status);
 
-            if ($project->save()) {
-                FlashMessage::success(self::PROJECT_DELETED);
+            // Deletar o projeto e seus relacionamentos
+            error_log('Iniciando exclusão do projeto e relacionamentos do banco de dados');
+
+            if ($project->destroyWithRelationships()) {
+                error_log('Projeto e relacionamentos deletados com sucesso do banco de dados');
+                FlashMessage::success('Projeto excluído com sucesso!');
             } else {
-                FlashMessage::danger('Falha ao desativar o projeto');
+                error_log('Falha ao deletar o projeto e relacionamentos do banco de dados');
+                FlashMessage::danger('Falha ao excluir o projeto');
             }
         } catch (\Exception $e) {
+            error_log('Exceção em ProjectsController::destroy: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
             FlashMessage::danger($e->getMessage());
         }
 
+        error_log('Redirecionando para projects.index');
         $this->redirectTo(route('projects.index'));
     }
 
