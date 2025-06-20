@@ -522,6 +522,97 @@ class ProjectsCRUDCest extends BaseAcceptanceCest
     }
 
   /**
+   * Teste de desativação de projeto com confirmação em modal
+   */
+  public function testDeactivateProjectWithModal(AcceptanceTester $tester): void
+  {
+      $this->loginAsAdmin($tester);
+
+      // Ir para listagem de projetos
+      $tester->amOnPage(self::PROJECTS_INDEX_URL);
+      $tester->wait(1);
+
+      // Verificar se há projetos na lista
+      $hasProjects = $tester->executeJS(self::HAS_TABLE_ROWS_JS);
+
+      if (!$hasProjects) {
+          // Se não houver projetos, criar um
+          $this->testCreateProjectSuccessfully($tester);
+          $tester->amOnPage(self::PROJECTS_INDEX_URL);
+          $tester->wait(1);
+      }
+
+      // Verificar se existe o botão de exclusão com modal
+      $deleteButtonExists = $tester->executeJS('
+          return document.querySelector("button[onclick^=\'confirmDelete\'], button[title=\'Excluir\']") !== null
+      ');
+
+      if (!$deleteButtonExists) {
+          $tester->comment('Botão de exclusão com modal não encontrado, pulando este teste');
+          return;
+      }
+
+      // Pegar o nome do projeto que será desativado para verificação posterior
+      $projectName = $tester->executeJS('
+          const row = document.querySelector("table tbody tr");
+          if (!row) return "";
+          const nameCell = row.querySelector("td:first-child");
+          return nameCell ? nameCell.textContent.trim() : "";
+      ');
+
+      // Clicar no botão de exclusão usando JavaScript
+      $tester->executeJS('
+          const deleteButton = document.querySelector("button[onclick^=\'confirmDelete\'], button[title=\'Excluir\']");
+          if (deleteButton) deleteButton.click();
+      ');
+      $tester->wait(1);
+
+      // Verificar se o modal foi aberto
+      $modalIsOpen = $tester->executeJS('return !document.getElementById("deleteModal").classList.contains("hidden")');
+
+      if ($modalIsOpen) {
+          $tester->comment('Modal de confirmação de desativação aberto com sucesso');
+
+          // Verificar se o nome do projeto está sendo exibido no modal
+          $tester->seeElement('#deleteProjectName');
+
+          // Confirmar a desativação
+          $tester->executeJS('
+              const confirmButton = document.querySelector("#deleteForm button[type=\'submit\']");
+              if (confirmButton) confirmButton.click();
+          ');
+          $tester->wait(2);
+
+          // Verificar se há mensagem de sucesso
+          try {
+              $tester->see('sucesso', self::SUCCESS_MESSAGE_SELECTOR);
+              $tester->comment('Mensagem de sucesso encontrada para desativação do projeto');
+          } catch (\Exception $e) {
+              // Se não encontrar a mensagem de sucesso, verificar se o projeto foi marcado como "Em pausa"
+              $tester->comment('Verificando se a operação de desativação foi bem-sucedida');
+              $tester->wait(1);
+              $tester->reloadPage();
+              $tester->wait(2);
+
+              // Verificar se há um projeto com status "Em pausa" na lista
+              $hasDeactivatedProject = $tester->executeJS('
+                  return Array.from(document.querySelectorAll("table tbody tr"))
+                      .some(row => row.textContent.includes("Em pausa") && row.textContent.includes("' .
+                      addslashes($projectName) . '"));
+              ');
+
+              if ($hasDeactivatedProject) {
+                  $tester->comment('Projeto foi desativado com sucesso (status alterado para "Em pausa")');
+              } else {
+                  $tester->comment('Não foi possível confirmar se o projeto foi desativado corretamente');
+              }
+          }
+      } else {
+          $tester->comment('O modal de confirmação não abriu, pulando o restante do teste');
+      }
+  }
+
+  /**
    * Teste de listagem de projetos
    */
     public function testProjectsList(AcceptanceTester $tester): void

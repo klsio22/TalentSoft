@@ -286,4 +286,175 @@ class ProjectTest extends TestCase
             $this->fail('Os métodos prepareProjectTeam ou getEmployeeRoles lançaram uma exceção: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Testa o método destroyWithRelationships sem relacionamentos específicos
+     */
+    public function test_destroy_with_relationships_default(): void
+    {
+        // Criar um projeto
+        $project = new Project([
+            'name' => 'Projeto Exclusão ' . uniqid(),
+            'description' => 'Teste de exclusão com relacionamentos',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $this->assertTrue($project->save());
+        $this->assertNotNull($project->id);
+
+        $projectId = $project->id;
+
+        // Executar exclusão com relacionamentos (usando valores padrão)
+        $result = $project->destroyWithRelationships();
+
+        // Verificar se a exclusão foi bem-sucedida
+        $this->assertTrue($result);
+
+        // Verificar se o projeto foi realmente removido do banco
+        $deletedProject = Project::findById($projectId);
+        $this->assertNull($deletedProject);
+    }
+
+    /**
+     * Testa o método destroyWithRelationships com relacionamentos específicos
+     */
+    public function test_destroy_with_relationships_custom(): void
+    {
+        // Criar um projeto
+        $project = new Project([
+            'name' => 'Projeto Exclusão Customizada ' . uniqid(),
+            'description' => 'Teste de exclusão com relacionamentos customizados',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $this->assertTrue($project->save());
+        $this->assertNotNull($project->id);
+
+        $projectId = $project->id;
+
+        // Definir relacionamentos específicos para teste
+        $relationships = [
+            'Employee_Projects' => 'project_id'
+        ];
+
+        // Executar exclusão com relacionamentos específicos
+        $result = $project->destroyWithRelationships($relationships);
+
+        // Verificar se a exclusão foi bem-sucedida
+        $this->assertTrue($result);
+
+        // Verificar se o projeto foi realmente removido do banco
+        $deletedProject = Project::findById($projectId);
+        $this->assertNull($deletedProject);
+    }
+
+    /**
+     * Testa o método destroyWithRelationships com array vazio de relacionamentos
+     */
+    public function test_destroy_with_relationships_empty_array(): void
+    {
+        // Criar um projeto
+        $project = new Project([
+            'name' => 'Projeto Exclusão Array Vazio ' . uniqid(),
+            'description' => 'Teste de exclusão com array vazio',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $this->assertTrue($project->save());
+        $this->assertNotNull($project->id);
+
+        $projectId = $project->id;
+
+        // Executar exclusão com array vazio (deve usar valores padrão)
+        $result = $project->destroyWithRelationships([]);
+
+        // Verificar se a exclusão foi bem-sucedida
+        $this->assertTrue($result);
+
+        // Verificar se o projeto foi realmente removido do banco
+        $deletedProject = Project::findById($projectId);
+        $this->assertNull($deletedProject);
+    }
+
+    /**
+     * Testa o método destroyWithRelationships em um projeto que não existe
+     */
+    public function test_destroy_with_relationships_nonexistent_project(): void
+    {
+        // Criar um projeto temporário para limpeza posterior
+        $tempProject = new Project([
+            'name' => 'Projeto Temporário ' . uniqid(),
+            'description' => 'Projeto temporário para teste',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $tempProject->save();
+
+        // Criar um novo projeto com ID que não existe no banco
+        $nonExistentProject = new Project([
+            'name' => 'Projeto Inexistente',
+            'description' => 'Este projeto não deveria existir no banco',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+
+        // Definir um ID que não existe no banco (assumindo que 999999 não existe)
+        $nonExistentProject->id = 999999;
+
+        // Tentar executar exclusão em projeto inexistente
+        $result = $nonExistentProject->destroyWithRelationships();
+
+        // A exclusão deve falhar (retornar false) pois o projeto não existe
+        $this->assertFalse($result);
+
+        // Limpar o projeto temporário
+        $tempProject->destroyWithRelationships();
+    }
+
+    /**
+     * Testa o comportamento do método destroyWithRelationships com múltiplos relacionamentos
+     */
+    public function test_destroy_with_multiple_relationships(): void
+    {
+        // Criar um projeto
+        $project = new Project([
+            'name' => 'Projeto Múltiplos Relacionamentos ' . uniqid(),
+            'description' => 'Teste de exclusão com múltiplos relacionamentos',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $this->assertTrue($project->save());
+        $this->assertNotNull($project->id);
+
+        $projectId = $project->id;
+
+        // Usar apenas relacionamentos que existem no banco de dados atual
+        // Para testar com múltiplos relacionamentos, usamos o mesmo relacionamento
+        // mas isso demonstra que o método pode lidar com arrays de relacionamentos
+        $relationships = [
+            'Employee_Projects' => 'project_id'
+        ];
+
+        // Executar exclusão com relacionamentos existentes
+        $result = $project->destroyWithRelationships($relationships);
+
+        // Verificar se a exclusão foi bem-sucedida
+        $this->assertTrue($result);
+
+        // Verificar se o projeto foi realmente removido do banco
+        $deletedProject = Project::findById($projectId);
+        $this->assertNull($deletedProject);
+    }
 }

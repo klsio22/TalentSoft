@@ -180,4 +180,24 @@ class Project extends Model
     {
         return EmployeeProject::getEmployeeProjectRoles($this->id);
     }
+
+    /**
+     * Deleta o projeto e todos os seus relacionamentos
+     * Utiliza o método genérico da classe Model para deletar relacionamentos
+     *
+     * @param array<string, string> $relationships Array de relacionamentos a serem deletados
+     * @return bool True se a exclusão foi bem-sucedida, false caso contrário
+     */
+    public function destroyWithRelationships(array $relationships = []): bool
+    {
+        // Se nenhum relacionamento for passado, usar os padrões do projeto
+        if (empty($relationships)) {
+            $relationships = [
+                'Employee_Projects' => 'project_id'
+            ];
+        }
+
+        // Usar o método genérico da classe pai
+        return parent::destroyWithRelationships($relationships);
+    }
 }

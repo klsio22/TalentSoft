@@ -239,6 +239,59 @@ abstract class Model
         return ($stmt->rowCount() != 0);
     }
 
+    /**
+     * Deleta o modelo e seus relacionamentos especificados
+     * Este método permite especificar as tabelas de relacionamento que devem ser limpas antes da exclusão
+     *
+     * @param array<string, string> $relationships Array associativo onde a chave é a tabela de relacionamento
+     *                                              e o valor é o nome da coluna de chave estrangeira
+     *                                              Exemplo: ['Employee_Projects' => 'project_id']
+     * @return bool True se a exclusão foi bem-sucedida, false caso contrário
+     */
+    public function destroyWithRelationships(array $relationships = []): bool
+    {
+        try {
+            $pdo = Database::getDatabaseConn();
+
+            // Iniciar transação para garantir consistência
+            $pdo->beginTransaction();
+
+            // Deletar relacionamentos especificados
+            foreach ($relationships as $relationshipTable => $foreignKeyColumn) {
+                $sqlRelationship = "DELETE FROM {$relationshipTable} WHERE {$foreignKeyColumn} = :id";
+                $stmtRelationship = $pdo->prepare($sqlRelationship);
+                $stmtRelationship->bindValue(':id', $this->id);
+                $stmtRelationship->execute();
+            }
+
+            // Deletar o modelo principal usando o método destroy existente
+            $table = static::$table;
+            $sql = "DELETE FROM {$table} WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+
+            $deleted = ($stmt->rowCount() > 0);
+
+            if ($deleted) {
+                // Confirmar transação
+                $pdo->commit();
+            } else {
+                // Reverter se não conseguiu deletar o modelo principal
+                $pdo->rollBack();
+            }
+
+            return $deleted;
+
+        } catch (\PDOException $e) {
+            // Reverter transação em caso de erro
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return false;
+        }
+    }
+
     public static function findById(int $id): static|null
     {
         $pdo = Database::getDatabaseConn();
