@@ -16,7 +16,7 @@
           Nome do Projeto
         </label>
         <input
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['name']) ? 'border-red-500' : '' ?>"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-44 <?= isset($errors['name']) ? 'border-red-500' : '' ?>"
           id="name" type="text" name="name" placeholder="Nome do Projeto" value="<?= $project->name ?? '' ?>">
         <?php if (isset($errors['name'])) : ?>
         <p class="text-red-500 text-xs italic">
@@ -74,7 +74,7 @@
           Status
         </label>
         <select
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['status']) ? 'border-red-500' : '' ?>"
+          class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-44 <?= isset($errors['status']) ? 'border-red-500' : '' ?>"
           id="status" name="status">
           <option value="Em aberto" <?=isset($project->status) && $project->status === 'Em aberto' ? 'selected' : ''
             ?>>Em aberto</option>

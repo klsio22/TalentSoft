@@ -102,6 +102,14 @@ class ProjectsController extends Controller
         $this->render('projects/create', compact('project', 'title'));
     }
 
+    /**
+     * Armazena um novo projeto
+     * Filtra os dados para incluir apenas as colunas válidas
+     * Redireciona para a página de detalhes do projeto criado ou exibe erros de validação
+     *
+     * @param Request $request Dados da requisição
+     * @return void
+     */
     public function store(Request $request): void
     {
         try {
