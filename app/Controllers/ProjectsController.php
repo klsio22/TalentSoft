@@ -4,9 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\EmployeeProjectsController;
 use App\Models\Employee;
-use App\Models\EmployeeProject;
 use App\Models\Project;
-use App\Models\UserCredential;
 use Core\Http\Controllers\Controller;
 use Core\Http\Request;
 use Lib\Authentication\Auth;
@@ -256,16 +254,7 @@ class ProjectsController extends Controller
         }
     }
 
-    /**
-     * Obtem os papéis dos funcionários em um projeto
-     *
-     * @param int $projectId ID do projeto
-     * @return array<int, string> Array associativo com [employee_id => role]
-     */
-    private function getEmployeeProjectRoles(int $projectId): array
-    {
-        return EmployeeProject::getEmployeeProjectRoles($projectId);
-    }
+    // Método removido para evitar código não utilizado
 
     public function destroy(Request $request): void
     {

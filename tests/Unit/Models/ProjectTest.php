@@ -124,7 +124,7 @@ class ProjectTest extends TestCase
 
         // Testar com um funcionário sem ID (deve retornar false)
         $employeeNoId = $this->createMock(Employee::class);
-        $employeeNoId->id = null;
+        // Não definimos a propriedade id, que será avaliada como não existente no teste
         $this->assertFalse($project->isEmployeeAssociated($employeeNoId));
 
         // Criar um funcionário com ID válido
@@ -274,12 +274,14 @@ class ProjectTest extends TestCase
         // vamos apenas verificar que o método existe e não lança exceções
         try {
             $projectTeam = $project->prepareProjectTeam();
-            $this->assertIsArray($projectTeam);
+            // Verificar que o array está vazio (já que não temos funcionários no teste)
+            $this->assertEmpty($projectTeam);
 
             $employeeRoles = $project->getEmployeeRoles();
-            $this->assertIsArray($employeeRoles);
+            // Verificar que o array está vazio (já que não temos papéis no teste)
+            $this->assertEmpty($employeeRoles);
 
-            $this->assertTrue(true);
+            // O teste passa se chegarmos aqui sem exceções
         } catch (\Exception $e) {
             $this->fail('Os métodos prepareProjectTeam ou getEmployeeRoles lançaram uma exceção: ' . $e->getMessage());
         }
