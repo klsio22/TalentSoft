@@ -25,6 +25,37 @@ class Project extends Model
     public function validates(): void
     {
         Validations::notEmpty('name', $this);
+
+        // Validar se as datas são válidas e se a data de início não é maior que a data de término
+        if ($this->start_date && $this->end_date) {
+            $startDate = \DateTime::createFromFormat('Y-m-d', $this->start_date);
+            $endDate = \DateTime::createFromFormat('Y-m-d', $this->end_date);
+
+            if ($startDate && $endDate && $startDate > $endDate) {
+                $this->addError('start_date', 'A data de início não pode ser maior que a data de término');
+                $this->addError('end_date', 'A data de término não pode ser menor que a data de início');
+            }
+        }
+
+        // Validar se a data de início não é muito antiga (opcional)
+        if ($this->start_date) {
+            $startDate = \DateTime::createFromFormat('Y-m-d', $this->start_date);
+            $minDate = new \DateTime('2000-01-01');
+
+            if ($startDate && $startDate < $minDate) {
+                $this->addError('start_date', 'A data de início deve ser posterior a 01/01/2000');
+            }
+        }
+
+        // Validar se a data de término não é muito no futuro (opcional)
+        if ($this->end_date) {
+            $endDate = \DateTime::createFromFormat('Y-m-d', $this->end_date);
+            $maxDate = new \DateTime('+10 years');
+
+            if ($endDate && $endDate > $maxDate) {
+                $this->addError('end_date', 'A data de término não pode ser superior a 10 anos no futuro');
+            }
+        }
     }
 
     public function employees(): BelongsToMany

@@ -1,157 +1,241 @@
 <div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">
-            <?= $title ?? 'Editar Projeto' ?>
-        </h1>
-        <a href="<?= route('projects.index') ?>"
-            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-            Voltar aos Projetos
-        </a>
-    </div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">
+      <?= $title ?? 'Editar Projeto' ?>
+    </h1>
+    <a href="<?= route('projects.index') ?>"
+      class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+      Voltar aos Projetos
+    </a>
+  </div>
 
-    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <form action="<?= route('projects.update', ['id' => $project->id]) ?>" method="post">
-            <input type="hidden" name="id" value="<?= $project->id ?>">
+  <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <form action="<?= route('projects.update', ['id' => $project->id]) ?>" method="post">
+      <input type="hidden" name="id" value="<?= $project->id ?>">
 
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
-                    Nome do Projeto
-                </label>
-                <input
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['name']) ? 'border-red-500' : '' ?>"
-                    id="name" type="text" name="name" placeholder="Nome do Projeto" value="<?= $project->name ?? '' ?>">
-                <?php if (isset($errors['name'])) : ?>
-                <p class="text-red-500 text-xs italic">
-                    <?= $errors['name'] ?>
-                </p>
-                <?php endif; ?>
-            </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+          Nome do Projeto
+        </label>
+        <input
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['name']) ? 'border-red-500' : '' ?>"
+          id="name" type="text" name="name" placeholder="Nome do Projeto" value="<?= $project->name ?? '' ?>">
+        <?php if (isset($errors['name'])) : ?>
+        <p class="text-red-500 text-xs italic">
+          <?= $errors['name'] ?>
+        </p>
+        <?php endif; ?>
+      </div>
 
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
-                    Descrição
-                </label>
-                <textarea
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['description']) ? 'border-red-500' : '' ?>"
-                    id="description" name="description" placeholder="Descrição do Projeto"
-                    rows="4"><?= $project->description ?? '' ?></textarea>
-                <?php if (isset($errors['description'])) : ?>
-                <p class="text-red-500 text-xs italic">
-                    <?= $errors['description'] ?>
-                </p>
-                <?php endif; ?>
-            </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
+          Descrição
+        </label>
+        <textarea
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['description']) ? 'border-red-500' : '' ?>"
+          id="description" name="description" placeholder="Descrição do Projeto"
+          rows="4"><?= $project->description ?? '' ?></textarea>
+        <?php if (isset($errors['description'])) : ?>
+        <p class="text-red-500 text-xs italic">
+          <?= $errors['description'] ?>
+        </p>
+        <?php endif; ?>
+      </div>
 
-            <div class="mb-4 flex flex-wrap -mx-2">
-                <div class="w-full md:w-1/2 px-2 mb-4 md:mb-0">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="start_date">
-                        Data de Início
-                    </label>
-                    <input
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['start_date']) ? 'border-red-500' : '' ?>"
-                        id="start_date" type="date" name="start_date"
-                        value="<?= $project->start_date ? date('Y-m-d', strtotime($project->start_date)) : '' ?>">
-                    <?php if (isset($errors['start_date'])) : ?>
-                    <p class="text-red-500 text-xs italic">
-                        <?= $errors['start_date'] ?>
-                    </p>
-                    <?php endif; ?>
-                </div>
-                <div class="w-full md:w-1/2 px-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="end_date">
-                        Data de Término
-                    </label>
-                    <input
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['end_date']) ? 'border-red-500' : '' ?>"
-                        id="end_date" type="date" name="end_date"
-                        value="<?= $project->end_date ? date('Y-m-d', strtotime($project->end_date)) : '' ?>">
-                    <?php if (isset($errors['end_date'])) : ?>
-                    <p class="text-red-500 text-xs italic">
-                        <?= $errors['end_date'] ?>
-                    </p>
-                    <?php endif; ?>
-                </div>
-            </div>
+      <div class="mb-4 flex flex-wrap -mx-2">
+        <div class="w-full md:w-1/2 px-2 mb-4 md:mb-0">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="start_date">
+            Data de Início
+          </label>
+          <input
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['start_date']) ? 'border-red-500' : '' ?>"
+            id="start_date" type="date" name="start_date"
+            value="<?= $project->start_date ? date('Y-m-d', strtotime($project->start_date)) : '' ?>">
+          <?php if (isset($errors['start_date'])) : ?>
+          <p class="text-red-500 text-xs italic">
+            <?= $errors['start_date'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+        <div class="w-full md:w-1/2 px-2">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="end_date">
+            Data de Término
+          </label>
+          <input
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['end_date']) ? 'border-red-500' : '' ?>"
+            id="end_date" type="date" name="end_date"
+            value="<?= $project->end_date ? date('Y-m-d', strtotime($project->end_date)) : '' ?>">
+          <?php if (isset($errors['end_date'])) : ?>
+          <p class="text-red-500 text-xs italic">
+            <?= $errors['end_date'] ?>
+          </p>
+          <?php endif; ?>
+        </div>
+      </div>
 
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
-                    Status
-                </label>
-                <select
-                    class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline max-w-md <?= isset($errors['status']) ? 'border-red-500' : '' ?>"
-                    id="status" name="status" style="width: auto; min-width: 200px;">
-                    <option value="Em aberto" <?=isset($project->status) && $project->status === 'Em aberto' ?
-                        'selected' : ''
-                        ?>>Em aberto</option>
-                    <option value="Em teste" <?=isset($project->status) && $project->status === 'Em teste' ? 'selected'
-                        : '' ?>>Em
-                        teste</option>
-                    <option value="Interno" <?=isset($project->status) && $project->status === 'Interno' ? 'selected' :
-                        ''
-                        ?>>Interno</option>
-                    <option value="Em andamento" <?=isset($project->status) && $project->status === 'Em andamento' ?
-                        'selected' :
-                        '' ?>>Em andamento</option>
-                    <option value="Em aprovação cliente" <?=isset($project->status) && $project->status === 'Em
-                        aprovação cliente'
-                        ? 'selected' : '' ?>>Em aprovação cliente</option>
-                    <option value="Em aprovação interna" <?=isset($project->status) && $project->status === 'Em
-                        aprovação interna'
-                        ? 'selected' : '' ?>>Em aprovação interna</option>
-                    <option value="Em revisão" <?=isset($project->status) && $project->status === 'Em revisão' ?
-                        'selected' : ''
-                        ?>>Em revisão</option>
-                    <option value="Em cache" <?=isset($project->status) && $project->status === 'Em cache' ? 'selected'
-                        : '' ?>>Em
-                        cache</option>
-                    <option value="Em espera" <?=isset($project->status) && $project->status === 'Em espera' ?
-                        'selected' : ''
-                        ?>>Em espera</option>
-                    <option value="Cancelado" <?=isset($project->status) && $project->status === 'Cancelado' ?
-                        'selected' : ''
-                        ?>>Cancelado</option>
-                    <option value="Em pausa" <?=isset($project->status) && $project->status === 'Em pausa' ? 'selected'
-                        : '' ?>>Em
-                        pausa</option>
-                    <option value="Concluído" <?=isset($project->status) && $project->status === 'Concluído' ?
-                        'selected' : ''
-                        ?>>Concluído</option>
-                    <option value="Colocar em produção" <?=isset($project->status) && $project->status === 'Colocar em
-                        produção' ?
-                        'selected' : '' ?>>Colocar em produção</option>
-                    <option value="Em Produção" <?=isset($project->status) && $project->status === 'Em Produção' ?
-                        'selected' : ''
-                        ?>>Em Produção</option>
-                </select>
-                <?php if (isset($errors['status'])) : ?>
-                <p class="text-red-500 text-xs italic">
-                    <?= $errors['status'] ?>
-                </p>
-                <?php endif; ?>
-            </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
+          Status
+        </label>
+        <select
+          class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline max-w-md <?= isset($errors['status']) ? 'border-red-500' : '' ?>"
+          id="status" name="status" style="width: auto; min-width: 200px;">
+          <option value="Em aberto" <?=isset($project->status) && $project->status === 'Em aberto' ?
+            'selected' : ''
+            ?>>Em aberto</option>
+          <option value="Em teste" <?=isset($project->status) && $project->status === 'Em teste' ? 'selected'
+            : '' ?>>Em
+            teste</option>
+          <option value="Interno" <?=isset($project->status) && $project->status === 'Interno' ? 'selected' :
+            ''
+            ?>>Interno</option>
+          <option value="Em andamento" <?=isset($project->status) && $project->status === 'Em andamento' ?
+            'selected' :
+            '' ?>>Em andamento</option>
+          <option value="Em aprovação cliente" <?=isset($project->status) && $project->status === 'Em
+            aprovação cliente'
+            ? 'selected' : '' ?>>Em aprovação cliente</option>
+          <option value="Em aprovação interna" <?=isset($project->status) && $project->status === 'Em
+            aprovação interna'
+            ? 'selected' : '' ?>>Em aprovação interna</option>
+          <option value="Em revisão" <?=isset($project->status) && $project->status === 'Em revisão' ?
+            'selected' : ''
+            ?>>Em revisão</option>
+          <option value="Em cache" <?=isset($project->status) && $project->status === 'Em cache' ? 'selected'
+            : '' ?>>Em
+            cache</option>
+          <option value="Em espera" <?=isset($project->status) && $project->status === 'Em espera' ?
+            'selected' : ''
+            ?>>Em espera</option>
+          <option value="Cancelado" <?=isset($project->status) && $project->status === 'Cancelado' ?
+            'selected' : ''
+            ?>>Cancelado</option>
+          <option value="Em pausa" <?=isset($project->status) && $project->status === 'Em pausa' ? 'selected'
+            : '' ?>>Em
+            pausa</option>
+          <option value="Concluído" <?=isset($project->status) && $project->status === 'Concluído' ?
+            'selected' : ''
+            ?>>Concluído</option>
+          <option value="Colocar em produção" <?=isset($project->status) && $project->status === 'Colocar em
+            produção' ?
+            'selected' : '' ?>>Colocar em produção</option>
+          <option value="Em Produção" <?=isset($project->status) && $project->status === 'Em Produção' ?
+            'selected' : ''
+            ?>>Em Produção</option>
+        </select>
+        <?php if (isset($errors['status'])) : ?>
+        <p class="text-red-500 text-xs italic">
+          <?= $errors['status'] ?>
+        </p>
+        <?php endif; ?>
+      </div>
 
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="budget">
-                    Orçamento
-                </label>
-                <input
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['budget']) ? 'border-red-500' : '' ?>"
-                    id="budget" type="number" step="0.01" name="budget" placeholder="Orçamento do Projeto"
-                    value="<?= $project->budget ?? '' ?>">
-                <?php if (isset($errors['budget'])) : ?>
-                <p class="text-red-500 text-xs italic">
-                    <?= $errors['budget'] ?>
-                </p>
-                <?php endif; ?>
-            </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="budget">
+          Orçamento
+        </label>
+        <input
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline <?= isset($errors['budget']) ? 'border-red-500' : '' ?>"
+          id="budget" type="number" step="0.01" name="budget" placeholder="Orçamento do Projeto"
+          value="<?= $project->budget ?? '' ?>">
+        <?php if (isset($errors['budget'])) : ?>
+        <p class="text-red-500 text-xs italic">
+          <?= $errors['budget'] ?>
+        </p>
+        <?php endif; ?>
+      </div>
 
-            <div class="flex items-center justify-between">
-                <button
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    type="submit">
-                    Atualizar Projeto
-                </button>
-            </div>
-        </form>
-    </div>
+      <div class="flex items-center justify-between">
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="submit">
+          Atualizar Projeto
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const startDateField = document.getElementById('start_date');
+    const endDateField = document.getElementById('end_date');
+    const form = document.querySelector('form');
+
+    function validateDates() {
+      const startDate = new Date(startDateField.value);
+      const endDate = new Date(endDateField.value);
+
+      // Remover classes de erro anteriores
+      startDateField.classList.remove('border-red-500');
+      endDateField.classList.remove('border-red-500');
+
+      // Remover mensagens de erro anteriores
+      const existingErrors = document.querySelectorAll('.date-validation-error');
+      existingErrors.forEach(error => error.remove());
+
+      let hasError = false;
+
+      if (startDateField.value && endDateField.value) {
+        if (startDate > endDate) {
+          // Adicionar classe de erro
+          startDateField.classList.add('border-red-500');
+          endDateField.classList.add('border-red-500');
+
+          // Adicionar mensagem de erro
+          const errorMessage = document.createElement('p');
+          errorMessage.className = 'text-red-500 text-xs italic mt-1 date-validation-error';
+          errorMessage.textContent = 'A data de início não pode ser maior que a data de término';
+
+          startDateField.parentNode.appendChild(errorMessage);
+          hasError = true;
+        }
+      }
+
+      // Validar data muito antiga
+      if (startDateField.value) {
+        const minDate = new Date('2000-01-01');
+        if (startDate < minDate) {
+          startDateField.classList.add('border-red-500');
+          const errorMessage = document.createElement('p');
+          errorMessage.className = 'text-red-500 text-xs italic mt-1 date-validation-error';
+          errorMessage.textContent = 'A data de início deve ser posterior a 01/01/2000';
+          startDateField.parentNode.appendChild(errorMessage);
+          hasError = true;
+        }
+      }
+
+      // Validar data muito no futuro
+      if (endDateField.value) {
+        const maxDate = new Date();
+        maxDate.setFullYear(maxDate.getFullYear() + 10);
+        if (endDate > maxDate) {
+          endDateField.classList.add('border-red-500');
+          const errorMessage = document.createElement('p');
+          errorMessage.className = 'text-red-500 text-xs italic mt-1 date-validation-error';
+          errorMessage.textContent = 'A data de término não pode ser superior a 10 anos no futuro';
+          endDateField.parentNode.appendChild(errorMessage);
+          hasError = true;
+        }
+      }
+
+      return !hasError;
+    }
+
+    // Validar quando os campos perdem o foco
+    startDateField.addEventListener('blur', validateDates);
+    endDateField.addEventListener('blur', validateDates);
+
+    // Validar quando os campos mudam
+    startDateField.addEventListener('change', validateDates);
+    endDateField.addEventListener('change', validateDates);
+
+    // Validar antes de enviar o formulário
+    form.addEventListener('submit', function (event) {
+      if (!validateDates()) {
+        event.preventDefault();
+        alert('Por favor, corrija os erros de validação antes de enviar o formulário.');
+      }
+    });
+  });
+</script>
