@@ -285,7 +285,7 @@ abstract class Model
 
         } catch (\PDOException $e) {
             // Reverter transação em caso de erro
-            if (isset($pdo) && $pdo->inTransaction()) {
+            if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
             return false;
