@@ -15,6 +15,7 @@ class ProjectTest extends TestCase
 {
     private const PROJECT_END_DATE = '+30 days';
     private const PROJECT_STATUS = 'Em andamento';
+    private const PROJECT_STATUS_COMPLETED = 'Concluído';
     private const PROJECT_BUDGET = 10000.00;
     /**
      * Testa a criação de um projeto
@@ -106,6 +107,35 @@ class ProjectTest extends TestCase
     }
 
     /**
+     * Testa o método isEmployeeAssociated com um cenário mais completo
+     */
+    public function test_is_employee_associated_complete(): void
+    {
+        // Criar um projeto
+        $project = new Project([
+            'name' => 'Projeto Associação Completo ' . uniqid(),
+            'description' => 'Teste completo de associação',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $this->assertTrue($project->save());
+
+        // Testar com um funcionário sem ID (deve retornar false)
+        $employeeNoId = $this->createMock(Employee::class);
+        $employeeNoId->id = null;
+        $this->assertFalse($project->isEmployeeAssociated($employeeNoId));
+
+        // Criar um funcionário com ID válido
+        $employeeWithId = $this->createMock(Employee::class);
+        $employeeWithId->id = 999;
+
+        // Sem funcionários no projeto, deve retornar false mesmo com ID válido
+        $this->assertFalse($project->isEmployeeAssociated($employeeWithId));
+    }
+
+    /**
      * Testa o método currentUserHasAccess com mock de Auth
      */
     public function test_current_user_has_access(): void
@@ -168,5 +198,90 @@ class ProjectTest extends TestCase
 
         // Testar com um ID inválido (deve retornar false)
         $this->assertFalse(Project::currentUserHasProjectAccess(99999));
+    }
+
+    /**
+     * Testa o método filterProjects
+     */
+    public function test_filter_projects(): void
+    {
+        // Criar vários projetos com características diferentes
+        $project1 = new Project([
+            'name' => 'Projeto Alpha',
+            'description' => 'Descrição do projeto alpha',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $project1->save();
+
+        $project2 = new Project([
+            'name' => 'Projeto Beta',
+            'description' => 'Outra descrição',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS_COMPLETED,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $project2->save();
+
+        $project3 = new Project([
+            'name' => 'Outro Projeto',
+            'description' => 'Descrição com alpha mencionado',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $project3->save();
+
+        $allProjects = [$project1, $project2, $project3];
+
+        // Testar filtro por termo de busca
+        $filteredByAlpha = Project::filterProjects($allProjects, 'Alpha', null);
+        $this->assertCount(2, $filteredByAlpha);
+        $this->assertTrue(in_array($project1, $filteredByAlpha));
+        $this->assertTrue(in_array($project3, $filteredByAlpha));
+
+        // Testar filtro por status
+        $filteredByStatus = Project::filterProjects($allProjects, null, self::PROJECT_STATUS_COMPLETED);
+        $this->assertCount(1, $filteredByStatus);
+        $this->assertTrue(in_array($project2, $filteredByStatus));
+
+        // Testar combinação de filtros
+        $filteredCombined = Project::filterProjects($allProjects, 'Alpha', self::PROJECT_STATUS);
+        $this->assertCount(2, $filteredCombined);
+    }
+
+    /**
+     * Testa o método prepareProjectTeam e getEmployeeRoles
+     */
+    public function test_prepare_project_team(): void
+    {
+        // Criar um projeto
+        $project = new Project([
+            'name' => 'Projeto Equipe ' . uniqid(),
+            'description' => 'Teste de equipe',
+            'start_date' => date('Y-m-d'),
+            'end_date' => date('Y-m-d', strtotime(self::PROJECT_END_DATE)),
+            'status' => self::PROJECT_STATUS,
+            'budget' => self::PROJECT_BUDGET
+        ]);
+        $this->assertTrue($project->save());
+
+        // Como estamos usando mocks e não podemos facilmente simular a relação BelongsToMany,
+        // vamos apenas verificar que o método existe e não lança exceções
+        try {
+            $projectTeam = $project->prepareProjectTeam();
+            $this->assertIsArray($projectTeam);
+
+            $employeeRoles = $project->getEmployeeRoles();
+            $this->assertIsArray($employeeRoles);
+
+            $this->assertTrue(true);
+        } catch (\Exception $e) {
+            $this->fail('Os métodos prepareProjectTeam ou getEmployeeRoles lançaram uma exceção: ' . $e->getMessage());
+        }
     }
 }

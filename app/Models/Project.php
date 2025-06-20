@@ -66,29 +66,25 @@ class Project extends Model
      */
     public function isEmployeeAssociated(Employee $employee): bool
     {
-        if (!$employee->id) {
-            return false;
-        }
+        $isAssociated = false;
 
-        $projectEmployees = $this->employees()->get();
+        // Só prosseguir se o funcionário tiver ID válido
+        if ($employee->id && !empty($this->employees()->get())) {
+            $employeeId = (int)$employee->id;
+            $projectEmployees = $this->employees()->get();
 
-        // Verificação mais robusta
-        if (empty($projectEmployees)) {
-            return false;
-        }
+            // Procurar o funcionário na lista de funcionários do projeto
+            foreach ($projectEmployees as $projectEmployee) {
+                $projectEmployeeId = (int)$projectEmployee->id;
 
-        $employeeId = (int)$employee->id;
-
-        foreach ($projectEmployees as $projectEmployee) {
-            // Garantir que estamos comparando IDs como inteiros
-            $projectEmployeeId = (int)$projectEmployee->id;
-
-            if ($projectEmployeeId === $employeeId) {
-                return true;
+                if ($projectEmployeeId === $employeeId) {
+                    $isAssociated = true;
+                    break;
+                }
             }
         }
 
-        return false;
+        return $isAssociated;
     }
 
     /**
@@ -132,5 +128,56 @@ class Project extends Model
         }
 
         return $project->currentUserHasAccess();
+    }
+
+    /**
+     * Filtra projetos com base em critérios de busca e status
+     *
+     * @param array<Project> $projects Lista de projetos a serem filtrados
+     * @param string|null $search Termo de busca (nome e descrição)
+     * @param string|null $status Status do projeto
+     * @return array<Project> Lista de projetos filtrados
+     */
+    public static function filterProjects(array $projects, ?string $search, ?string $status): array
+    {
+        return array_filter($projects, function ($project) use ($search, $status) {
+            $matchesSearch = !$search || stripos($project->name, $search) !== false ||
+                            stripos($project->description ?? '', $search) !== false;
+
+            $matchesStatus = !$status || $project->status === $status;
+
+            return $matchesSearch && $matchesStatus;
+        });
+    }
+
+    /**
+     * Prepara a equipe do projeto com informações adicionais para exibição
+     *
+     * @return array<int, array<string, mixed>> Equipe do projeto com detalhes sobre papéis
+     */
+    public function prepareProjectTeam(): array
+    {
+        $projectEmployees = $this->employees()->get();
+        $employeeRoles = $this->getEmployeeRoles();
+
+        $projectTeam = [];
+        foreach ($projectEmployees as $employee) {
+            $projectTeam[] = [
+                'employee' => $employee,
+                'role' => isset($employeeRoles[$employee->id]) ? $employeeRoles[$employee->id] : 'Membro da equipe'
+            ];
+        }
+
+        return $projectTeam;
+    }
+
+    /**
+     * Obtém os papéis dos funcionários associados a este projeto
+     *
+     * @return array<int, string> Array associativo com [employee_id => role]
+     */
+    public function getEmployeeRoles(): array
+    {
+        return EmployeeProject::getEmployeeProjectRoles($this->id);
     }
 }

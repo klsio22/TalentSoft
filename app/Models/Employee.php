@@ -196,4 +196,24 @@ class Employee extends Model
     {
         return EmployeePaginator::paginate($employees, $page, $perPage);
     }
+
+    /**
+     * Filtra funcionários disponíveis para atribuição a um projeto
+     * (funcionários que ainda não foram atribuídos ao projeto)
+     *
+     * @param array<int, object> $allEmployees Todos os funcionários
+     * @param array<int, object> $projectEmployees Funcionários já atribuídos ao projeto
+     * @return array<int, object> Funcionários disponíveis
+     */
+    public static function filterAvailableEmployees(array $allEmployees, array $projectEmployees): array
+    {
+        return array_filter($allEmployees, function ($employee) use ($projectEmployees) {
+            foreach ($projectEmployees as $projectEmployee) {
+                if ($projectEmployee->id === $employee->id) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\EmployeeProjectsController;
 use App\Models\Employee;
+use App\Models\EmployeeProject;
 use App\Models\Project;
 use App\Models\UserCredential;
 use Core\Http\Controllers\Controller;
@@ -63,14 +64,7 @@ class ProjectsController extends Controller
      */
     private function filterProjects(array $projects, ?string $search, ?string $status): array
     {
-        return array_filter($projects, function ($project) use ($search, $status) {
-            $matchesSearch = !$search || stripos($project->name, $search) !== false ||
-                            stripos($project->description ?? '', $search) !== false;
-
-            $matchesStatus = !$status || $project->status === $status;
-
-            return $matchesSearch && $matchesStatus;
-        });
+        return Project::filterProjects($projects, $search, $status);
     }
 
     /**
@@ -150,18 +144,7 @@ class ProjectsController extends Controller
      */
     private function prepareProjectTeam(Project $project): array
     {
-        $projectEmployees = $project->employees()->get();
-        $employeeRoles = $this->getEmployeeProjectRoles($project->id);
-
-        $projectTeam = [];
-        foreach ($projectEmployees as $employee) {
-            $projectTeam[] = [
-                'employee' => $employee,
-                'role' => isset($employeeRoles[$employee->id]) ? $employeeRoles[$employee->id] : 'Membro da equipe'
-            ];
-        }
-
-        return $projectTeam;
+        return $project->prepareProjectTeam();
     }
 
     /**
@@ -173,14 +156,7 @@ class ProjectsController extends Controller
      */
     private function filterAvailableEmployees(array $allEmployees, array $projectEmployees): array
     {
-        return array_filter($allEmployees, function ($employee) use ($projectEmployees) {
-            foreach ($projectEmployees as $projectEmployee) {
-                if ($projectEmployee->id === $employee->id) {
-                    return false;
-                }
-            }
-            return true;
-        });
+        return Employee::filterAvailableEmployees($allEmployees, $projectEmployees);
     }
 
     public function show(Request $request): void
@@ -282,15 +258,13 @@ class ProjectsController extends Controller
 
     /**
      * Obtem os papéis dos funcionários em um projeto
-     * Delega para o método centralizado no EmployeeProjectsController
      *
      * @param int $projectId ID do projeto
      * @return array<int, string> Array associativo com [employee_id => role]
      */
     private function getEmployeeProjectRoles(int $projectId): array
     {
-        $employeeProjectsController = new EmployeeProjectsController();
-        return $employeeProjectsController->getEmployeeProjectRoles($projectId);
+        return EmployeeProject::getEmployeeProjectRoles($projectId);
     }
 
     public function destroy(Request $request): void
