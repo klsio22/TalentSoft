@@ -23,3 +23,5 @@ html
 
 # Ignore Codeception output folder
 /tests/Acceptance/_output
+/storage
+/public/uploads/avatars

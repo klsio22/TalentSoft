@@ -31,6 +31,7 @@ CREATE TABLE
     zipcode VARCHAR(10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     notes TEXT,
+    avatar_name VARCHAR(255),
     FOREIGN KEY (role_id) REFERENCES Roles (id)
   );
 
@@ -86,6 +87,20 @@ CREATE TABLE
     role VARCHAR(100),
     FOREIGN KEY (employee_id) REFERENCES Employees (id),
     FOREIGN KEY (project_id) REFERENCES Projects (id)
+  );
+
+-- Tabela de usuários
+DROP TABLE IF EXISTS Users;
+
+CREATE TABLE
+  Users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    encrypted_password VARCHAR(255) NOT NULL,
+    avatar_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   );
 
 -- Tabela de notificações para funcionários

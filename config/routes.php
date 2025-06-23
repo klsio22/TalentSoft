@@ -22,15 +22,17 @@ Route::get('/admin', [AdminController::class, 'home'])->name('admin.home');
 Route::get('/hr', [HRController::class, 'home'])->name('hr.home');
 Route::get('/user', [UserController::class, 'home'])->name('user.home');
 
-// Profile route - available for all authenticated users
+// Profile routes - available for all authenticated users
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+Route::post('/profile/upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.upload-avatar');
+Route::post('/profile/remove-avatar', [ProfileController::class, 'removeAvatar'])->name('profile.remove-avatar');
 
 // O middleware de autenticação é definido no sistema core
 // Comportamento adicional de verificação de status implementado em AuthMiddleware.php
 
 // Middleware for admin and HR routes
 Route::middleware('admin-hr')->group(function () {
-    // Employee routes
+  // Employee routes
     Route::get('/employees', [EmployeesController::class, 'index'])->name('employees.index');
     Route::get('/employees/create', [EmployeesController::class, 'create'])->name('employees.create');
     Route::post('/employees', [EmployeesController::class, 'store'])->name('employees.store');
@@ -40,7 +42,7 @@ Route::middleware('admin-hr')->group(function () {
     Route::post('/employees/destroy', [EmployeesController::class, 'destroy'])->name('employees.destroy');
     Route::get('/employee', [EmployeesController::class, 'index'])->name('employee.redirect');
 
-    // Project routes
+  // Project routes
     Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');
     Route::get('/projects/create', [ProjectsController::class, 'create'])->name('projects.create');
     Route::post('/projects', [ProjectsController::class, 'store'])->name('projects.store');
@@ -48,7 +50,7 @@ Route::middleware('admin-hr')->group(function () {
     Route::post('/projects/{id}/update', [ProjectsController::class, 'update'])->name('projects.update');
     Route::post('/projects/{id}/destroy', [ProjectsController::class, 'destroy'])->name('projects.destroy');
 
-    // Employee-Project relationship routes
+  // Employee-Project relationship routes
     Route::post(
         '/employee-projects/assign',
         [EmployeeProjectsController::class, 'assignEmployee']
@@ -71,12 +73,12 @@ Route::middleware('admin-hr')->group(function () {
 Route::middleware('auth')->group(function () {
 
 
-    // User projects route
+  // User projects route
     Route::get('/my-projects', [EmployeeProjectsController::class, 'userProjects'])->name('projects.user');
     Route::get('/projects/{id}', [ProjectsController::class, 'show'])->name('projects.show');
 
-    // Rotas de aprovações removidas - não serão mais utilizadas
-    // A validação de acesso agora é baseada no status do funcionário
+  // Rotas de aprovações removidas - não serão mais utilizadas
+  // A validação de acesso agora é baseada no status do funcionário
 });
 
 Route::get('/not-found', [ErrorController::class, 'notFound'])->name('error.not_found');

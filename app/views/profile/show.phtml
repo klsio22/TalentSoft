@@ -1,91 +1,167 @@
 <!-- Header Section -->
 <div class="glass-effect rounded-2xl shadow-xl p-8 mb-8">
-    <div class="text-center">
-        <div
-            class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl mb-4 shadow-lg">
-            <i class="fas fa-user text-white text-2xl"></i>
-        </div>
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Meu Perfil
-        </h1>
-        <p class="text-gray-600">Visualize e gerencie suas informações pessoais e profissionais</p>
+
+  <!-- Imagem de cabeçalho removida -->
+
+  <div class="text-center">
+    <?php if (\Lib\FlashMessage::hasMessages()): ?>
+    <?php $messages = \Lib\FlashMessage::get(); ?>
+
+    <?php if (isset($messages['danger'])): ?>
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+      <p class="font-bold">Erro</p>
+      <p>
+        <?= htmlspecialchars($messages['danger']) ?>
+      </p>
     </div>
+    <?php endif; ?>
+
+    <?php if (isset($messages['success'])): ?>
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+      <p class="font-bold">Sucesso!</p>
+      <p>
+        <?= htmlspecialchars($messages['success']) ?>
+      </p>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($messages['warning'])): ?>
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+      <p class="font-bold">Alerta</p>
+      <p>
+        <?= htmlspecialchars($messages['warning']) ?>
+      </p>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($messages['info'])): ?>
+    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" role="alert">
+      <p class="font-bold">Informação</p>
+      <p>
+        <?= htmlspecialchars($messages['info']) ?>
+      </p>
+    </div>
+    <?php endif; ?>
+    <?php endif; ?>
+
+    <div class="mb-6">
+
+      <?php if ($user->hasValidAvatar()): ?>
+      <div class="relative inline-block">
+        <img src="<?= $user->getAvatarUrl() ?>" alt="Foto de perfil"
+          class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg" />
+        <form action="<?= route('profile.remove-avatar') ?>" method="post" class="absolute -bottom-2 -right-2">
+          <button type="submit" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-md"
+            title="Remover foto">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </form>
+      </div>
+      <?php else: ?>
+      <div
+        class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full mb-4 shadow-lg">
+        <i class="fas fa-user text-white text-4xl"></i>
+      </div>
+      <?php endif; ?>
+
+      <form action="<?= route('profile.upload-avatar') ?>" method="post" enctype="multipart/form-data" class="mt-4">
+        <div class="flex flex-col items-center">
+          <label for="avatar"
+            class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg shadow-md transition duration-300 mb-2">
+            <i class="fas fa-camera mr-2"></i> Alterar foto
+          </label>
+          <input type="file" id="avatar" name="avatar" class="hidden" accept="image/jpeg,image/png,image/gif"
+            onchange="document.getElementById('upload-btn').classList.remove('hidden')">
+          <button id="upload-btn" type="submit"
+            class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-md transition duration-300 hidden">
+            <i class="fas fa-upload mr-2"></i> Enviar
+          </button>
+          <p class="text-xs text-gray-500 mt-2">Formatos permitidos: JPG, PNG, GIF. Tamanho máximo: 2MB</p>
+        </div>
+      </form>
+    </div>
+
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+      Meu Perfil
+    </h1>
+    <p class="text-gray-600">Visualize e gerencie suas informações pessoais e profissionais</p>
+  </div>
 </div>
 
 <!-- Conteúdo do Perfil -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- Informações Pessoais -->
-    <div class="glass-effect rounded-2xl shadow-xl p-8">
-        <div class="border-b border-gray-200 pb-4 mb-6">
-            <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                <i class="fas fa-user mr-3 text-blue-600"></i>
-                Informações Pessoais
-            </h2>
+  <!-- Informações Pessoais -->
+  <div class="glass-effect rounded-2xl shadow-xl p-8">
+    <div class="border-b border-gray-200 pb-4 mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+        <i class="fas fa-user mr-3 text-blue-600"></i>
+        Informações Pessoais
+      </h2>
+    </div>
+
+    <div class="space-y-6">
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-user text-blue-600 mr-3 flex-shrink-0"></i>
+            <span class="text-gray-900 font-medium truncate"
+              title="<?= htmlspecialchars($user->name, ENT_QUOTES, 'UTF-8') ?>">
+              <?= htmlspecialchars($user->name, ENT_QUOTES, 'UTF-8') ?>
+            </span>
+          </div>
         </div>
+      </div>
 
-        <div class="space-y-6">
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-user text-blue-600 mr-3 flex-shrink-0"></i>
-                        <span class="text-gray-900 font-medium truncate"
-                            title="<?= htmlspecialchars($user->name, ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars($user->name, ENT_QUOTES, 'UTF-8') ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">E-mail</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-envelope text-blue-600 mr-3 flex-shrink-0"></i>
+            <span class="text-gray-900 font-medium truncate"
+              title="<?= htmlspecialchars($user->email, ENT_QUOTES, 'UTF-8') ?>">
+              <?= htmlspecialchars($user->email, ENT_QUOTES, 'UTF-8') ?>
+            </span>
+          </div>
+        </div>
+      </div>
 
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">E-mail</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-envelope text-blue-600 mr-3 flex-shrink-0"></i>
-                        <span class="text-gray-900 font-medium truncate"
-                            title="<?= htmlspecialchars($user->email, ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars($user->email, ENT_QUOTES, 'UTF-8') ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">CPF</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-id-card text-blue-600 mr-3 flex-shrink-0"></i>
+            <span class="text-gray-900 font-medium truncate"
+              title="<?= htmlspecialchars($user->cpf, ENT_QUOTES, 'UTF-8') ?>">
+              <?= htmlspecialchars($user->cpf, ENT_QUOTES, 'UTF-8') ?>
+            </span>
+          </div>
+        </div>
+      </div>
 
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">CPF</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-id-card text-blue-600 mr-3 flex-shrink-0"></i>
-                        <span class="text-gray-900 font-medium truncate"
-                            title="<?= htmlspecialchars($user->cpf, ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars($user->cpf, ENT_QUOTES, 'UTF-8') ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-calendar-alt text-blue-600 mr-3 flex-shrink-0"></i>
+            <span class="text-gray-900 font-medium truncate"
+              title="<?php if (isset($user->birth_date) && $user->birth_date): echo date('d/m/Y', strtotime($user->birth_date)); else: echo 'Não informado'; endif; ?>">
+              <?php if (isset($user->birth_date) && $user->birth_date): ?>
+              <?= date('d/m/Y', strtotime($user->birth_date)) ?>
+              <?php else: ?>
+              Não informado
+              <?php endif; ?>
+            </span>
+          </div>
+        </div>
+      </div>
 
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-calendar-alt text-blue-600 mr-3 flex-shrink-0"></i>
-                        <span class="text-gray-900 font-medium truncate"
-                            title="<?php if (isset($user->birth_date) && $user->birth_date): echo date('d/m/Y', strtotime($user->birth_date)); else: echo 'Não informado'; endif; ?>">
-                            <?php if (isset($user->birth_date) && $user->birth_date): ?>
-                            <?= date('d/m/Y', strtotime($user->birth_date)) ?>
-                            <?php else: ?>
-                            Não informado
-                            <?php endif; ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">Endereço</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-start">
-                        <i class="fas fa-map-marker-alt text-blue-600 mr-3 mt-1 flex-shrink-0"></i>
-                        <span class="text-gray-900 font-medium line-clamp-2" title="<?php
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">Endereço</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-start">
+            <i class="fas fa-map-marker-alt text-blue-600 mr-3 mt-1 flex-shrink-0"></i>
+            <span class="text-gray-900 font-medium line-clamp-2" title="<?php
                           $fullAddress = '';
                           if ($user->address) {
                             $fullAddress .= $user->address;
@@ -100,93 +176,93 @@
                           }
                           echo htmlspecialchars($fullAddress);
                         ?>">
-                            <?php if ($user->address): ?>
-                            <?= htmlspecialchars($user->address) ?>
-                            <?php if ($user->city || $user->state): ?>
-                            <br>
-                            <?= htmlspecialchars($user->city ?? '') ?> -
-                            <?= htmlspecialchars($user->state ?? '') ?>
-                            <?php endif; ?>
-                            <?php if ($user->zipcode): ?>
-                            <br>CEP:
-                            <?= htmlspecialchars($user->zipcode) ?>
-                            <?php endif; ?>
-                            <?php else: ?>
-                            Não informado
-                            <?php endif; ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
+              <?php if ($user->address): ?>
+              <?= htmlspecialchars($user->address) ?>
+              <?php if ($user->city || $user->state): ?>
+              <br>
+              <?= htmlspecialchars($user->city ?? '') ?> -
+              <?= htmlspecialchars($user->state ?? '') ?>
+              <?php endif; ?>
+              <?php if ($user->zipcode): ?>
+              <br>CEP:
+              <?= htmlspecialchars($user->zipcode) ?>
+              <?php endif; ?>
+              <?php else: ?>
+              Não informado
+              <?php endif; ?>
+            </span>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informações Profissionais -->
+  <div class="glass-effect rounded-2xl shadow-xl p-8">
+    <div class="border-b border-gray-200 pb-4 mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+        <i class="fas fa-briefcase mr-3 text-blue-600"></i>
+        Informações Profissionais
+      </h2>
     </div>
 
-    <!-- Informações Profissionais -->
-    <div class="glass-effect rounded-2xl shadow-xl p-8">
-        <div class="border-b border-gray-200 pb-4 mb-6">
-            <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                <i class="fas fa-briefcase mr-3 text-blue-600"></i>
-                Informações Profissionais
-            </h2>
+    <div class="space-y-6">
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">Cargo</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-user-tag text-blue-600 mr-3 flex-shrink-0"></i>
+            <span class="text-gray-900 font-medium truncate">
+              <?php if ($user->role()): ?>
+              <span title="<?= htmlspecialchars($user->role()->description) ?>">
+                <?= htmlspecialchars($user->role()->description) ?>
+              </span>
+              <?php else: ?>
+              <span title="Não informado">Não informado</span>
+              <?php endif; ?>
+            </span>
+          </div>
         </div>
+      </div>
 
-        <div class="space-y-6">
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">Cargo</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-user-tag text-blue-600 mr-3 flex-shrink-0"></i>
-                        <span class="text-gray-900 font-medium truncate">
-                            <?php if ($user->role()): ?>
-                            <span title="<?= htmlspecialchars($user->role()->description) ?>">
-                                <?= htmlspecialchars($user->role()->description) ?>
-                            </span>
-                            <?php else: ?>
-                            <span title="Não informado">Não informado</span>
-                            <?php endif; ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">Status</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-circle text-blue-600 mr-3 flex-shrink-0"></i>
+            <span
+              class="inline-flex px-3 py-1 text-sm font-semibold rounded-full <?= $user->status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>"
+              title="<?= $user->status === 'Active' ? 'Ativo' : 'Inativo' ?>">
+              <?= $user->status === 'Active' ? 'Ativo' : 'Inativo' ?>
+            </span>
+          </div>
+        </div>
+      </div>
 
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">Status</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-circle text-blue-600 mr-3 flex-shrink-0"></i>
-                        <span
-                            class="inline-flex px-3 py-1 text-sm font-semibold rounded-full <?= $user->status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>"
-                            title="<?= $user->status === 'Active' ? 'Ativo' : 'Inativo' ?>">
-                            <?= $user->status === 'Active' ? 'Ativo' : 'Inativo' ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">Salário</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-dollar-sign text-blue-600 mr-3 flex-shrink-0"></i>
+            <span class="text-gray-900 font-medium truncate"
+              title="<?php if (isset($user->salary) && $user->salary > 0): echo 'R$ ' . number_format($user->salary, 2, ',', '.'); else: echo 'Não informado'; endif; ?>">
+              <?php if (isset($user->salary) && $user->salary > 0): ?>
+              R$
+              <?= number_format($user->salary, 2, ',', '.') ?>
+              <?php else: ?>
+              Não informado
+              <?php endif; ?>
+            </span>
+          </div>
+        </div>
+      </div>
 
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">Salário</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-dollar-sign text-blue-600 mr-3 flex-shrink-0"></i>
-                        <span class="text-gray-900 font-medium truncate"
-                            title="<?php if (isset($user->salary) && $user->salary > 0): echo 'R$ ' . number_format($user->salary, 2, ',', '.'); else: echo 'Não informado'; endif; ?>">
-                            <?php if (isset($user->salary) && $user->salary > 0): ?>
-                            R$
-                            <?= number_format($user->salary, 2, ',', '.') ?>
-                            <?php else: ?>
-                            Não informado
-                            <?php endif; ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">Nível de Acesso</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-shield-alt text-blue-600 mr-3 flex-shrink-0"></i>
-                        <?php
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">Nível de Acesso</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-shield-alt text-blue-600 mr-3 flex-shrink-0"></i>
+            <?php
                         $roleColor = 'bg-green-100 text-green-800';
                         $roleIcon = 'user';
                         $roleLabel = 'Funcionário';
@@ -204,118 +280,117 @@
                             }
                         }
                         ?>
-                        <span
-                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?= $roleColor ?> truncate"
-                            title="<?= $roleLabel ?>">
-                            <i class="fas fa-<?= $roleIcon ?> mr-2"></i>
-                            <?= $roleLabel ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <div class="block text-sm font-semibold text-gray-700 mb-2">Data de Contratação</div>
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-calendar-check text-blue-600 mr-3 flex-shrink-0"></i>
-                        <span class="text-gray-900 font-medium truncate"
-                            title="<?php if (isset($user->hire_date) && $user->hire_date): echo date('d/m/Y', strtotime($user->hire_date)); else: echo 'Não informado'; endif; ?>">
-                            <?php if (isset($user->hire_date) && $user->hire_date): ?>
-                            <?= date('d/m/Y', strtotime($user->hire_date)) ?>
-                            <?php else: ?>
-                            Não informado
-                            <?php endif; ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?= $roleColor ?> truncate"
+              title="<?= $roleLabel ?>">
+              <i class="fas fa-<?= $roleIcon ?> mr-2"></i>
+              <?= $roleLabel ?>
+            </span>
+          </div>
         </div>
+      </div>
+
+      <div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">Data de Contratação</div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-calendar-check text-blue-600 mr-3 flex-shrink-0"></i>
+            <span class="text-gray-900 font-medium truncate"
+              title="<?php if (isset($user->hire_date) && $user->hire_date): echo date('d/m/Y', strtotime($user->hire_date)); else: echo 'Não informado'; endif; ?>">
+              <?php if (isset($user->hire_date) && $user->hire_date): ?>
+              <?= date('d/m/Y', strtotime($user->hire_date)) ?>
+              <?php else: ?>
+              Não informado
+              <?php endif; ?>
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Observações (se existirem) -->
 <?php if (isset($user->notes) && !empty($user->notes)): ?>
 <div class="glass-effect rounded-2xl shadow-xl p-8 mt-8">
-    <div class="border-b border-gray-200 pb-4 mb-6">
-        <h3 class="text-xl font-semibold text-gray-800 flex items-center">
-            <i class="fas fa-sticky-note mr-3 text-blue-600"></i>
-            Observações
-        </h3>
-    </div>
-    <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-        <p class="text-gray-900 whitespace-pre-wrap">
-            <?= htmlspecialchars($user->notes) ?>
-        </p>
-    </div>
+  <div class="border-b border-gray-200 pb-4 mb-6">
+    <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+      <i class="fas fa-sticky-note mr-3 text-blue-600"></i>
+      Observações
+    </h3>
+  </div>
+  <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+    <p class="text-gray-900 whitespace-pre-wrap">
+      <?= htmlspecialchars($user->notes) ?>
+    </p>
+  </div>
 </div>
 <?php endif; ?>
 
 <!-- Informações Adicionais -->
 <div class="glass-effect rounded-2xl shadow-xl p-8 mt-8">
-    <div class="border-b border-gray-200 pb-4 mb-6">
-        <h3 class="text-xl font-semibold text-gray-800 flex items-center">
-            <i class="fas fa-info-circle mr-3 text-blue-600"></i>
-            Informações Adicionais
-        </h3>
+  <div class="border-b border-gray-200 pb-4 mb-6">
+    <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+      <i class="fas fa-info-circle mr-3 text-blue-600"></i>
+      Informações Adicionais
+    </h3>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <div class="block text-sm font-semibold text-gray-700 mb-2">Cadastrado em</div>
+      <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+        <div class="flex items-center">
+          <i class="fas fa-calendar-plus text-blue-600 mr-3 flex-shrink-0"></i>
+          <span class="text-gray-900 font-medium truncate"
+            title="<?php if (isset($user->created_at) && $user->created_at): echo date('d/m/Y H:i', strtotime($user->created_at)); else: echo 'Não informado'; endif; ?>">
+            <?php if (isset($user->created_at) && $user->created_at): ?>
+            <?= date('d/m/Y H:i', strtotime($user->created_at)) ?>
+            <?php else: ?>
+            Não informado
+            <?php endif; ?>
+          </span>
+        </div>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-            <div class="block text-sm font-semibold text-gray-700 mb-2">Cadastrado em</div>
-            <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-calendar-plus text-blue-600 mr-3 flex-shrink-0"></i>
-                    <span class="text-gray-900 font-medium truncate"
-                        title="<?php if (isset($user->created_at) && $user->created_at): echo date('d/m/Y H:i', strtotime($user->created_at)); else: echo 'Não informado'; endif; ?>">
-                        <?php if (isset($user->created_at) && $user->created_at): ?>
-                        <?= date('d/m/Y H:i', strtotime($user->created_at)) ?>
-                        <?php else: ?>
-                        Não informado
-                        <?php endif; ?>
-                    </span>
-                </div>
-            </div>
+    <div>
+      <div class="block text-sm font-semibold text-gray-700 mb-2">Última atualização</div>
+      <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
+        <div class="flex items-center">
+          <i class="fas fa-sync-alt text-blue-600 mr-3 flex-shrink-0"></i>
+          <span class="text-gray-900 font-medium truncate"
+            title="<?php if (isset($user->updated_at) && $user->updated_at): echo date('d/m/Y H:i', strtotime($user->updated_at)); else: echo 'Não informado'; endif; ?>">
+            <?php if (isset($user->updated_at) && $user->updated_at): ?>
+            <?= date('d/m/Y H:i', strtotime($user->updated_at)) ?>
+            <?php else: ?>
+            Não informado
+            <?php endif; ?>
+          </span>
         </div>
-
-        <div>
-            <div class="block text-sm font-semibold text-gray-700 mb-2">Última atualização</div>
-            <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-sync-alt text-blue-600 mr-3 flex-shrink-0"></i>
-                    <span class="text-gray-900 font-medium truncate"
-                        title="<?php if (isset($user->updated_at) && $user->updated_at): echo date('d/m/Y H:i', strtotime($user->updated_at)); else: echo 'Não informado'; endif; ?>">
-                        <?php if (isset($user->updated_at) && $user->updated_at): ?>
-                        <?= date('d/m/Y H:i', strtotime($user->updated_at)) ?>
-                        <?php else: ?>
-                        Não informado
-                        <?php endif; ?>
-                    </span>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Nota informativa para usuários comuns -->
 <?php if ($user->role() && strtolower($user->role()->name) === 'user'): ?>
 <div
-    class="glass-effect rounded-2xl shadow-xl p-8 mt-8 bg-gradient-to-r from-blue-50 to-indigo-100 border border-blue-200">
-    <div class="flex items-start">
-        <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-info-circle text-blue-600"></i>
-            </div>
-        </div>
-        <div class="ml-4">
-            <h3 class="text-lg font-semibold text-blue-900 mb-2">
-                Informação Importante
-            </h3>
-            <p class="text-blue-800">
-                Para alterar suas informações pessoais ou profissionais, entre em contato com o departamento de Recursos
-                Humanos.
-            </p>
-        </div>
+  class="glass-effect rounded-2xl shadow-xl p-8 mt-8 bg-gradient-to-r from-blue-50 to-indigo-100 border border-blue-200">
+  <div class="flex items-start">
+    <div class="flex-shrink-0">
+      <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+        <i class="fas fa-info-circle text-blue-600"></i>
+      </div>
     </div>
+    <div class="ml-4">
+      <h3 class="text-lg font-semibold text-blue-900 mb-2">
+        Informação Importante
+      </h3>
+      <p class="text-blue-800">
+        Para alterar suas informações pessoais ou profissionais, entre em contato com o departamento de Recursos
+        Humanos.
+      </p>
+    </div>
+  </div>
 </div>
 <?php endif; ?>

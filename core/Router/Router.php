@@ -172,6 +172,18 @@ class Router
     private static function redirectToServerError(string $errorMsg): void
     {
         error_log($errorMsg);
+        // Check if we're in initialization phase
+        $routeInstance = self::getInstance();
+        $routesRegistered = $routeInstance->getRouteSize() > 0;
+
+        if (!$routesRegistered) {
+            // If routes aren't registered yet, display a simple error page
+            http_response_code(500);
+            echo '<html><body><h1>Erro Interno do Servidor</h1><p>Ocorreu um erro durante a inicialização do sistema.</p></body></html>';
+            exit;
+        }
+
+        // Otherwise use the regular error route
         header('Location: ' . route('error.server_error'));
         exit;
     }
@@ -186,7 +198,9 @@ class Router
         }
 
         try {
+            // Load the routes first
             require_once Constants::rootPath()->join('config/routes.php');
+            // Then dispatch
             Router::getInstance()->dispatch();
         } catch (HTTPException $e) {
             if ($e->getStatusCode() === 404) {
