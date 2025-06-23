@@ -1,11 +1,111 @@
 <?php
 
-require_once __DIR__ . '/../../config/bootstrap.php';
+// Carregar autoloader
+require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
+// Importar classes necessárias
 use App\Models\Employee;
-use App\Models\Role;
 use App\Models\UserCredential;
+use App\Models\Role;
 use Core\Database\Database;
+
+// Configurar variáveis de ambiente para conexão com o banco de dados
+// Isso é necessário porque o container PHP não carrega automaticamente o arquivo .env
+if (!isset($_ENV['DB_HOST']) && !getenv('DB_HOST')) {
+  $_ENV['DB_HOST'] = 'db';
+  putenv('DB_HOST=db');
+}
+
+if (!isset($_ENV['DB_PORT']) && !getenv('DB_PORT')) {
+  $_ENV['DB_PORT'] = '3306';
+  putenv('DB_PORT=3306');
+}
+
+if (!isset($_ENV['DB_DATABASE']) && !getenv('DB_DATABASE')) {
+  $_ENV['DB_DATABASE'] = 'talent_soft_development';
+  putenv('DB_DATABASE=talent_soft_development');
+}
+
+if (!isset($_ENV['DB_USERNAME']) && !getenv('DB_USERNAME')) {
+  $_ENV['DB_USERNAME'] = 'talent-soft';
+  putenv('DB_USERNAME=talent-soft');
+}
+
+if (!isset($_ENV['DB_PASSWORD']) && !getenv('DB_PASSWORD')) {
+  $_ENV['DB_PASSWORD'] = 'talent-soft';
+  putenv('DB_PASSWORD=talent-soft');
+}
+
+// Constantes
+define('DEFAULT_PASSWORD', '123456');
+define('ROOT_DIR', dirname(__DIR__, 2));
+define('UPLOADS_DIR', ROOT_DIR . '/public/uploads/');
+define('AVATARS_DIR', UPLOADS_DIR . 'avatars/');
+define('ASSETS_DIR', ROOT_DIR . '/public/assets/');
+define('IMAGES_DIR', ASSETS_DIR . 'images/defaults/');
+define('DEFAULT_AVATAR', 'default-avatar.jpg');
+
+/**
+ * Função para criar diretórios necessários
+ */
+function createRequiredDirectories()
+{
+  echo "\n=== Preparando diretórios ===\n";
+
+  // Criar diretório de uploads/avatars
+  if (!file_exists(AVATARS_DIR)) {
+    echo "Criando diretório de avatares: " . AVATARS_DIR . "\n";
+    if (mkdir(AVATARS_DIR, 0777, true)) {
+      echo "Diretório de avatares criado com sucesso!\n";
+    } else {
+      echo "ERRO: Falha ao criar diretório de avatares.\n";
+    }
+  } else {
+    echo "Diretório de avatares já existe.\n";
+    // Garantir que as permissões estão corretas mesmo se o diretório já existir
+    chmod(AVATARS_DIR, 0777);
+  }
+  
+  // Verificar diretório de imagens
+  if (!file_exists(IMAGES_DIR)) {
+    echo "AVISO: Diretório de imagens não existe: " . IMAGES_DIR . "\n";
+  } else {
+    echo "Diretório de imagens existe.\n";
+  }
+}
+
+/**
+ * Função para preparar a imagem padrão
+ *
+ * @return bool true se a imagem padrão está disponível
+ */
+function prepareDefaultAvatar()
+{
+  echo "\n=== Preparando imagem padrão ===\n";
+
+  $defaultAvatarSource = IMAGES_DIR . DEFAULT_AVATAR;
+  $avatarDestName = 'default_' . uniqid() . '.jpg';
+  $defaultAvatarDest = AVATARS_DIR . $avatarDestName;
+  $success = false;
+
+  // Verificar se a imagem padrão existe na pasta de origem
+  if (file_exists($defaultAvatarSource)) {
+    echo "Imagem padrão encontrada em: $defaultAvatarSource\n";
+
+    // Copiar para o diretório de avatares
+    echo "Copiando imagem padrão para: $defaultAvatarDest\n";
+    if (copy($defaultAvatarSource, $defaultAvatarDest)) {
+      echo "Imagem padrão copiada com sucesso para o diretório de avatares!\n";
+      $success = true;
+    } else {
+      echo "ERRO: Falha ao copiar imagem padrão.\n";
+    }
+  } else {
+    echo "AVISO: Imagem padrão não encontrada em: $defaultAvatarSource\n";
+  }
+
+  return $success;
+}
 
 /**
  * Function to generate a valid CPF
@@ -77,6 +177,16 @@ if (!$userRole) {
 echo "Criando usuário administrador Klesio...\n";
 $admin = Employee::findByEmail('klesio@admin.com');
 if (!$admin) {
+  // Criar avatar para o administrador usando nossa função
+  $admin_avatar_name = createUserAvatar('admin');
+  $avatar_created = ($admin_avatar_name !== null);
+
+  if ($avatar_created) {
+    echo "Avatar criado para o administrador com sucesso.\n";
+  } else {
+    echo "AVISO: Não foi possível criar avatar para o administrador.\n";
+  }
+
   $admin = new Employee([
     'name' => 'Klesio Nascimento',
     'cpf' => gerarCpfValido(),
@@ -90,16 +200,43 @@ if (!$admin) {
     'city' => 'Curitiba',
     'state' => 'PR',
     'zipcode' => '80010-000',
-    'notes' => 'Administrador principal do sistema'
+    'notes' => 'Administrador principal do sistema',
+    'avatar_name' => $avatar_created ? $admin_avatar_name : null
   ]);
   $admin->save();
 
   $adminCredential = new UserCredential([
     'employee_id' => $admin->id,
-    'password' => '123456',
-    'password_confirmation' => '123456'
+    'password' => DEFAULT_PASSWORD,
+    'password_confirmation' => DEFAULT_PASSWORD
   ]);
   $adminCredential->save();
+} else {
+  // Verificar se o administrador já tem um avatar, caso não tenha, adicionar um
+  if (!$admin->hasValidAvatar()) {
+    $admin_avatar_name = 'avatar_admin_' . uniqid() . '.jpg';
+    $avatar_added = false;
+
+    // Tentar usar a imagem do administrador primeiro
+    if ($adminProfileExists) {
+      $result = copyAvatarToUploads(IMAGES_DIR . 'profile_admin.jpg', $admin_avatar_name);
+      if ($result) {
+        $admin->avatar_name = $admin_avatar_name;
+        $admin->save();
+        $avatar_added = true;
+        echo "Avatar adicionado ao administrador existente usando profile_admin.jpg.\n";
+      }
+    }
+    // Se não conseguiu usar a imagem do administrador, tenta usar a imagem padrão
+    elseif ($defaultAvatarExists && !$avatar_added) {
+      $result = copyAvatarToUploads(ASSETS_DIR . 'default-avatar.jpg', $admin_avatar_name);
+      if ($result) {
+        $admin->avatar_name = $admin_avatar_name;
+        $admin->save();
+        echo "Avatar adicionado ao administrador existente usando a imagem padrão.\n";
+      }
+    }
+  }
 }
 
 echo "Criando usuário RH Caio...\n";
@@ -124,8 +261,8 @@ if (!$hr) {
 
   $hrCredential = new UserCredential([
     'employee_id' => $hr->id,
-    'password' => '123456',
-    'password_confirmation' => '123456'
+    'password' => DEFAULT_PASSWORD,
+    'password_confirmation' => DEFAULT_PASSWORD
   ]);
   $hrCredential->save();
 }
@@ -174,12 +311,88 @@ $enderecos = [
   'Avenida Atlântica'
 ];
 
-// Definição do diretório de avatares
-define('AVATARS_DIR', dirname(__DIR__, 2) . '/public/uploads/avatars/');
+/**
+ * Função para ajustar permissões de arquivos e diretórios
+ *
+ * @param string $path Caminho do arquivo ou diretório
+ * @param int $permissions Permissões a serem aplicadas (octal)
+ * @return bool true se as permissões foram aplicadas com sucesso
+ */
+function setPermissions($path, $permissions = 0777)
+{
+  if (file_exists($path)) {
+    echo "Ajustando permissões para $path\n";
+    if (chmod($path, $permissions)) {
+      echo "Permissões ajustadas com sucesso para $path\n";
+      return true;
+    } else {
+      echo "ERRO: Falha ao ajustar permissões para $path\n";
+    }
+  }
+  return false;
+}
 
-// Verificar se a imagem de perfil padrão existe
-$profileImageExists = file_exists(AVATARS_DIR . 'profile.jpg');
-echo $profileImageExists ? "Imagem de perfil encontrada.\n" : "Imagem de perfil não encontrada.\n";
+/**
+ * Função para copiar um arquivo de avatar para o diretório de uploads
+ *
+ * @param string $sourceFile Caminho completo para o arquivo de origem
+ * @param string $destName Nome do arquivo de destino (sem caminho)
+ * @return bool true se a cópia foi bem-sucedida
+ */
+function copyAvatarToUploads($sourceFile, $destName)
+{
+  $destPath = AVATARS_DIR . $destName;
+  $success = false;
+
+  if (file_exists($sourceFile)) {
+    echo "Copiando avatar para $destPath\n";
+    if (copy($sourceFile, $destPath)) {
+      echo "Avatar copiado com sucesso para $destPath\n";
+      // Ajustar permissões do arquivo copiado
+      setPermissions($destPath);
+      $success = true;
+    } else {
+      echo "ERRO: Falha ao copiar avatar para $destPath\n";
+    }
+  }
+
+  return $success;
+}
+
+/**
+ * Função para criar um avatar para um usuário
+ *
+ * @param string $prefix Prefixo para o nome do arquivo (ex: 'admin', 'user')
+ * @return string|null Nome do arquivo criado ou null se falhou
+ */
+function createUserAvatar($prefix = 'user')
+{
+  $avatarName = $prefix . '_' . uniqid() . '.jpg';
+  $defaultAvatarSource = IMAGES_DIR . DEFAULT_AVATAR;
+
+  // Tentar usar a imagem padrão da pasta images e copiar para o diretório de avatares
+  if (file_exists($defaultAvatarSource) && copyAvatarToUploads($defaultAvatarSource, $avatarName)) {
+    return $avatarName;
+  }
+
+  return null;
+}
+
+// Inicialização do ambiente
+echo "\n=== Inicializando ambiente ===\n";
+
+// Criar diretórios necessários
+createRequiredDirectories();
+
+// Preparar imagem padrão
+$defaultAvatarAvailable = prepareDefaultAvatar();
+
+// Verificar se a imagem padrão está disponível
+if ($defaultAvatarAvailable) {
+  echo "Imagem padrão está pronta para uso.\n";
+} else {
+  echo "AVISO: Imagem padrão não está disponível. Avatares podem não ser criados corretamente.\n";
+}
 
 echo "Criando 28 usuários adicionais...\n";
 foreach ($usuarios as $index => $usuario) {
@@ -205,10 +418,9 @@ foreach ($usuarios as $index => $usuario) {
 
     // Para alguns usuários, adicione a foto de perfil (aproximadamente 1 em cada 3)
     $avatar_name = null;
-    if ($profileImageExists && $index % 3 === 0) {
-      $avatar_name = 'avatar_' . ($index + 1) . '_' . uniqid() . '.jpg';
-      // Copiar a imagem profile.jpg para o novo nome
-      copy(AVATARS_DIR . 'profile.jpg', AVATARS_DIR . $avatar_name);
+    if ($index % 3 === 0) {
+      // Usar nossa função para criar avatar de usuário
+      $avatar_name = createUserAvatar('user');
     }
 
     $employee = new Employee([
@@ -231,8 +443,8 @@ foreach ($usuarios as $index => $usuario) {
 
     $credential = new UserCredential([
       'employee_id' => $employee->id,
-      'password' => '123456',
-      'password_confirmation' => '123456'
+      'password' => DEFAULT_PASSWORD,
+      'password_confirmation' => DEFAULT_PASSWORD
     ]);
     $credential->save();
 
@@ -241,11 +453,25 @@ foreach ($usuarios as $index => $usuario) {
   }
 }
 
+echo "\n=== Ajustando permissões finais ===\n";
+setPermissions(UPLOADS_DIR, 0777);
+setPermissions(AVATARS_DIR, 0777);
+
+// Ajustar permissões de todos os arquivos no diretório de avatares
+if (is_dir(AVATARS_DIR) && $handle = opendir(AVATARS_DIR)) {
+  while (false !== ($file = readdir($handle))) {
+    if ($file != "." && $file != ".." && is_file(AVATARS_DIR . $file)) {
+      setPermissions(AVATARS_DIR . $file, 0777);
+    }
+  }
+  closedir($handle);
+}
+
 echo "\n=== RESUMO ===\n";
 echo "Total de funcionários criados: 30\n";
-echo "Admin: klesio@admin.com (senha: 123456)\n";
-echo "RH: caio@rh.com (senha: 123456)\n";
-echo "28 usuários com emails @user.com (senha: 123456)\n";
+echo "Admin: klesio@admin.com (senha: " . DEFAULT_PASSWORD . ")\n";
+echo "RH: caio@rh.com (senha: " . DEFAULT_PASSWORD . ")\n";
+echo "28 usuários com emails @user.com (senha: " . DEFAULT_PASSWORD . ")\n";
 echo "\nDados inseridos com sucesso!\n";
 
 echo "\nNow populating projects and notifications...\n";

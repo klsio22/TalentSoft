@@ -241,7 +241,7 @@ class Employee extends Model
   /**
    * Retorna o caminho URL para o avatar do funcionário
    *
-   * @return string URL do avatar ou string vazia se não existir
+   * @return string URL do avatar ou imagem padrão se não existir
    */
   public function getAvatarUrl(): string
   {
@@ -249,6 +249,7 @@ class Employee extends Model
       return '/uploads/avatars/' . htmlspecialchars($this->avatar_name);
     }
 
-    return '';
+    // Retorna uma imagem padrão caso nenhum avatar esteja definido
+    return '/assets/images/defaults/default-avatar.jpg';
   }
 }
