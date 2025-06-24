@@ -99,13 +99,13 @@ class ProfileController extends Controller
   /**
    * Collect debug information about the upload request
    *
-   * @return array Debug information
+   * @return array<string, mixed> Debug information
    */
     private function collectDebugInfo(): array
     {
         $debug = [];
         $debug['request_method'] = $_SERVER['REQUEST_METHOD'];
-        $debug['files'] = isset($_FILES) ? 'Files array exists' : 'No files array';
+        $debug['files'] = 'Files array exists'; // $_FILES always exists as a superglobal
         $debug['avatar'] = isset($_FILES['avatar']) ? 'Avatar key exists' : 'No avatar key';
 
         if (isset($_FILES['avatar'])) {
@@ -122,7 +122,7 @@ class ProfileController extends Controller
    * Process the avatar upload
    *
    * @param mixed $user The user object
-   * @param array $debug Debug information
+   * @param array<string, mixed> $debug Debug information
    */
     private function processAvatarUpload($user, array &$debug): void
     {
@@ -166,7 +166,7 @@ class ProfileController extends Controller
    * Handle successful file upload
    *
    * @param mixed $user The user object
-   * @param array $debug Debug information
+   * @param array<string, mixed> $debug Debug information
    */
     private function handleSuccessfulUpload($user, array &$debug): void
     {
@@ -205,7 +205,7 @@ class ProfileController extends Controller
   /**
    * Display multiple error messages
    *
-   * @param array $errors Array of error messages
+   * @param array<int, string> $errors Array of error messages
    */
     private function displayErrors(array $errors): void
     {

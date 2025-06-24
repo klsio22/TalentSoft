@@ -8,9 +8,9 @@ use Tests\TestCase;
 class ProfileImageTest extends TestCase
 {
     private ProfileImage $profileImage;
-    private $mockUser;
-    private $mockAdminUser;
-    private $mockHRUser;
+    private object $mockUser;
+    private object $mockAdminUser;
+    private object $mockHRUser;
 
     public function setUp(): void
     {
@@ -20,16 +20,16 @@ class ProfileImageTest extends TestCase
 
       // Create a mock standard user
         $this->mockUser = new class {
-            public $avatar_name = null;
-            public function isAdmin()
+            public ?string $avatar_name = null;
+            public function isAdmin(): bool
             {
                 return false;
             }
-            public function isHR()
+            public function isHR(): bool
             {
                 return false;
             }
-            public function save()
+            public function save(): bool
             {
                 return true;
             }
@@ -37,16 +37,16 @@ class ProfileImageTest extends TestCase
 
       // Create a mock admin user
         $this->mockAdminUser = new class {
-            public $avatar_name = null;
-            public function isAdmin()
+            public ?string $avatar_name = null;
+            public function isAdmin(): bool
             {
                 return true;
             }
-            public function isHR()
+            public function isHR(): bool
             {
                 return false;
             }
-            public function save()
+            public function save(): bool
             {
                 return true;
             }
@@ -54,16 +54,16 @@ class ProfileImageTest extends TestCase
 
       // Create a mock HR user
         $this->mockHRUser = new class {
-            public $avatar_name = null;
-            public function isAdmin()
+            public ?string $avatar_name = null;
+            public function isAdmin(): bool
             {
                 return false;
             }
-            public function isHR()
+            public function isHR(): bool
             {
                 return true;
             }
-            public function save()
+            public function save(): bool
             {
                 return true;
             }

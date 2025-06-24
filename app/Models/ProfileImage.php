@@ -16,8 +16,8 @@ class ProfileImage
   /**
    * Valida uma imagem enviada
    *
-   * @param array $file Array do arquivo enviado ($_FILES['avatar'])
-   * @return array Resultado da validação com possíveis erros
+   * @param array<string, mixed> $file Array do arquivo enviado ($_FILES['avatar'])
+   * @return array<string, array<int, string>> Resultado da validação com possíveis erros
    */
     public function validateImage(array $file): array
     {
@@ -45,8 +45,8 @@ class ProfileImage
    * Processa o upload de uma imagem de perfil
    *
    * @param object $user Objeto do usuário/funcionário
-   * @param array $file Array do arquivo enviado ($_FILES['avatar'])
-   * @return array Resultado do processamento com possíveis erros
+   * @param array<string, mixed> $file Array do arquivo enviado ($_FILES['avatar'])
+   * @return array<string, mixed> Resultado do processamento com possíveis erros
    */
     public function processImageUpload($user, array $file): array
     {
@@ -83,7 +83,7 @@ class ProfileImage
   /**
    * Prepara o diretório de upload, criando-o se necessário
    *
-   * @param array &$result Array de resultado para debug e erros
+   * @param array<string, mixed> &$result Array de resultado para debug e erros
    * @return string Caminho do diretório de upload
    */
     private function prepareUploadDirectory(array &$result): string
@@ -116,7 +116,7 @@ class ProfileImage
    * Gera um nome de arquivo único para o avatar
    *
    * @param object $user Objeto do usuário
-   * @param array $file Array do arquivo enviado
+   * @param array<string, mixed> $file Array do arquivo enviado
    * @return string Nome de arquivo único
    */
     private function generateUniqueFilename($user, array $file): string
@@ -140,7 +140,7 @@ class ProfileImage
    *
    * @param object $user Objeto do usuário
    * @param string $uploadDir Diretório de upload
-   * @param array &$result Array de resultado para debug
+   * @param array<string, mixed> &$result Array de resultado para debug
    */
     private function removeExistingAvatar($user, string $uploadDir, array &$result): void
     {
@@ -153,9 +153,9 @@ class ProfileImage
   /**
    * Move o arquivo enviado para o destino final
    *
-   * @param array $file Array do arquivo enviado
+   * @param array<string, mixed> $file Array do arquivo enviado
    * @param string $uploadPath Caminho completo de destino
-   * @param array &$result Array de resultado para debug e erros
+   * @param array<string, mixed> &$result Array de resultado para debug e erros
    * @return bool Sucesso ou falha
    */
     private function moveUploadedFile(array $file, string $uploadPath, array &$result): bool
@@ -177,7 +177,7 @@ class ProfileImage
    * @param object $user Objeto do usuário
    * @param string $newFilename Novo nome de arquivo
    * @param string $uploadPath Caminho completo do arquivo
-   * @param array &$result Array de resultado para debug e erros
+   * @param array<string, mixed> &$result Array de resultado para debug e erros
    */
     private function updateUserAvatar($user, string $newFilename, string $uploadPath, array &$result): void
     {
@@ -195,7 +195,7 @@ class ProfileImage
    * Remove o arquivo enviado em caso de falha ao salvar no banco de dados
    *
    * @param string $uploadPath Caminho completo do arquivo
-   * @param array &$result Array de resultado para debug
+   * @param array<string, mixed> &$result Array de resultado para debug
    */
     private function cleanupFailedUpload(string $uploadPath, array &$result): void
     {
@@ -209,7 +209,7 @@ class ProfileImage
    * Processa a remoção do avatar de um usuário
    *
    * @param object $user Objeto do usuário
-   * @return array Resultado com status de sucesso e possíveis erros
+   * @return array<string, mixed> Resultado com status de sucesso e possíveis erros
    */
     public function processAvatarRemoval($user): array
     {
@@ -242,7 +242,7 @@ class ProfileImage
    * @param bool $fileExists Se o arquivo existe
    * @param string $avatarPath Caminho completo do arquivo
    * @param object $user Objeto do usuário
-   * @param array &$result Array de resultado para atualizar com erros
+   * @param array<string, mixed> &$result Array de resultado para atualizar com erros
    * @return bool Status de sucesso
    */
     private function handleAvatarDeletion(bool $fileExists, string $avatarPath, $user, array &$result): bool
