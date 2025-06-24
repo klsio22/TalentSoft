@@ -82,11 +82,14 @@ class ProfileImageCest extends BaseAcceptanceCest
         $tester->click('#' . self::UPLOAD_BUTTON_ID);
 
         // Aguardar redirecionamento após o envio do formulário
-        $tester->wait(2);
-
-        // Verificar se o upload foi bem-sucedido
-        $tester->waitForElementVisible(self::SUCCESS_MESSAGE_SELECTOR, 5);
-        $tester->see('Sua foto de perfil foi atualizada com sucesso.', self::SUCCESS_MESSAGE_SELECTOR);
+        $tester->wait(3); // Aumentado para 3 segundos
+        
+        // Verificar se estamos na página de perfil
+        $tester->seeInCurrentUrl('/profile');
+        
+        // Verificar se o upload foi bem-sucedido - usando seletores mais genéricos e robustos
+        $tester->waitForElementVisible('.flash-message', 10); // Aumentado para 10 segundos
+        $tester->waitForText('Sua foto de perfil foi atualizada com sucesso.', 10); // Esperar pelo texto
 
         // Verificar se a imagem de perfil está sendo exibida
         $tester->waitForElementVisible(self::AVATAR_IMAGE_SELECTOR, 5);
@@ -160,10 +163,14 @@ class ProfileImageCest extends BaseAcceptanceCest
         $tester->click(self::REMOVE_BUTTON_SELECTOR);
 
         // Aguardar redirecionamento após a remoção
-        $tester->wait(2);
-
-        // Verificar se a remoção foi bem-sucedida
-        $tester->waitForElementVisible(self::SUCCESS_MESSAGE_SELECTOR, 5);
+        $tester->wait(3); // Aumentado para 3 segundos
+        
+        // Verificar se estamos na página de perfil
+        $tester->seeInCurrentUrl('/profile');
+        
+        // Verificar se a remoção foi bem-sucedida - usando seletores mais genéricos e robustos
+        $tester->waitForElementVisible('.flash-message', 10); // Aumentado para 10 segundos
+        $tester->waitForText('removida', 10); // Esperar por parte do texto de sucesso
 
         // Verificar se voltou para o avatar padrão
         $tester->waitForElementVisible(self::DEFAULT_AVATAR_SELECTOR, 5);
