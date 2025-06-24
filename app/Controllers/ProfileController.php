@@ -49,7 +49,7 @@ class ProfileController extends Controller
     public function show(): void
     {
         $user = Auth::user();
-        
+
         $this->render(self::VIEW_PROFILE, [
             'title' => self::TITLE_PROFILE,
             'user' => $user

@@ -89,19 +89,6 @@ CREATE TABLE
     FOREIGN KEY (project_id) REFERENCES Projects (id)
   );
 
--- Tabela de usuários
-DROP TABLE IF EXISTS Users;
-
-CREATE TABLE
-  Users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    encrypted_password VARCHAR(255) NOT NULL,
-    avatar_name VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-  );
 
 -- Tabela de notificações para funcionários
 DROP TABLE IF EXISTS Notifications;
