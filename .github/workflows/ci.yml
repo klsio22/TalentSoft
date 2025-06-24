@@ -25,7 +25,7 @@ jobs:
         run: ./run codecept build
 
       - name: Setup Uploads assets permissions
-        run: sudo chown -R www-data:www-data public/assets/uploads
+        run: mkdir -p public/uploads/avatars && sudo chown -R www-data:www-data public/uploads
 
       - name: Up containers
         run: ./run up -d
