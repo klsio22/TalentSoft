@@ -52,8 +52,11 @@
         <div
           class="bg-white bg-opacity-10 backdrop-blur-sm border border-white border-opacity-20 px-3 py-1 rounded-full">
           <span class="text-white text-sm flex items-center">
-            <?php if (isset($currentUser->avatar_name) && $currentUser->avatar_name): ?>
-            <img src="/uploads/avatars/<?= htmlspecialchars($currentUser->avatar_name) ?>" alt="Foto de perfil"
+            <?php 
+              $profileImage = new \App\Models\ProfileImage();
+              if ($profileImage->hasValidAvatar($currentUser)): 
+            ?>
+            <img src="<?= $profileImage->getAvatarUrl($currentUser) ?>" alt="Foto de perfil"
               class="w-6 h-6 rounded-full object-cover mr-2">
             <?php else: ?>
             <i class="fas fa-user-circle mr-2"></i>
@@ -117,8 +120,11 @@
       <div
         class="bg-white bg-opacity-10 backdrop-blur-sm border border-white border-opacity-20 px-4 py-2 rounded-lg mx-1 mb-2">
         <span class="text-white text-sm flex items-center">
-          <?php if (isset($currentUser->avatar_name) && $currentUser->avatar_name): ?>
-          <img src="/uploads/avatars/<?= htmlspecialchars($currentUser->avatar_name) ?>" alt="Foto de perfil"
+          <?php 
+            $profileImage = new \App\Models\ProfileImage();
+            if ($profileImage->hasValidAvatar($currentUser)): 
+          ?>
+          <img src="<?= $profileImage->getAvatarUrl($currentUser) ?>" alt="Foto de perfil"
             class="w-7 h-7 rounded-full object-cover mr-3">
           <?php else: ?>
           <i class="fas fa-user-circle mr-3"></i>

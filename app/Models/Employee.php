@@ -228,28 +228,5 @@ class Employee extends Model
         });
     }
 
-  /**
-   * Verifica se o funcionário possui um avatar válido (existe no banco e no disco)
-   *
-   * @return bool True se o avatar existe, false caso contrário
-   */
-    public function hasValidAvatar(): bool
-    {
-        return $this->avatar_name !== null;
-    }
-
-  /**
-   * Retorna o caminho URL para o avatar do funcionário
-   *
-   * @return string URL do avatar ou imagem padrão se não existir
-   */
-    public function getAvatarUrl(): string
-    {
-        if ($this->hasValidAvatar()) {
-            return '/uploads/avatars/' . htmlspecialchars($this->avatar_name);
-        }
-
-      // Retorna uma imagem padrão caso nenhum avatar esteja definido
-        return '/assets/images/defaults/default-avatar.jpg';
-    }
+  // Os métodos relacionados ao avatar foram movidos para o modelo ProfileImage
 }

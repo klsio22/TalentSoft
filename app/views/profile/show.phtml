@@ -46,9 +46,12 @@
 
     <div class="mb-6">
 
-      <?php if ($user->hasValidAvatar()): ?>
+      <?php 
+        $profileImage = new \App\Models\ProfileImage();
+        if ($profileImage->hasValidAvatar($user)): 
+      ?>
       <div class="relative inline-block">
-        <img src="<?= $user->getAvatarUrl() ?>" alt="Foto de perfil"
+        <img src="<?= $profileImage->getAvatarUrl($user) ?>" alt="Foto de perfil"
           class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg" />
         <form action="<?= route('profile.remove-avatar') ?>" method="post" class="absolute -bottom-2 -right-2">
           <button type="submit" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-md"
