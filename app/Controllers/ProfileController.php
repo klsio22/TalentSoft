@@ -46,9 +46,14 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
+        if (!$user) {
+            $this->redirectTo(route('auth.login'));
+            return;
+        }
+
         $this->render(self::VIEW_PROFILE, [
-        'title' => self::TITLE_PROFILE,
-        'user' => $user
+            'title' => self::TITLE_PROFILE,
+            'user' => $user
         ]);
     }
 

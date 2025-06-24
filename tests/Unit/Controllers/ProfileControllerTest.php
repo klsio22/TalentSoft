@@ -115,6 +115,12 @@ class ProfileControllerTest extends ControllerTestCase
                 $this->redirectUrl = $url;
                 echo "Redirect: $url";
             }
+
+            // Override render method to prevent view rendering
+            public function render(string $view, array $data = []): void
+            {
+                // Don't render the view to avoid null user errors
+            }
         };
 
         // Capturar saída
