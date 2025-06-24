@@ -17,7 +17,7 @@ class ProfileImageCest extends BaseAcceptanceCest
     private const PROFILE_URL = '/profile';
     private const DEFAULT_PASSWORD = '123456';
     private const USER_EMAIL = 'flavio@user.com';
-    private const SUCCESS_MESSAGE_SELECTOR = '.flash-message.success';
+
     private const ERROR_MESSAGE_SELECTOR = '.flash-message.danger';
     private const AVATAR_INPUT_ID = 'avatar';
     private const UPLOAD_BUTTON_ID = 'upload-btn';
@@ -55,17 +55,17 @@ class ProfileImageCest extends BaseAcceptanceCest
 
         // Verificar se estamos na página de perfil
         $tester->seeInCurrentUrl(self::PROFILE_URL);
-        
+
         // Verificar se o campo de upload de avatar está presente no DOM
         // Usamos seeElementInDOM em vez de seeElement porque o input pode estar oculto via CSS
         $tester->seeElementInDOM('#' . self::AVATAR_INPUT_ID);
-        
+
         // Verificar se o botão de upload está inicialmente oculto
         $tester->dontSeeElement('#' . self::UPLOAD_BUTTON_ID);
-        
+
         // Anexar um arquivo ao campo de upload
         $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/default-avatar.jpg');
-        
+
         // Verificar se o botão de upload ficou visível após anexar o arquivo
         $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
         $tester->seeElement('#' . self::UPLOAD_BUTTON_ID);
@@ -81,19 +81,19 @@ class ProfileImageCest extends BaseAcceptanceCest
 
         // Anexar uma imagem válida
         $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/default-avatar.jpg');
-        
+
         // Verificar se o botão de upload está visível
         $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
-        
+
         // Clicar no botão de upload
         $tester->click('#' . self::UPLOAD_BUTTON_ID);
 
         // Aguardar redirecionamento após o envio do formulário
         $tester->wait(3); // Aumentado para 3 segundos
-        
+
         // Verificar se estamos na página de perfil
         $tester->seeInCurrentUrl(self::PROFILE_URL);
-        
+
         // Verificar se o upload foi bem-sucedido - usando seletores mais genéricos e robustos
         $tester->waitForElementVisible('.flash-message', 10); // Aumentado para 10 segundos
         $tester->waitForText('Sua foto de perfil foi atualizada com sucesso.', 10); // Esperar pelo texto
@@ -113,10 +113,10 @@ class ProfileImageCest extends BaseAcceptanceCest
 
         // Anexar uma imagem com formato inválido (SVG)
         $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/invalid_format.svg');
-        
+
         // Verificar se o botão de upload está visível
         $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
-        
+
         // Clicar no botão de upload
         $tester->click('#' . self::UPLOAD_BUTTON_ID);
 
@@ -168,10 +168,10 @@ class ProfileImageCest extends BaseAcceptanceCest
         $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
         $tester->click('#' . self::UPLOAD_BUTTON_ID);
         $tester->wait(3);
-        
+
         // Verificar se a imagem foi carregada com sucesso
         $tester->waitForElementVisible(self::AVATAR_IMAGE_SELECTOR, 5);
-        
+
         // Verificar se o botão de remover está presente
         $tester->seeElement(self::REMOVE_BUTTON_SELECTOR);
 
@@ -180,10 +180,10 @@ class ProfileImageCest extends BaseAcceptanceCest
 
         // Aguardar redirecionamento após a remoção
         $tester->wait(3); // Aumentado para 3 segundos
-        
+
         // Verificar se estamos na página de perfil
         $tester->seeInCurrentUrl(self::PROFILE_URL);
-        
+
         // Verificar se a remoção foi bem-sucedida - usando seletores mais genéricos e robustos
         $tester->waitForElementVisible('.flash-message', 10); // Aumentado para 10 segundos
         $tester->waitForText('Sua foto de perfil foi removida com sucesso.', 10); // Texto exato da mensagem de remoção
