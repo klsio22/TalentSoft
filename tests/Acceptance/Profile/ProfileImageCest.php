@@ -74,20 +74,20 @@ class ProfileImageCest extends BaseAcceptanceCest
 
         // Anexar um arquivo de imagem válido
         $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/default-avatar.jpg');
-        
+
         // O JavaScript deve tornar o botão de upload visível
         $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
-        
+
         // Clicar no botão de upload
         $tester->click('#' . self::UPLOAD_BUTTON_ID);
-        
+
         // Aguardar redirecionamento após o envio do formulário
         $tester->wait(2);
-        
+
         // Verificar se o upload foi bem-sucedido
         $tester->waitForElementVisible(self::SUCCESS_MESSAGE_SELECTOR, 5);
         $tester->see('Sua foto de perfil foi atualizada com sucesso.', self::SUCCESS_MESSAGE_SELECTOR);
-        
+
         // Verificar se a imagem de perfil está sendo exibida
         $tester->waitForElementVisible(self::AVATAR_IMAGE_SELECTOR, 5);
         $tester->seeElement(self::AVATAR_IMAGE_SELECTOR);
@@ -103,16 +103,16 @@ class ProfileImageCest extends BaseAcceptanceCest
 
         // Anexar um arquivo com formato inválido
         $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/invalid_format.svg');
-        
+
         // O JavaScript deve tornar o botão de upload visível
         $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
-        
+
         // Clicar no botão de upload
         $tester->click('#' . self::UPLOAD_BUTTON_ID);
-        
+
         // Aguardar redirecionamento após o envio do formulário
         $tester->wait(2);
-        
+
         // Verificar se aparece mensagem de erro
         $tester->waitForElementVisible(self::ERROR_MESSAGE_SELECTOR, 5);
         $tester->see('Tipo de arquivo inválido', self::ERROR_MESSAGE_SELECTOR); // Mensagem exata de erro de formato
@@ -128,16 +128,16 @@ class ProfileImageCest extends BaseAcceptanceCest
 
         // Anexar um arquivo muito grande
         $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/oversized_image.jpg');
-        
+
         // O JavaScript deve tornar o botão de upload visível
         $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
-        
+
         // Clicar no botão de upload
         $tester->click('#' . self::UPLOAD_BUTTON_ID);
-        
+
         // Aguardar redirecionamento após o envio do formulário
         $tester->wait(3);
-        
+
         // Verificar que o upload falhou devido ao tamanho excessivo
         // O servidor retorna HTTP 413 (Request Entity Too Large) para arquivos muito grandes
         // Isso é um comportamento esperado e confirma que o limite de tamanho está funcionando
@@ -152,19 +152,19 @@ class ProfileImageCest extends BaseAcceptanceCest
     {
         // Primeiro fazer upload de uma imagem para garantir que existe algo para remover
         $this->testValidImageUpload($tester);
-        
+
         // Verificar se o botão de remover está presente
         $tester->seeElement(self::REMOVE_BUTTON_SELECTOR);
-        
+
         // Clicar no botão de remover
         $tester->click(self::REMOVE_BUTTON_SELECTOR);
-        
+
         // Aguardar redirecionamento após a remoção
         $tester->wait(2);
-        
+
         // Verificar se a remoção foi bem-sucedida
         $tester->waitForElementVisible(self::SUCCESS_MESSAGE_SELECTOR, 5);
-        
+
         // Verificar se voltou para o avatar padrão
         $tester->waitForElementVisible(self::DEFAULT_AVATAR_SELECTOR, 5);
         $tester->seeElement(self::DEFAULT_AVATAR_SELECTOR);
