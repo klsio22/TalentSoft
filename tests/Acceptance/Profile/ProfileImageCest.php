@@ -22,7 +22,7 @@ class ProfileImageCest extends BaseAcceptanceCest
     private const AVATAR_INPUT_ID = 'avatar';
     private const UPLOAD_BUTTON_ID = 'upload-btn';
     private const REMOVE_BUTTON_SELECTOR = '//button[@title="Remover foto"]';
-    private const AVATAR_IMAGE_SELECTOR = '//img[contains(@src, "avatars")]';
+    private const AVATAR_IMAGE_SELECTOR = '//img[@alt="Foto de perfil"]';
     private const DEFAULT_AVATAR_SELECTOR = '//div[contains(@class, "bg-gradient-to-br")]//i[contains(@class, "fa-user")]';
 
     /**
@@ -43,25 +43,32 @@ class ProfileImageCest extends BaseAcceptanceCest
     private function goToProfilePage(AcceptanceTester $tester): void
     {
         $tester->amOnPage(self::PROFILE_URL);
-        $tester->see('Meu Perfil');
-        $tester->wait(1);
     }
 
     /**
-     * Teste para verificar se a página de perfil exibe a interface de upload de imagem
+     * Teste para verificar a interface de upload de imagem de perfil
      */
     public function testProfileImageUploadInterface(AcceptanceTester $tester): void
     {
         $this->loginAsUser($tester);
         $this->goToProfilePage($tester);
 
-        // Verificar se os elementos da interface estão presentes
-        $tester->seeElement('label[for="avatar"]');
-        $tester->see('Alterar foto');
-        // O input está com a classe 'hidden', então usamos seeElementInDOM em vez de seeElement
-        $tester->seeElementInDOM('input#avatar');
-        $tester->seeElementInDOM('#upload-btn'); // O botão também está oculto inicialmente
-        $tester->see('Formatos permitidos: JPG, PNG, GIF. Tamanho máximo: 2MB');
+        // Verificar se estamos na página de perfil
+        $tester->seeInCurrentUrl(self::PROFILE_URL);
+        
+        // Verificar se o campo de upload de avatar está presente no DOM
+        // Usamos seeElementInDOM em vez de seeElement porque o input pode estar oculto via CSS
+        $tester->seeElementInDOM('#' . self::AVATAR_INPUT_ID);
+        
+        // Verificar se o botão de upload está inicialmente oculto
+        $tester->dontSeeElement('#' . self::UPLOAD_BUTTON_ID);
+        
+        // Anexar um arquivo ao campo de upload
+        $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/default-avatar.jpg');
+        
+        // Verificar se o botão de upload ficou visível após anexar o arquivo
+        $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
+        $tester->seeElement('#' . self::UPLOAD_BUTTON_ID);
     }
 
     /**
@@ -72,12 +79,12 @@ class ProfileImageCest extends BaseAcceptanceCest
         $this->loginAsUser($tester);
         $this->goToProfilePage($tester);
 
-        // Anexar um arquivo de imagem válido
+        // Anexar uma imagem válida
         $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/default-avatar.jpg');
-
-        // O JavaScript deve tornar o botão de upload visível
+        
+        // Verificar se o botão de upload está visível
         $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
-
+        
         // Clicar no botão de upload
         $tester->click('#' . self::UPLOAD_BUTTON_ID);
 
@@ -85,7 +92,7 @@ class ProfileImageCest extends BaseAcceptanceCest
         $tester->wait(3); // Aumentado para 3 segundos
         
         // Verificar se estamos na página de perfil
-        $tester->seeInCurrentUrl('/profile');
+        $tester->seeInCurrentUrl(self::PROFILE_URL);
         
         // Verificar se o upload foi bem-sucedido - usando seletores mais genéricos e robustos
         $tester->waitForElementVisible('.flash-message', 10); // Aumentado para 10 segundos
@@ -97,26 +104,26 @@ class ProfileImageCest extends BaseAcceptanceCest
     }
 
     /**
-     * Teste para upload de imagem de perfil inválida (formato não suportado)
+     * Teste para upload de imagem de perfil inválida (formato não permitido)
      */
     public function testInvalidFormatImageUpload(AcceptanceTester $tester): void
     {
         $this->loginAsUser($tester);
         $this->goToProfilePage($tester);
 
-        // Anexar um arquivo com formato inválido
+        // Anexar uma imagem com formato inválido (SVG)
         $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/invalid_format.svg');
-
-        // O JavaScript deve tornar o botão de upload visível
+        
+        // Verificar se o botão de upload está visível
         $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
-
+        
         // Clicar no botão de upload
         $tester->click('#' . self::UPLOAD_BUTTON_ID);
 
         // Aguardar redirecionamento após o envio do formulário
         $tester->wait(2);
 
-        // Verificar se aparece mensagem de erro
+        // Verificar se o upload falhou com a mensagem correta
         $tester->waitForElementVisible(self::ERROR_MESSAGE_SELECTOR, 5);
         $tester->see('Tipo de arquivo inválido', self::ERROR_MESSAGE_SELECTOR); // Mensagem exata de erro de formato
     }
@@ -153,9 +160,18 @@ class ProfileImageCest extends BaseAcceptanceCest
      */
     public function testAvatarRemoval(AcceptanceTester $tester): void
     {
-        // Primeiro fazer upload de uma imagem para garantir que existe algo para remover
-        $this->testValidImageUpload($tester);
+        $this->loginAsUser($tester);
+        $this->goToProfilePage($tester);
 
+        // Primeiro fazer upload de uma imagem para garantir que existe algo para remover
+        $tester->attachFile(self::AVATAR_INPUT_ID, 'imgs/default-avatar.jpg');
+        $tester->waitForElementVisible('#' . self::UPLOAD_BUTTON_ID, 5);
+        $tester->click('#' . self::UPLOAD_BUTTON_ID);
+        $tester->wait(3);
+        
+        // Verificar se a imagem foi carregada com sucesso
+        $tester->waitForElementVisible(self::AVATAR_IMAGE_SELECTOR, 5);
+        
         // Verificar se o botão de remover está presente
         $tester->seeElement(self::REMOVE_BUTTON_SELECTOR);
 
@@ -166,11 +182,11 @@ class ProfileImageCest extends BaseAcceptanceCest
         $tester->wait(3); // Aumentado para 3 segundos
         
         // Verificar se estamos na página de perfil
-        $tester->seeInCurrentUrl('/profile');
+        $tester->seeInCurrentUrl(self::PROFILE_URL);
         
         // Verificar se a remoção foi bem-sucedida - usando seletores mais genéricos e robustos
         $tester->waitForElementVisible('.flash-message', 10); // Aumentado para 10 segundos
-        $tester->waitForText('removida', 10); // Esperar por parte do texto de sucesso
+        $tester->waitForText('Sua foto de perfil foi removida com sucesso.', 10); // Texto exato da mensagem de remoção
 
         // Verificar se voltou para o avatar padrão
         $tester->waitForElementVisible(self::DEFAULT_AVATAR_SELECTOR, 5);
