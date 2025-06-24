@@ -2,14 +2,10 @@
 
 namespace App\Controllers;
 
-use App\Models\Employee;
 use App\Models\ProfileImage;
 use Lib\Authentication\Auth;
 use Lib\FlashMessage;
 use Core\Http\Controllers\Controller;
-use Core\Request;
-use Core\Response;
-use Core\Session;
 
 class ProfileController extends Controller
 {
@@ -51,31 +47,58 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $this->render(self::VIEW_PROFILE, [
-            'title' => self::TITLE_PROFILE,
-            'user' => $user
+        'title' => self::TITLE_PROFILE,
+        'user' => $user
         ]);
     }
 
+  /**
+   * Handle avatar upload process
+   */
     public function uploadAvatar(): void
     {
         $user = Auth::user();
-        $debug = [];
 
-        if (!$user) {
-            $this->redirectTo(route('auth.login'));
+        if (!$this->validateUserAccess($user)) {
             return;
         }
 
-      // Verifica se o usuário tem permissão para fazer upload
+        $debug = $this->collectDebugInfo();
+        $this->processAvatarUpload($user, $debug);
+
+        $this->redirectTo(route('profile.show'));
+    }
+
+  /**
+   * Validate if user is authenticated and has permission
+   *
+   * @param mixed $user The user object
+   * @return bool True if user has access, false otherwise
+   */
+    private function validateUserAccess($user): bool
+    {
+        if (!$user) {
+            $this->redirectTo(route('auth.login'));
+            return false;
+        }
+
         if (!$this->canUploadAvatar()) {
             FlashMessage::danger('Você não tem permissão para fazer upload de imagens.');
             $this->redirectTo(route('profile.show'));
-            return;
+            return false;
         }
 
-        $fileInfo = null;
+        return true;
+    }
 
-      // Add debug information
+  /**
+   * Collect debug information about the upload request
+   *
+   * @return array Debug information
+   */
+    private function collectDebugInfo(): array
+    {
+        $debug = [];
         $debug['request_method'] = $_SERVER['REQUEST_METHOD'];
         $debug['files'] = isset($_FILES) ? 'Files array exists' : 'No files array';
         $debug['avatar'] = isset($_FILES['avatar']) ? 'Avatar key exists' : 'No avatar key';
@@ -87,40 +110,103 @@ class ProfileController extends Controller
             $debug['avatar_tmp_name'] = $_FILES['avatar']['tmp_name'];
         }
 
-      // Check if file was uploaded
-        if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-            $profileImage = new ProfileImage();
-            $fileInfo = $profileImage->validateImage($_FILES['avatar']);
-            $debug['validation'] = empty($fileInfo['errors']) ? 'Validation passed' : 'Validation failed';
-            $debug['validation_errors'] = $fileInfo['errors'];
+        return $debug;
+    }
 
-            if (!empty($fileInfo['errors'])) {
-                foreach ($fileInfo['errors'] as $error) {
-                    FlashMessage::danger($error);
-                }
-            } else {
-              // Process the upload usando o modelo ProfileImage
-                $profileImage = new ProfileImage();
-                $result = $profileImage->processImageUpload($user, $_FILES['avatar']);
-                $debug['upload_errors'] = $result['errors'] ?? [];
-
-                if (!empty($result['errors'])) {
-                    foreach ($result['errors'] as $error) {
-                        FlashMessage::danger($error);
-                    }
-                } else {
-                    FlashMessage::success('Sua foto de perfil foi atualizada com sucesso.');
-                }
-            }
-        } elseif (isset($_FILES['avatar']) && $_FILES['avatar']['error'] !== UPLOAD_ERR_NO_FILE) {
-          // Handle upload errors usando o modelo ProfileImage
-            $profileImage = new ProfileImage();
-            FlashMessage::danger($profileImage->getUploadErrorMessage($_FILES['avatar']['error']));
-        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            FlashMessage::danger('Nenhum arquivo foi enviado.');
+  /**
+   * Process the avatar upload
+   *
+   * @param mixed $user The user object
+   * @param array $debug Debug information
+   */
+    private function processAvatarUpload($user, array &$debug): void
+    {
+      // No file uploaded
+        if (!isset($_FILES['avatar'])) {
+            $this->handleNoFileUploaded();
+            return;
         }
 
-        $this->redirectTo(route('profile.show'));
+        $uploadError = $_FILES['avatar']['error'];
+
+      // Successful upload
+        if ($uploadError === UPLOAD_ERR_OK) {
+            $this->handleSuccessfulUpload($user, $debug);
+            return;
+        }
+
+      // Upload error but file was selected
+        if ($uploadError !== UPLOAD_ERR_NO_FILE) {
+            $this->handleUploadError($uploadError);
+            return;
+        }
+
+      // POST request but no file selected
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            FlashMessage::danger('Nenhum arquivo foi enviado.');
+        }
+    }
+
+  /**
+   * Handle when no file was uploaded
+   */
+    private function handleNoFileUploaded(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            FlashMessage::danger('Nenhum arquivo foi enviado.');
+        }
+    }
+
+  /**
+   * Handle successful file upload
+   *
+   * @param mixed $user The user object
+   * @param array $debug Debug information
+   */
+    private function handleSuccessfulUpload($user, array &$debug): void
+    {
+        $profileImage = new ProfileImage();
+        $fileInfo = $profileImage->validateImage($_FILES['avatar']);
+
+        $debug['validation'] = empty($fileInfo['errors']) ? 'Validation passed' : 'Validation failed';
+        $debug['validation_errors'] = $fileInfo['errors'] ?? [];
+
+        if (!empty($fileInfo['errors'])) {
+            $this->displayErrors($fileInfo['errors']);
+            return;
+        }
+
+        $result = $profileImage->processImageUpload($user, $_FILES['avatar']);
+        $debug['upload_errors'] = $result['errors'] ?? [];
+
+        if (!empty($result['errors'])) {
+            $this->displayErrors($result['errors']);
+        } else {
+            FlashMessage::success('Sua foto de perfil foi atualizada com sucesso.');
+        }
+    }
+
+  /**
+   * Handle upload errors
+   *
+   * @param int $errorCode PHP upload error code
+   */
+    private function handleUploadError(int $errorCode): void
+    {
+        $profileImage = new ProfileImage();
+        FlashMessage::danger($profileImage->getUploadErrorMessage($errorCode));
+    }
+
+  /**
+   * Display multiple error messages
+   *
+   * @param array $errors Array of error messages
+   */
+    private function displayErrors(array $errors): void
+    {
+        foreach ($errors as $error) {
+            FlashMessage::danger($error);
+        }
     }
 
     public function removeAvatar(): void
@@ -147,6 +233,4 @@ class ProfileController extends Controller
 
         $this->redirectTo(route('profile.show'));
     }
-
-
 }
