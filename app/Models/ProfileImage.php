@@ -122,7 +122,17 @@ class ProfileImage
     private function generateUniqueFilename($user, array $file): string
     {
         $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        return 'avatar_' . $user->id . '_' . uniqid() . '.' . $extension;
+
+        // Get the user's role prefix
+        $rolePrefix = 'user';
+        if ($user->isAdmin()) {
+            $rolePrefix = 'admin';
+        } elseif ($user->isHR()) {
+            $rolePrefix = 'hr';
+        }
+
+        // Generate filename in the format: role_uniqueid.extension
+        return $rolePrefix . '_' . uniqid() . '.' . $extension;
     }
 
   /**
