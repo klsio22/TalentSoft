@@ -22,6 +22,7 @@ use Lib\Validations;
  * @property string|null $zipcode
  * @property string|null $created_at
  * @property string|null $notes
+ * @property string|null $avatar_name
  */
 class Employee extends Model
 {
