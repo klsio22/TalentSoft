@@ -47,10 +47,12 @@
     <div class="mb-6">
       <?php
       $profileAvatar = new \App\Services\ProfileAvatar($user);
-      if ($profileAvatar->hasValidAvatar()):
+      if ($profileAvatar-> isValidImage()):
     ?>
       <div class="relative inline-block">
-        <img src="<?= $profileAvatar->path() ?>" alt="Foto de perfil" class="w-7 h-7 rounded-full object-cover mr-3">
+        <img src="<?= $profileAvatar->path() ?>" alt="Foto de perfil"
+          class="w-44 h-44 rounded-full object-cover mr-3 cursor-pointer" id="avatar-image"
+          title="Clique para alterar a foto">
         <form action="<?= route('profile.remove-avatar') ?>" method="post" class="absolute -bottom-2 -right-2">
           <button type="submit" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-md"
             title="Remover foto">
@@ -65,7 +67,8 @@
       </div>
       <?php endif; ?>
 
-      <form action="<?= route('profile.upload-avatar') ?>" method="post" enctype="multipart/form-data" class="mt-4">
+      <form action="<?= route('profile.upload-avatar') ?>" method="post" enctype="multipart/form-data" class="mt-4"
+        id="avatar-form">
         <div class="flex flex-col items-center">
           <label for="avatar" class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mb-2">
             <i class="fas fa-upload mr-2"></i> Escolher arquivo
@@ -76,6 +79,37 @@
           </button>
         </div>
       </form>
+
+      <script>
+        // Click-to-upload functionality
+        document.addEventListener('DOMContentLoaded', function () {
+          const avatarImage = document.getElementById('avatar-image');
+          const fileInput = document.getElementById('avatar');
+          const form = document.getElementById('avatar-form');
+
+          // When clicking on the avatar image, trigger the file input
+          if (avatarImage) {
+            avatarImage.addEventListener('click', function () {
+              fileInput.click();
+            });
+          }
+
+          // Optional: Auto-submit form when file is selected
+          fileInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+              // Show a preview of the selected image
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                avatarImage.src = e.target.result;
+              };
+              reader.readAsDataURL(this.files[0]);
+
+              // Uncomment the line below if you want the form to submit automatically when a file is selected
+              // form.submit();
+            }
+          });
+        });
+      </script>
     </div>
 
     <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
