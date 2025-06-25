@@ -25,3 +25,4 @@ html
 /tests/Acceptance/_output
 /storage
 /public/uploads/avatars
+/public/uploads

@@ -17,7 +17,6 @@ class ProfileImageCest extends BaseAcceptanceCest
     private const PROFILE_URL = '/profile';
     private const DEFAULT_PASSWORD = '123456';
     private const USER_EMAIL = 'flavio@user.com';
-
     private const ERROR_MESSAGE_SELECTOR = '.flash-message.danger';
     private const AVATAR_INPUT_ID = 'avatar';
     private const UPLOAD_BUTTON_ID = 'upload-btn';

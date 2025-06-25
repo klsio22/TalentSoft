@@ -44,8 +44,6 @@ define('DB_PASSWORD', $dbPass);
 // Constantes para o sistema
 define('DEFAULT_PASSWORD', '123456');
 define('ROOT_DIR', dirname(__DIR__, 3));
-define('UPLOADS_DIR', ROOT_DIR . '/public/uploads/');
-define('AVATARS_DIR', UPLOADS_DIR . 'avatars/');
-define('ASSETS_DIR', ROOT_DIR . '/public/assets/');
-define('IMAGES_DIR', ASSETS_DIR . 'images/defaults/');
-define('DEFAULT_AVATAR', 'default-avatar.jpg');
+define('UPLOADS_DIR', ROOT_DIR . '/public/assets/uploads/');
+define('IMAGES_DIR', ROOT_DIR . '/public/assets/images/defaults/');
+define('DEFAULT_AVATAR', 'avatar.png');

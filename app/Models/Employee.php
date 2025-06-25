@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ProfileAvatar;
 use Core\Database\ActiveRecord\BelongsToMany;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
@@ -24,8 +25,8 @@ use Lib\Validations;
  */
 class Employee extends Model
 {
-    protected static string $table = 'Employees';
-    protected static array $columns = [
+  protected static string $table = 'Employees';
+  protected static array $columns = [
     'name',
     'cpf',
     'email',
@@ -41,7 +42,7 @@ class Employee extends Model
     'created_at',
     'notes',
     'avatar_name'
-    ];
+  ];
 
   /**
    * Get the employee's role for a specific project
@@ -49,68 +50,68 @@ class Employee extends Model
    * @param int $projectId ID of the project
    * @return string|null The role of the employee in the project, or null if not found
    */
-    public function getRoleForProject(int $projectId): ?string
-    {
-        $employeeProject = EmployeeProject::findBy([
-        'employee_id' => $this->id,
-        'project_id' => $projectId
-        ]);
+  public function getRoleForProject(int $projectId): ?string
+  {
+    $employeeProject = EmployeeProject::findBy([
+      'employee_id' => $this->id,
+      'project_id' => $projectId
+    ]);
 
-        return $employeeProject ? $employeeProject->role : null;
-    }
+    return $employeeProject ? $employeeProject->role : null;
+  }
 
   /**
    * @return array<int, string>
    */
-    public static function getColumns(): array
-    {
-        return static::$columns;
-    }
+  public static function getColumns(): array
+  {
+    return static::$columns;
+  }
 
-    public static function getTable(): string
-    {
-        return static::$table;
-    }
+  public static function getTable(): string
+  {
+    return static::$table;
+  }
 
-    public function validates(): void
-    {
-        Validations::notEmpty('name', $this);
-        Validations::notEmpty('cpf', $this);
-        Validations::notEmpty('email', $this);
-        Validations::notEmpty('role_id', $this);
-        Validations::notEmpty('hire_date', $this);
+  public function validates(): void
+  {
+    Validations::notEmpty('name', $this);
+    Validations::notEmpty('cpf', $this);
+    Validations::notEmpty('email', $this);
+    Validations::notEmpty('role_id', $this);
+    Validations::notEmpty('hire_date', $this);
 
-        Validations::uniqueness('email', $this);
-        Validations::uniqueness('cpf', $this);
-    }
+    Validations::uniqueness('email', $this);
+    Validations::uniqueness('cpf', $this);
+  }
 
   /**
    * @return UserCredential|null
    */
-    public function credential(): ?UserCredential
-    {
-        $credentials = $this->hasMany(UserCredential::class, 'employee_id')->get();
-        if (isset($credentials[0])) {
-            return UserCredential::findById($credentials[0]->id);
-        }
-        return null;
+  public function credential(): ?UserCredential
+  {
+    $credentials = $this->hasMany(UserCredential::class, 'employee_id')->get();
+    if (isset($credentials[0])) {
+      return UserCredential::findById($credentials[0]->id);
     }
+    return null;
+  }
 
-    public function role(): ?Role
-    {
-        $result = $this->belongsTo(Role::class, 'role_id')->get();
-        return $result instanceof Role ? $result : null;
-    }
+  public function role(): ?Role
+  {
+    $result = $this->belongsTo(Role::class, 'role_id')->get();
+    return $result instanceof Role ? $result : null;
+  }
 
-    public function projects(): BelongsToMany
-    {
-        return $this->BelongsToMany(
-            Project::class,
-            'Employee_Projects',
-            'employee_id',
-            'project_id'
-        );
-    }
+  public function projects(): BelongsToMany
+  {
+    return $this->BelongsToMany(
+      Project::class,
+      'Employee_Projects',
+      'employee_id',
+      'project_id'
+    );
+  }
 
 
 
@@ -118,15 +119,15 @@ class Employee extends Model
    * @param array<string, mixed> $data
    * @return array<int|string, mixed>
    */
-    public static function createWithCredentials(array $data): array
-    {
-        return EmployeeFactory::createWithCredentials($data);
-    }
+  public static function createWithCredentials(array $data): array
+  {
+    return EmployeeFactory::createWithCredentials($data);
+  }
 
-    public static function findByEmail(string $email): ?Employee
-    {
-        return self::findBy(['email' => $email]);
-    }
+  public static function findByEmail(string $email): ?Employee
+  {
+    return self::findBy(['email' => $email]);
+  }
 
   /**
    * Busca um funcionário pelo ID do usuário
@@ -134,52 +135,52 @@ class Employee extends Model
    * @param int $userId ID do usuário
    * @return Employee|null Funcionário encontrado ou null
    */
-    public static function findByUserId(int $userId): ?Employee
-    {
-        return EmployeeAuthentication::findByUserId($userId);
-    }
+  public static function findByUserId(int $userId): ?Employee
+  {
+    return EmployeeAuthentication::findByUserId($userId);
+  }
 
   /**
    * Obtém o funcionário associado ao usuário atual
    *
    * @return Employee|null Funcionário ou null se não encontrado
    */
-    public static function getCurrentUserEmployee(): ?Employee
-    {
-        return EmployeeAuthentication::getCurrentUserEmployee();
-    }
+  public static function getCurrentUserEmployee(): ?Employee
+  {
+    return EmployeeAuthentication::getCurrentUserEmployee();
+  }
 
-    public function isAdmin(): bool
-    {
-        $role = $this->role();
-        if (!$role) {
-            return false;
-        }
-        return strtolower($role->name) === 'admin';
+  public function isAdmin(): bool
+  {
+    $role = $this->role();
+    if (!$role) {
+      return false;
     }
+    return strtolower($role->name) === 'admin';
+  }
 
-    public function isHR(): bool
-    {
-        $role = $this->role();
-        if (!$role) {
-            return false;
-        }
-        return strtolower($role->name) === 'hr';
+  public function isHR(): bool
+  {
+    $role = $this->role();
+    if (!$role) {
+      return false;
     }
+    return strtolower($role->name) === 'hr';
+  }
 
-    public function isUser(): bool
-    {
-        $role = $this->role();
-        if (!$role) {
-            return false;
-        }
-        return strtolower($role->name) === 'user';
+  public function isUser(): bool
+  {
+    $role = $this->role();
+    if (!$role) {
+      return false;
     }
+    return strtolower($role->name) === 'user';
+  }
 
-    public function authenticate(string $password): bool
-    {
-        return EmployeeAuthentication::authenticate($this, $password);
-    }
+  public function authenticate(string $password): bool
+  {
+    return EmployeeAuthentication::authenticate($this, $password);
+  }
 
   /**
    * Filtra funcionários com base em critérios de busca
@@ -190,10 +191,10 @@ class Employee extends Model
    * @param string|null $status Status do funcionário para filtrar
    * @return array<int, Employee> Lista filtrada de funcionários
    */
-    public static function filterEmployees(array $allEmployees, ?string $search, ?int $roleId, ?string $status): array
-    {
-        return EmployeeFilter::filter($allEmployees, $search, $roleId, $status);
-    }
+  public static function filterEmployees(array $allEmployees, ?string $search, ?int $roleId, ?string $status): array
+  {
+    return EmployeeFilter::filter($allEmployees, $search, $roleId, $status);
+  }
 
   /**
    * Cria um objeto de paginação a partir de uma lista de funcionários
@@ -203,10 +204,10 @@ class Employee extends Model
    * @param int $perPage Itens por página
    * @return object Objeto de paginação
    */
-    public static function createPaginator(array $employees, int $page, int $perPage): object
-    {
-        return EmployeePaginator::paginate($employees, $page, $perPage);
-    }
+  public static function createPaginator(array $employees, int $page, int $perPage): object
+  {
+    return EmployeePaginator::paginate($employees, $page, $perPage);
+  }
 
   /**
    * Filtra funcionários disponíveis para atribuição a um projeto
@@ -216,17 +217,25 @@ class Employee extends Model
    * @param array<int, object> $projectEmployees Funcionários já atribuídos ao projeto
    * @return array<int, object> Funcionários disponíveis
    */
-    public static function filterAvailableEmployees(array $allEmployees, array $projectEmployees): array
-    {
-        return array_filter($allEmployees, function ($employee) use ($projectEmployees) {
-            foreach ($projectEmployees as $projectEmployee) {
-                if ($projectEmployee->id === $employee->id) {
-                    return false;
-                }
-            }
-            return true;
-        });
-    }
+  public static function filterAvailableEmployees(array $allEmployees, array $projectEmployees): array
+  {
+    return array_filter($allEmployees, function ($employee) use ($projectEmployees) {
+      foreach ($projectEmployees as $projectEmployee) {
+        if ($projectEmployee->id === $employee->id) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
 
-  // Os métodos relacionados ao avatar foram movidos para o modelo ProfileImage
+  /**
+   * Retorna uma instância do serviço ProfileAvatar para este funcionário
+   *
+   * @return \App\Services\ProfileAvatar
+   */
+  public function avatar(): ProfileAvatar
+  {
+    return new ProfileAvatar($this);
+  }
 }

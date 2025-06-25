@@ -7,18 +7,18 @@ function createRequiredDirectories()
 {
   echo "\n=== Preparando diretórios ===\n";
 
-  // Criar diretório de uploads/avatars
-  if (!file_exists(AVATARS_DIR)) {
-    echo "Criando diretório de avatares: " . AVATARS_DIR . "\n";
-    if (mkdir(AVATARS_DIR, 0777, true)) {
-      echo "Diretório de avatares criado com sucesso!\n";
+  // Criar diretório de uploads
+  if (!file_exists(UPLOADS_DIR)) {
+    echo "Criando diretório de uploads: " . UPLOADS_DIR . "\n";
+    if (mkdir(UPLOADS_DIR, 0777, true)) {
+      echo "Diretório de uploads criado com sucesso!\n";
     } else {
-      echo "ERRO: Falha ao criar diretório de avatares.\n";
+      echo "ERRO: Falha ao criar diretório de uploads.\n";
     }
   } else {
-    echo "Diretório de avatares já existe.\n";
+    echo "Diretório de uploads já existe.\n";
     // Garantir que as permissões estão corretas mesmo se o diretório já existir
-    chmod(AVATARS_DIR, 0777);
+    chmod(UPLOADS_DIR, 0777);
   }
   
   // Verificar diretório de imagens
@@ -39,20 +39,20 @@ function prepareDefaultAvatar()
   echo "\n=== Preparando imagem padrão de avatar ===\n";
   
   $defaultAvatarSource = IMAGES_DIR . DEFAULT_AVATAR;
-  $defaultAvatarDest = AVATARS_DIR . 'default_' . uniqid() . '.jpg';
+  $defaultAvatarDest = UPLOADS_DIR . 'default_' . uniqid() . '.png';
   
   // Verificar se a imagem padrão existe
   if (file_exists($defaultAvatarSource)) {
     echo "Imagem padrão encontrada: $defaultAvatarSource\n";
     
-    // Copiar para o diretório de avatares
+    // Copiar para o diretório de uploads
     if (copy($defaultAvatarSource, $defaultAvatarDest)) {
       echo "Imagem padrão copiada para: $defaultAvatarDest\n";
       // Ajustar permissões
       chmod($defaultAvatarDest, 0777);
       return true;
     } else {
-      echo "ERRO: Falha ao copiar imagem padrão para o diretório de avatares.\n";
+      echo "ERRO: Falha ao copiar imagem padrão para o diretório de uploads.\n";
     }
   } else {
     echo "ERRO: Imagem padrão não encontrada em: $defaultAvatarSource\n";
@@ -91,7 +91,7 @@ function setPermissions($path, $permissions = 0777)
  */
 function copyAvatarToUploads($sourceFile, $destName)
 {
-  $destPath = AVATARS_DIR . $destName;
+  $destPath = UPLOADS_DIR . $destName;
   $success = false;
 
   if (file_exists($sourceFile)) {
@@ -117,31 +117,34 @@ function copyAvatarToUploads($sourceFile, $destName)
  */
 function createUserAvatar($prefix = 'user')
 {
-  $avatarName = $prefix . '_' . uniqid() . '.jpg';
+  $avatarName = $prefix . '_' . uniqid() . '.png';
   $defaultAvatarSource = IMAGES_DIR . DEFAULT_AVATAR;
+  $destPath = UPLOADS_DIR . $avatarName;
 
-  // Tentar usar a imagem padrão da pasta images e copiar para o diretório de avatares
-  if (file_exists($defaultAvatarSource) && copyAvatarToUploads($defaultAvatarSource, $avatarName)) {
+  // Tentar usar a imagem padrão da pasta images e copiar para o diretório de uploads
+  if (file_exists($defaultAvatarSource) && copy($defaultAvatarSource, $destPath)) {
+    chmod($destPath, 0777);
+    echo "Avatar criado com sucesso: $destPath\n";
     return $avatarName;
   }
 
+  echo "ERRO: Falha ao criar avatar para $prefix\n";
   return null;
 }
 
 /**
- * Função para ajustar permissões de todos os arquivos no diretório de avatares
+ * Função para ajustar permissões de todos os arquivos no diretório de uploads
  */
 function adjustAllAvatarPermissions()
 {
   echo "\n=== Ajustando permissões finais ===\n";
   setPermissions(UPLOADS_DIR, 0777);
-  setPermissions(AVATARS_DIR, 0777);
 
-  // Ajustar permissões de todos os arquivos no diretório de avatares
-  if (is_dir(AVATARS_DIR) && $handle = opendir(AVATARS_DIR)) {
+  // Ajustar permissões de todos os arquivos no diretório de uploads
+  if (is_dir(UPLOADS_DIR) && $handle = opendir(UPLOADS_DIR)) {
     while (false !== ($file = readdir($handle))) {
-      if ($file != "." && $file != ".." && is_file(AVATARS_DIR . $file)) {
-        setPermissions(AVATARS_DIR . $file, 0777);
+      if ($file != "." && $file != ".." && is_file(UPLOADS_DIR . $file)) {
+        setPermissions(UPLOADS_DIR . $file, 0777);
       }
     }
     closedir($handle);
