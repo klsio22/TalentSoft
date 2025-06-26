@@ -48,7 +48,7 @@ class ProfileController extends Controller
             return;
         }
 
-        if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
+        if (!isset($_FILES['avatar']) ?? $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
             FlashMessage::danger('Erro ao enviar arquivo. Por favor, tente novamente.');
             $this->redirectTo(route('profile.show'));
             return;

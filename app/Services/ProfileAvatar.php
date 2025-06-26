@@ -5,39 +5,21 @@ namespace App\Services;
 use Core\Constants\Constants;
 use Core\Database\ActiveRecord\Model;
 
-/**
- * Class to handle profile avatar operations
- *
- * @property-read Model $model The model that has the avatar property
- */
 class ProfileAvatar
 {
-    /** @var array<string, mixed> $image */
+  /** @var array<string, mixed> $image */
     private array $image;
 
-    /**
-     * @param Model $model The model that has the avatar_name property
-     * @param array<string, mixed> $validations
-     */
+  /** @param array<string, mixed> $validations */
     public function __construct(
         private Model $model,
         private array $validations = []
     ) {
-        // Ensure the model has the required properties
-        if (!property_exists($model, 'avatar_name') && !isset($model->avatar_name)) {
-            // For PHPStan, this is just a runtime check
-            // The actual model classes should have this property defined
-        }
     }
 
-    /**
-     * Get the path to the avatar image
-     *
-     * @return string The URL path to the avatar image
-     */
     public function path(): string
     {
-        if (isset($this->model->avatar_name) && $this->model->avatar_name) {
+        if ($this->model->avatar_name) {
             $filePath = $this->getAbsoluteSavedFilePath();
 
           // Check if file exists before calling md5_file
@@ -112,7 +94,7 @@ class ProfileAvatar
      */
     public function removeOldImage(): void
     {
-        if (isset($this->model->avatar_name) && $this->model->avatar_name) {
+        if ($this->model->avatar_name) {
             $filePath = $this->getAbsoluteSavedFilePath();
             if (file_exists($filePath)) {
                 unlink($filePath);
@@ -128,7 +110,7 @@ class ProfileAvatar
      */
     public function remove(): bool
     {
-        if (!isset($this->model->avatar_name) || !$this->model->avatar_name) {
+        if (!$this->model->avatar_name) {
             return false; // No avatar to remove
         }
 
@@ -144,14 +126,7 @@ class ProfileAvatar
             return $this->model->update([
                 'avatar_name' => null
             ]);
-        } catch (\RuntimeException $e) {
-            // Handle file system errors
-            return false;
-        } catch (\InvalidArgumentException $e) {
-            // Handle validation errors
-            return false;
         } catch (\Exception $e) {
-            // Fallback for any other errors
             return false;
         }
     }
@@ -184,16 +159,8 @@ class ProfileAvatar
         return $path;
     }
 
-    /**
-     * Get the absolute path to the saved avatar file
-     *
-     * @return string The absolute file path
-     */
     private function getAbsoluteSavedFilePath(): string
     {
-        if (!isset($this->model->avatar_name) || !$this->model->avatar_name) {
-            return Constants::rootPath()->join('public' . $this->baseDir())->join('default.png');
-        }
         return Constants::rootPath()->join('public' . $this->baseDir())->join($this->model->avatar_name);
     }
 
