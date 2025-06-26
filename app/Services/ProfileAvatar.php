@@ -8,11 +8,11 @@ use Core\Database\ActiveRecord\Model;
 
 class ProfileAvatar
 {
-  /** @var array<string, mixed> $image */
+    /** @var array<string, mixed> $image */
     private array $image;
 
-  /** @var Model&HasAvatar */
-  private Model $model;
+    /** @var Model&HasAvatar */
+    private Model $model;
 
   /**
    * @param Model $model Model with avatar functionality
