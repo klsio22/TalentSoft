@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Interfaces\HasAvatar;
 use App\Services\ProfileAvatar;
 use Core\Database\ActiveRecord\BelongsToMany;
 use Core\Database\ActiveRecord\Model;
@@ -24,7 +25,7 @@ use Lib\Validations;
  * @property string|null $notes
  * @property string|null $avatar_name
  */
-class Employee extends Model
+class Employee extends Model implements HasAvatar
 {
     protected static string $table = 'Employees';
     protected static array $columns = [
@@ -238,5 +239,46 @@ class Employee extends Model
     public function avatar(): ProfileAvatar
     {
         return new ProfileAvatar($this);
+    }
+
+    /**
+     * Retorna o nome do avatar do funcionário
+     *
+     * @return string|null Nome do arquivo de avatar ou null
+     */
+    public function getAvatarName(): ?string
+    {
+        return $this->avatar_name;
+    }
+
+    /**
+     * Define o nome do avatar do funcionário
+     *
+     * @param string|null $avatarName Nome do arquivo de avatar ou null para remover
+     * @return bool Se a atualização foi bem-sucedida
+     */
+    public function setAvatarName(?string $avatarName): bool
+    {
+        try {
+            // Verifica se o avatar_name não mudou
+            if ($this->avatar_name === $avatarName) {
+                return true; // Considera sucesso se não houver mudança
+            }
+
+            // Atualiza o valor
+            $result = $this->update([
+                'avatar_name' => $avatarName
+            ]);
+
+            // Verifica explicitamente se o avatar foi atualizado
+            if (!$result && $this->avatar_name === $avatarName) {
+                return true;
+            }
+
+            return $result;
+        } catch (\Exception $e) {
+            // Log do erro ou tratamento adequado
+            return false;
+        }
     }
 }

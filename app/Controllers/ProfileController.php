@@ -48,19 +48,24 @@ class ProfileController extends Controller
             return;
         }
 
-        if (!isset($_FILES['avatar']) ?? $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
+        if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
             FlashMessage::danger('Erro ao enviar arquivo. Por favor, tente novamente.');
             $this->redirectTo(route('profile.show'));
             return;
         }
 
         $profileAvatar = new ProfileAvatar($user);
-        $result = $profileAvatar->update($_FILES['avatar']);
+        try {
+            $result = $profileAvatar->update($_FILES['avatar']);
 
-        if ($result) {
-            FlashMessage::success('Sua foto de perfil foi atualizada com sucesso.');
-        } else {
-            FlashMessage::danger('Erro ao atualizar foto de perfil.');
+            // Verificar se a atualização realmente ocorreu
+            if ($result === true) {
+                FlashMessage::success('Sua foto de perfil foi atualizada com sucesso.');
+            } else {
+                FlashMessage::danger('Erro ao atualizar foto de perfil.');
+            }
+        } catch (\Exception $e) {
+            FlashMessage::danger('Erro ao processar imagem: ' . $e->getMessage());
         }
 
         $this->redirectTo(route('profile.show'));

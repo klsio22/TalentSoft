@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Interfaces\HasAvatar;
 use Core\Constants\Constants;
 use Core\Database\ActiveRecord\Model;
 
@@ -10,16 +11,28 @@ class ProfileAvatar
   /** @var array<string, mixed> $image */
     private array $image;
 
-  /** @param array<string, mixed> $validations */
+  /** @var Model&HasAvatar */
+  private Model $model;
+
+  /**
+   * @param Model $model Model with avatar functionality
+   * @param array<string, mixed> $validations
+   * @phpstan-param Model&HasAvatar $model
+   */
     public function __construct(
-        private Model $model,
+        Model $model,
         private array $validations = []
     ) {
+        if (!$model instanceof HasAvatar) {
+            throw new \InvalidArgumentException('Model must implement HasAvatar interface');
+        }
+        $this->model = $model;
     }
 
     public function path(): string
     {
-        if ($this->model->avatar_name) {
+        $avatarName = $this->model->getAvatarName();
+        if ($avatarName) {
             $filePath = $this->getAbsoluteSavedFilePath();
 
           // Check if file exists before calling md5_file
@@ -28,10 +41,10 @@ class ProfileAvatar
                 $hash = md5_file($filePath);
 
                 // Return the avatar URL with hash parameter to force browser to reload when file changes
-                return $this->baseDir() . $this->model->avatar_name . '?' . $hash;
+                return $this->baseDir() . $avatarName . '?' . $hash;
             } else {
               // If file doesn't exist, return without hash
-                return $this->baseDir() . $this->model->avatar_name;
+                return $this->baseDir() . $avatarName;
             }
         }
 
@@ -45,19 +58,25 @@ class ProfileAvatar
     {
         $this->image = $image;
 
+        // Validação da imagem
         if (!$this->isValidImage()) {
             return false;
         }
 
-        if ($this->updateFile()) {
-            $this->model->update([
-            'avatar_name' => $this->getFileName(),
-            ]);
+        try {
+            // Atualiza o arquivo
+            if (!$this->updateFile()) {
+                return false;
+            }
 
-            return true;
+            // Define o nome do avatar no modelo
+            $fileName = $this->getFileName();
+            return $this->model->setAvatarName($fileName);
+        } catch (\Exception $e) {
+            // Em caso de erro, limpar qualquer arquivo que tenha sido carregado
+            $this->removeOldImage();
+            return false;
         }
-
-        return false;
     }
 
     protected function updateFile(): bool
@@ -75,7 +94,7 @@ class ProfileAvatar
 
         if (!$resp) {
             $error = error_get_last();
-            throw new \RuntimeException(
+            throw new \InvalidArgumentException(
                 'Failed to move uploaded file: ' . ($error['message'] ?? 'Unknown error')
             );
         }
@@ -94,7 +113,8 @@ class ProfileAvatar
      */
     public function removeOldImage(): void
     {
-        if ($this->model->avatar_name) {
+        $avatarName = $this->model->getAvatarName();
+        if ($avatarName) {
             $filePath = $this->getAbsoluteSavedFilePath();
             if (file_exists($filePath)) {
                 unlink($filePath);
@@ -110,7 +130,8 @@ class ProfileAvatar
      */
     public function remove(): bool
     {
-        if (!$this->model->avatar_name) {
+        $avatarName = $this->model->getAvatarName();
+        if (!$avatarName) {
             return false; // No avatar to remove
         }
 
@@ -123,9 +144,7 @@ class ProfileAvatar
             }
 
             // Update the model to remove avatar reference
-            return $this->model->update([
-                'avatar_name' => null
-            ]);
+            return $this->model->setAvatarName(null);
         } catch (\Exception $e) {
             return false;
         }
@@ -161,7 +180,11 @@ class ProfileAvatar
 
     private function getAbsoluteSavedFilePath(): string
     {
-        return Constants::rootPath()->join('public' . $this->baseDir())->join($this->model->avatar_name);
+        $avatarName = $this->model->getAvatarName();
+        if (!$avatarName) {
+            throw new \InvalidArgumentException('Avatar name is not set');
+        }
+        return Constants::rootPath()->join('public' . $this->baseDir())->join($avatarName);
     }
 
     public function isValidImage(): bool
