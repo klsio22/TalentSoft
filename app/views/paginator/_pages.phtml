@@ -1,0 +1,85 @@
+<?php
+function hasMethod($obj, $method, $defaultReturn = false) { return method_exists($obj, $method) ? true : $defaultReturn; }
+
+function callMethod($obj, $method, $defaultReturn = null) { return method_exists($obj, $method) ? $obj->$method() : $defaultReturn; }
+
+$currentPage = method_exists($paginator, 'getPage') ? $paginator->getPage() : 1;
+
+$totalPages = method_exists($paginator, 'totalOfPages') ? $paginator->totalOfPages() : (method_exists($paginator, 'getTotalPages') ?
+
+$paginator->getTotalPages() : 1);
+
+$isCurrentPage = function($page) use ($paginator, $currentPage) { return method_exists($paginator, 'isPage') ? $paginator->isPage($page) : ($currentPage == $page); };
+
+$getPageUrl = function($page) use ($paginator) { $routeName = method_exists($paginator, 'getRouteName') ? $paginator->getRouteName() : 'employees.index'; return route($routeName, ['page' => $page]); };
+
+$hasPrevPage = method_exists($paginator, 'hasPreviousPage') ? $paginator->hasPreviousPage() : ($currentPage > 1);
+
+$hasNextPage = method_exists($paginator, 'hasNextPage') ? $paginator->hasNextPage() : ($currentPage < $totalPages);
+
+$prevPage = method_exists($paginator, 'previousPage') ? $paginator->previousPage() : ($currentPage - 1);
+
+$nextPage = method_exists($paginator, 'nextPage') ? $paginator->nextPage() : ($currentPage + 1);
+?>
+
+<div class="mt-6">
+  <div class="flex flex-col items-center space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+    <div class="text-sm text-gray-600">
+      <?php
+        $totalRegisters = callMethod($paginator, 'totalOfRegisters', callMethod($paginator, 'total', 0));
+        $registersPerPage = callMethod($paginator, 'totalOfRegistersOfPage', callMethod($paginator, 'perPage', 10));
+        $offset = ($currentPage - 1) * $registersPerPage;
+        $begin = $offset + 1;
+        $end = min($begin + $registersPerPage - 1, $totalRegisters);
+        echo "Mostrando $begin - $end de $totalRegisters";
+      ?>
+    </div>
+
+    <nav class="inline-flex flex-wrap items-center gap-2" aria-label="Paginação">
+      <?php if ($hasPrevPage) : ?>
+      <a href="<?= $getPageUrl($prevPage) ?>"
+        class="relative inline-flex items-center rounded-xl px-3 py-2 text-gray-600 bg-white/60 hover:bg-white/80 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow">
+        <i class="fas fa-chevron-left text-xs mr-1"></i>
+        Anterior
+      </a>
+      <?php else : ?>
+      <span
+        class="relative inline-flex items-center rounded-xl px-3 py-2 text-gray-400 bg-white/40 border border-gray-200 cursor-not-allowed shadow-sm">
+        <i class="fas fa-chevron-left text-xs mr-1"></i>
+        Anterior
+      </span>
+      <?php endif; ?>
+
+      <div class="inline-flex gap-2">
+        <?php for ($page = 1; $page <= $totalPages; $page++) : ?>
+        <?php if ($isCurrentPage($page)) : ?>
+        <span aria-current="page"
+          class="relative z-10 inline-flex items-center justify-center w-10 h-10 rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 border border-blue-600 font-semibold shadow-md">
+          <?= $page ?>
+        </span>
+        <?php else : ?>
+        <a href="<?= $getPageUrl($page) ?>"
+          class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl text-gray-600 bg-white/60 hover:bg-white/80 border border-gray-200 transition-all duration-200 hover:shadow"
+          aria-label="Página <?= $page ?>">
+          <?= $page ?>
+        </a>
+        <?php endif; ?>
+        <?php endfor; ?>
+      </div>
+
+      <?php if ($hasNextPage) : ?>
+      <a href="<?= $getPageUrl($nextPage) ?>"
+        class="relative inline-flex items-center rounded-xl px-3 py-2 text-gray-600 bg-white/60 hover:bg-white/80 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow">
+        Próxima
+        <i class="fas fa-chevron-right text-xs ml-1"></i>
+      </a>
+      <?php else : ?>
+      <span
+        class="relative inline-flex items-center rounded-xl px-3 py-2 text-gray-400 bg-white/40 border border-gray-200 cursor-not-allowed shadow-sm">
+        Próxima
+        <i class="fas fa-chevron-right text-xs ml-1"></i>
+      </span>
+      <?php endif; ?>
+    </nav>
+  </div>
+</div>
