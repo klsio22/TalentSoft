@@ -17,7 +17,7 @@ class ProfileAvatarTest extends TestCase
     /**
      * O mock do modelo Employee para testes
      *
-     * @var \PHPUnit\Framework\MockObject\MockObject&Employee
+     * @var \PHPUnit\Framework\MockObject\MockObject&Employee&\App\Interfaces\HasAvatar
      */
     private $modelMock;
 
@@ -41,7 +41,10 @@ class ProfileAvatarTest extends TestCase
      */
     public function testConstructorAcceptsValidModel(): void
     {
-        $profileAvatar = new ProfileAvatar($this->modelMock);
+        // Usar uma declaração de tipo para ajudar o PHPStan a entender que o mock implementa HasAvatar
+        /** @var \App\Interfaces\HasAvatar&\Core\Database\ActiveRecord\Model $model */
+        $model = $this->modelMock;
+        $profileAvatar = new ProfileAvatar($model);
         $this->assertInstanceOf(ProfileAvatar::class, $profileAvatar);
     }
 
@@ -55,6 +58,7 @@ class ProfileAvatarTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Model must implement HasAvatar interface');
 
+        // @phpstan-ignore-next-line - Estamos testando intencionalmente um erro de tipo
         new ProfileAvatar($invalidModelMock);
     }
 
@@ -69,8 +73,10 @@ class ProfileAvatarTest extends TestCase
             ->willReturn('O arquivo enviado não é uma imagem válida');
 
         // Criar uma instância de ProfileAvatar com o mock
+        /** @var \App\Interfaces\HasAvatar&\Core\Database\ActiveRecord\Model $model */
+        $model = $this->modelMock;
         $profileAvatar = $this->getMockBuilder(ProfileAvatar::class)
-            ->setConstructorArgs([$this->modelMock])
+            ->setConstructorArgs([$model])
             ->onlyMethods(['isValidImage'])
             ->getMock();
 
@@ -114,7 +120,9 @@ class ProfileAvatarTest extends TestCase
 
         try {
             // Criar instância real do ProfileAvatar para testar a validação real
-            $profileAvatar = new ProfileAvatar($this->modelMock);
+            /** @var \App\Interfaces\HasAvatar&\Core\Database\ActiveRecord\Model $model */
+            $model = $this->modelMock;
+            $profileAvatar = new ProfileAvatar($model);
 
             // Executar o método update com dados de um arquivo de texto
             $result = $profileAvatar->update([
@@ -179,7 +187,9 @@ class ProfileAvatarTest extends TestCase
                 ->willReturn('O arquivo excede o tamanho máximo permitido');
 
             // Em vez de criar mock da classe, vamos usar reflexão para acessar e testar diretamente o método validateImageSize
-            $profileAvatar = new ProfileAvatar($this->modelMock, $validations);
+            /** @var \App\Interfaces\HasAvatar&\Core\Database\ActiveRecord\Model $model */
+            $model = $this->modelMock;
+            $profileAvatar = new ProfileAvatar($model, $validations);
 
             // Usar reflexão para definir a propriedade image e chamar diretamente validateImageSize
             $reflection = new \ReflectionObject($profileAvatar);
@@ -209,8 +219,10 @@ class ProfileAvatarTest extends TestCase
     public function testRejectsInvalidExtension(): void
     {
         // Criar ProfileAvatar com restrição de extensões
+        /** @var \App\Interfaces\HasAvatar&\Core\Database\ActiveRecord\Model $model */
+        $model = $this->modelMock;
         $profileAvatar = new ProfileAvatar(
-            $this->modelMock,
+            $model,
             ['extension' => ['jpg', 'png']] // Apenas JPG e PNG permitidos
         );
 
@@ -254,7 +266,9 @@ class ProfileAvatarTest extends TestCase
      */
     public function testFormatBytes(): void
     {
-        $profileAvatar = new ProfileAvatar($this->modelMock);
+        /** @var \App\Interfaces\HasAvatar&\Core\Database\ActiveRecord\Model $model */
+        $model = $this->modelMock;
+        $profileAvatar = new ProfileAvatar($model);
 
         // Usar reflexão para acessar método privado
         $reflection = new \ReflectionClass(ProfileAvatar::class);

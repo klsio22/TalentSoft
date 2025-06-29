@@ -169,7 +169,7 @@ class ProfileControllerTest extends ControllerTestCase
     {
         // Usar o Employee real criado no setup
         $employee = $this->mockEmployee;
-        $this->assertTrue($employee instanceof Employee, 'O mock de Employee deve existir');
+        $this->assertNotNull($employee, 'O mock de Employee deve existir');
 
         // Configurar a sessão para usar o funcionário real
         if (session_status() === PHP_SESSION_NONE) {
