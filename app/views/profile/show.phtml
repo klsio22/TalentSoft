@@ -46,10 +46,11 @@
 
     <div class="mb-6">
       <?php
-      $profileAvatar = new \App\Services\ProfileAvatar($user);
-      if ($profileAvatar-> isValidImage()):
-    ?>
-      <div class="relative inline-block">
+      // Usar o método avatar() do modelo diretamente
+      $profileAvatar = $user->avatar();
+      $hasAvatar = $user->getAvatarName() !== null;
+      if ($hasAvatar): ?>
+      <div class="relative inline-block avatar-container">
         <img src="<?= $profileAvatar->path() ?>" alt="Foto de perfil"
           class="w-44 h-44 rounded-full object-cover cursor-pointer" id="avatar-image"
           title="Clique para alterar a foto">
@@ -61,7 +62,7 @@
         </form>
       </div>
       <?php else: ?>
-      <div class="relative inline-block">
+      <div class="relative inline-block avatar-container">
         <div
           class="inline-flex items-center justify-center w-44 h-44 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full mb-4 shadow-lg cursor-pointer"
           id="default-avatar-container">
@@ -72,7 +73,8 @@
 
       <form action="<?= route('profile.upload-avatar') ?>" method="post" enctype="multipart/form-data" class="hidden"
         id="avatar-form">
-        <input type="file" id="avatar" name="avatar" accept="image/jpeg, image/png, image/svg+xml" class="hidden">
+        <input type="file" id="avatar" name="avatar"
+          accept="image/jpeg, image/png, image/gif, image/svg+xml, image/webp" class="hidden">
       </form>
 
       <link rel="stylesheet" href="/assets/css/avatar.css">

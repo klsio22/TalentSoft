@@ -233,11 +233,13 @@ class Employee extends Model implements HasAvatar
 
   /**
    * Retorna uma instância do serviço ProfileAvatar para este funcionário
+   * O serviço já vem configurado com as validações padrão
    *
    * @return \App\Services\ProfileAvatar
    */
     public function avatar(): ProfileAvatar
     {
+        // Utiliza o serviço com as validações padrão definidas no próprio serviço
         return new ProfileAvatar($this);
     }
 
@@ -262,20 +264,20 @@ class Employee extends Model implements HasAvatar
         try {
             // Verifica se o avatar_name não mudou
             if ($this->avatar_name === $avatarName) {
-                return true; // Considera sucesso se não houver mudança
+                $success = true; // Considera sucesso se não houver mudança
+            } else {
+                // Atualiza o valor
+                $success = $this->update([
+                    'avatar_name' => $avatarName
+                ]);
+
+                // Verifica explicitamente se o avatar foi atualizado
+                if (!$success && $this->avatar_name === $avatarName) {
+                    $success = true;
+                }
             }
 
-            // Atualiza o valor
-            $result = $this->update([
-                'avatar_name' => $avatarName
-            ]);
-
-            // Verifica explicitamente se o avatar foi atualizado
-            if (!$result && $this->avatar_name === $avatarName) {
-                return true;
-            }
-
-            return $result;
+            return $success;
         } catch (\Exception $e) {
             // Log do erro ou tratamento adequado
             return false;

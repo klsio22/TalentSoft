@@ -113,9 +113,6 @@ class EmployeesController extends Controller
             FlashMessage::danger($errorMessage);
             $this->renderCreateForm($data);
         } catch (\Exception $e) {
-            // Registrar o erro para depuração discretamente (sem mostrar na tela)
-            error_log("Erro ao cadastrar funcionário: " . $e->getMessage());
-
             // Mostrar mensagem amigável para o usuário
             FlashMessage::danger("Erro interno ao cadastrar funcionário. Por favor, tente novamente.");
             $this->renderCreateForm($request->getParams());

@@ -54,7 +54,8 @@ class ProfileController extends Controller
             return;
         }
 
-        $profileAvatar = new ProfileAvatar($user);
+        $profileAvatar = $user->avatar();
+
         try {
             $result = $profileAvatar->update($_FILES['avatar']);
 
@@ -62,7 +63,13 @@ class ProfileController extends Controller
             if ($result === true) {
                 FlashMessage::success('Sua foto de perfil foi atualizada com sucesso.');
             } else {
-                FlashMessage::danger('Erro ao atualizar foto de perfil.');
+                // Verificar se há erros específicos
+                $errors = $user->errors('avatar');
+                if ($errors) {
+                    FlashMessage::danger($errors);
+                } else {
+                    FlashMessage::danger('Erro ao atualizar foto de perfil. Verifique se o arquivo é uma imagem válida.');
+                }
             }
         } catch (\Exception $e) {
             FlashMessage::danger('Erro ao processar imagem: ' . $e->getMessage());
@@ -82,7 +89,8 @@ class ProfileController extends Controller
             return;
         }
 
-        $profileAvatar = new ProfileAvatar($user);
+        // Usar o serviço de avatar diretamente do modelo
+        $profileAvatar = $user->avatar();
         $result = $profileAvatar->remove();
 
         if ($result) {

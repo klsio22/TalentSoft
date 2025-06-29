@@ -14,6 +14,25 @@ class ProfileAvatar
     /** @var Model&HasAvatar */
     private Model $model;
 
+    /**
+     * Constantes para validação de arquivos de avatar
+     */
+    public const DEFAULT_ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+    public const DEFAULT_MAX_SIZE = 2097152; // 2MB (2 * 1024 * 1024)
+
+    /**
+     * Mapa de extensões para tipos MIME
+     * @var array<string, string>
+     */
+    private const MIME_MAP = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'svg' => 'image/svg+xml',
+        'webp' => 'image/webp'
+    ];
+
   /**
    * @param Model $model Model with avatar functionality
    * @param array<string, mixed> $validations
@@ -27,6 +46,22 @@ class ProfileAvatar
             throw new \InvalidArgumentException('Model must implement HasAvatar interface');
         }
         $this->model = $model;
+
+        // Se não foram fornecidas validações, usa os valores padrão
+        if (empty($this->validations)) {
+            $this->validations = [
+                'extension' => self::DEFAULT_ALLOWED_EXTENSIONS,
+                'size' => self::DEFAULT_MAX_SIZE
+            ];
+        } else {
+            // Garante que as chaves necessárias estão definidas
+            if (!isset($this->validations['extension'])) {
+                $this->validations['extension'] = self::DEFAULT_ALLOWED_EXTENSIONS;
+            }
+            if (!isset($this->validations['size'])) {
+                $this->validations['size'] = self::DEFAULT_MAX_SIZE;
+            }
+        }
     }
 
     public function path(): string
@@ -59,7 +94,7 @@ class ProfileAvatar
         $this->image = $image;
         $result = false;
 
-        // Validação da imagem
+        // Realizar todas as validações através do método isValidImage
         if ($this->isValidImage()) {
             try {
                 // Atualiza o arquivo
@@ -71,10 +106,43 @@ class ProfileAvatar
             } catch (\Exception $e) {
                 // Em caso de erro, limpar qualquer arquivo que tenha sido carregado
                 $this->removeOldImage();
+                $this->model->addError('avatar', 'Erro ao processar o arquivo: ' . $e->getMessage());
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Valida se o arquivo é realmente uma imagem usando o tipo MIME
+     *
+     * @return bool True se o arquivo for uma imagem válida
+     */
+    private function validateMimeType(): bool
+    {
+        // Verifica se o arquivo existe
+        if (!isset($this->image['tmp_name']) || empty($this->image['tmp_name'])) {
+            return false;
+        }
+
+        // Gera lista de tipos MIME permitidos a partir das extensões de arquivo permitidas
+        $allowedMimes = [];
+        foreach ($this->validations['extension'] as $ext) {
+            if (isset(self::MIME_MAP[$ext])) {
+                $allowedMimes[] = self::MIME_MAP[$ext];
+            }
+        }
+
+        // Se não houver tipos MIME permitidos, usa tipos padrão
+        if (empty($allowedMimes)) {
+            $allowedMimes = array_values(self::MIME_MAP);
+        }
+
+        // Verifica o tipo MIME real do arquivo
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($this->image['tmp_name']);
+
+        return in_array($mimeType, $allowedMimes);
     }
 
     protected function updateFile(): bool
@@ -187,31 +255,62 @@ class ProfileAvatar
 
     public function isValidImage(): bool
     {
+        // Verificar tipo MIME primeiro
+        if (!$this->validateMimeType()) {
+            $this->model->addError('avatar', 'O arquivo enviado não é uma imagem válida. Por favor, envie apenas imagens.');
+            return false;
+        }
+
+        // Validar extensão
         if (isset($this->validations['extension'])) {
             $this->validateImageExtension();
         }
 
+        // Validar tamanho
         if (isset($this->validations['size'])) {
             $this->validateImageSize();
         }
 
+        // Verifica se houve erros de validação
         return $this->model->errors('avatar') === null;
     }
 
     private function validateImageExtension(): void
     {
         $file_name_splitted  = explode('.', $this->image['name']);
-        $file_extension = end($file_name_splitted);
+        $file_extension = strtolower(end($file_name_splitted));
 
         if (!in_array($file_extension, $this->validations['extension'])) {
-            $this->model->addError('avatar', 'Extensão de arquivo inválida');
+            $extensoes = implode(', ', $this->validations['extension']);
+            $this->model->addError('avatar', "Extensão de arquivo inválida. Extensões permitidas: {$extensoes}");
         }
     }
 
     private function validateImageSize(): void
     {
         if ($this->image['size'] > $this->validations['size']) {
-            $this->model->addError('avatar', 'Tamanho do arquivo inválido');
+            $maxSize = $this->formatBytes($this->validations['size']);
+            $this->model->addError('avatar', "O arquivo excede o tamanho máximo permitido ({$maxSize})");
         }
+    }
+
+    /**
+     * Formata bytes para unidades legíveis (KB, MB, etc)
+     *
+     * @param int $bytes Número de bytes
+     * @param int $precision Precisão decimal
+     * @return string Valor formatado com unidade
+     */
+    private function formatBytes(int $bytes, int $precision = 2): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+
+        $bytes /= pow(1024, $pow);
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }
