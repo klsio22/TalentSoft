@@ -57,26 +57,24 @@ class ProfileAvatar
     public function update(array $image): bool
     {
         $this->image = $image;
+        $result = false;
 
         // Validação da imagem
-        if (!$this->isValidImage()) {
-            return false;
-        }
-
-        try {
-            // Atualiza o arquivo
-            if (!$this->updateFile()) {
-                return false;
+        if ($this->isValidImage()) {
+            try {
+                // Atualiza o arquivo
+                if ($this->updateFile()) {
+                    // Define o nome do avatar no modelo
+                    $fileName = $this->getFileName();
+                    $result = $this->model->setAvatarName($fileName);
+                }
+            } catch (\Exception $e) {
+                // Em caso de erro, limpar qualquer arquivo que tenha sido carregado
+                $this->removeOldImage();
             }
-
-            // Define o nome do avatar no modelo
-            $fileName = $this->getFileName();
-            return $this->model->setAvatarName($fileName);
-        } catch (\Exception $e) {
-            // Em caso de erro, limpar qualquer arquivo que tenha sido carregado
-            $this->removeOldImage();
-            return false;
         }
+
+        return $result;
     }
 
     protected function updateFile(): bool
