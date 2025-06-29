@@ -51,7 +51,7 @@
     ?>
       <div class="relative inline-block">
         <img src="<?= $profileAvatar->path() ?>" alt="Foto de perfil"
-          class="w-44 h-44 rounded-full object-cover mr-3 cursor-pointer" id="avatar-image"
+          class="w-44 h-44 rounded-full object-cover cursor-pointer" id="avatar-image"
           title="Clique para alterar a foto">
         <form action="<?= route('profile.remove-avatar') ?>" method="post" class="absolute -bottom-2 -right-2">
           <button type="submit" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-md"

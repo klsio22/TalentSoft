@@ -17,17 +17,17 @@ function gerarCpfValido()
   $n7 = rand(0, 9);
   $n8 = rand(0, 9);
   $n9 = rand(0, 9);
-  
+
   // Cálculo do primeiro dígito verificador
   $j = 10 * $n1 + 9 * $n2 + 8 * $n3 + 7 * $n4 + 6 * $n5 + 5 * $n6 + 4 * $n7 + 3 * $n8 + 2 * $n9;
   $j = $j % 11;
   $j = $j < 2 ? 0 : 11 - $j;
-  
+
   // Cálculo do segundo dígito verificador
   $k = 11 * $n1 + 10 * $n2 + 9 * $n3 + 8 * $n4 + 7 * $n5 + 6 * $n6 + 5 * $n7 + 4 * $n8 + 3 * $n9 + 2 * $j;
   $k = $k % 11;
   $k = $k < 2 ? 0 : 11 - $k;
-  
+
   // Formatação do CPF
   return sprintf(
     '%d%d%d.%d%d%d.%d%d%d-%d%d',
@@ -37,7 +37,7 @@ function gerarCpfValido()
 
 /**
  * Cria um usuário administrador
- * 
+ *
  * @param int $roleId ID da role de administrador
  * @return \App\Models\Employee Objeto do funcionário criado
  */
@@ -45,13 +45,11 @@ function createAdminUser($roleId)
 {
   $adminEmail = 'klesio@admin.com';
   $existingAdmin = \App\Models\Employee::findByEmail($adminEmail);
-  
+
   if (!$existingAdmin) {
     echo "Criando usuário administrador...\n";
-    
-    // Criar avatar para o administrador
-    $adminAvatar = createUserAvatar('admin');
-    
+
+    // Primeiro criamos o funcionário sem avatar
     $admin = new \App\Models\Employee([
       'name' => 'Klesio Nascimento',
       'cpf' => gerarCpfValido(),
@@ -66,17 +64,22 @@ function createAdminUser($roleId)
       'state' => 'PR',
       'zipcode' => '80000-000',
       'notes' => 'Administrador do sistema',
-      'avatar_name' => $adminAvatar
     ]);
     $admin->save();
-    
+
+    // Criar avatar para o administrador usando o ID do funcionário
+    $adminAvatar = createUserAvatar('admin', $admin->id);
+    // Atualiza o funcionário com o nome do avatar
+    $admin->avatar_name = $adminAvatar;
+    $admin->save();
+
     $credential = new \App\Models\UserCredential([
       'employee_id' => $admin->id,
       'password' => DEFAULT_PASSWORD,
       'password_confirmation' => DEFAULT_PASSWORD
     ]);
     $credential->save();
-    
+
     echo "Administrador criado com sucesso!\n";
     return $admin;
   } else {
@@ -87,7 +90,7 @@ function createAdminUser($roleId)
 
 /**
  * Cria um usuário de RH
- * 
+ *
  * @param int $roleId ID da role de RH
  * @return \App\Models\Employee Objeto do funcionário criado
  */
@@ -95,13 +98,11 @@ function createHRUser($roleId)
 {
   $hrEmail = 'caio@rh.com';
   $existingHR = \App\Models\Employee::findByEmail($hrEmail);
-  
+
   if (!$existingHR) {
     echo "Criando usuário de RH...\n";
-    
-    // Criar avatar para o usuário de RH
-    $hrAvatar = createUserAvatar('hr');
-    
+
+    // Primeiro criamos o funcionário sem avatar
     $hr = new \App\Models\Employee([
       'name' => 'Caio Henrique',
       'cpf' => gerarCpfValido(),
@@ -116,17 +117,22 @@ function createHRUser($roleId)
       'state' => 'PR',
       'zipcode' => '80000-000',
       'notes' => 'Usuário de RH',
-      'avatar_name' => $hrAvatar
     ]);
     $hr->save();
-    
+
+    // Criar avatar para o usuário de RH usando o ID do funcionário
+    $hrAvatar = createUserAvatar('hr', $hr->id);
+    // Atualiza o funcionário com o nome do avatar
+    $hr->avatar_name = $hrAvatar;
+    $hr->save();
+
     $credential = new \App\Models\UserCredential([
       'employee_id' => $hr->id,
       'password' => DEFAULT_PASSWORD,
       'password_confirmation' => DEFAULT_PASSWORD
     ]);
     $credential->save();
-    
+
     echo "Usuário de RH criado com sucesso!\n";
     return $hr;
   } else {
@@ -137,7 +143,7 @@ function createHRUser($roleId)
 
 /**
  * Cria usuários regulares a partir de um array de dados
- * 
+ *
  * @param array $usuarios Array com dados dos usuários
  * @param int $roleId ID da role de usuário regular
  * @param array $enderecos Array com endereços para escolha aleatória
@@ -146,7 +152,7 @@ function createHRUser($roleId)
 function createRegularUsers($usuarios, $roleId, $enderecos, $salarios)
 {
   echo "Criando usuários regulares...\n";
-  
+
   foreach ($usuarios as $index => $usuario) {
     $email = strtolower(str_replace(' ', '.', $usuario['name'])) . '@user.com';
     $email = str_replace(
@@ -154,27 +160,21 @@ function createRegularUsers($usuarios, $roleId, $enderecos, $salarios)
       ['c', 'a', 'a', 'a', 'a', 'e', 'e', 'i', 'o', 'o', 'o', 'u'],
       $email
     );
-    
+
     $existingUser = \App\Models\Employee::findByEmail($email);
     if (!$existingUser) {
       $numeroRua = rand(100, 999);
       $endereco = $enderecos[array_rand($enderecos)];
       $salario = $salarios[array_rand($salarios)];
       $zipcode = sprintf('%05d-%03d', rand(10000, 99999), rand(100, 999));
-      
+
       // Datas de contratação entre 2020 e 2024
       $anoContratacao = rand(2020, 2024);
       $mesContratacao = rand(1, 12);
       $diaContratacao = rand(1, 28);
       $hireDate = sprintf('%04d-%02d-%02d', $anoContratacao, $mesContratacao, $diaContratacao);
-      
-      // Para alguns usuários, adicione a foto de perfil (aproximadamente 1 em cada 3)
-      $avatar_name = null;
-      if ($index % 3 === 0) {
-        // Usar nossa função para criar avatar de usuário
-        $avatar_name = createUserAvatar('user');
-      }
-      
+
+      // Criar primeiro o funcionário sem avatar
       $employee = new \App\Models\Employee([
         'name' => $usuario['name'],
         'cpf' => gerarCpfValido(),
@@ -188,18 +188,26 @@ function createRegularUsers($usuarios, $roleId, $enderecos, $salarios)
         'city' => $usuario['city'],
         'state' => $usuario['state'],
         'zipcode' => $zipcode,
-        'notes' => 'Usuário criado automaticamente para testes',
-        'avatar_name' => $avatar_name  // Adicionar nome da imagem de avatar
+        'notes' => 'Usuário criado automaticamente para testes'
       ]);
       $employee->save();
-      
+
+      // Para alguns usuários, adicione a foto de perfil (aproximadamente 1 em cada 3)
+      if ($index % 3 === 0) {
+        // Usar nossa função para criar avatar de usuário com o ID do funcionário
+        $avatar_name = createUserAvatar('user', $employee->id);
+        // Atualizar funcionário com o nome do avatar
+        $employee->avatar_name = $avatar_name;
+        $employee->save();
+      }
+
       $credential = new \App\Models\UserCredential([
         'employee_id' => $employee->id,
         'password' => DEFAULT_PASSWORD,
         'password_confirmation' => DEFAULT_PASSWORD
       ]);
       $credential->save();
-      
+
       $avatarMsg = $avatar_name ? " (com foto de perfil)" : "";
       echo "Usuário criado: {$usuario['name']} - {$email}{$avatarMsg}\n";
     } else {

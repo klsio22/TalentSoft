@@ -20,7 +20,7 @@ function createRequiredDirectories()
     // Garantir que as permissões estão corretas mesmo se o diretório já existir
     chmod(UPLOADS_DIR, 0777);
   }
-  
+
   // Verificar diretório de imagens
   if (!file_exists(IMAGES_DIR)) {
     echo "AVISO: Diretório de imagens não existe: " . IMAGES_DIR . "\n";
@@ -37,14 +37,14 @@ function createRequiredDirectories()
 function prepareDefaultAvatar()
 {
   echo "\n=== Preparando imagem padrão de avatar ===\n";
-  
+
   $defaultAvatarSource = IMAGES_DIR . DEFAULT_AVATAR;
   $defaultAvatarDest = UPLOADS_DIR . 'default_' . uniqid() . '.png';
-  
+
   // Verificar se a imagem padrão existe
   if (file_exists($defaultAvatarSource)) {
     echo "Imagem padrão encontrada: $defaultAvatarSource\n";
-    
+
     // Copiar para o diretório de uploads
     if (copy($defaultAvatarSource, $defaultAvatarDest)) {
       echo "Imagem padrão copiada para: $defaultAvatarDest\n";
@@ -57,7 +57,7 @@ function prepareDefaultAvatar()
   } else {
     echo "ERRO: Imagem padrão não encontrada em: $defaultAvatarSource\n";
   }
-  
+
   return false;
 }
 
@@ -113,11 +113,19 @@ function copyAvatarToUploads($sourceFile, $destName)
  * Função para criar um avatar para um usuário
  *
  * @param string $prefix Prefixo para o nome do arquivo (ex: 'admin', 'user')
+ * @param int|null $userId ID do usuário (funcionário)
  * @return string|null Nome do arquivo criado ou null se falhou
  */
-function createUserAvatar($prefix = 'user')
+function createUserAvatar($prefix = 'user', ?int $userId = null)
 {
-  $avatarName = $prefix . '_' . uniqid() . '.png';
+  // Se ID do funcionário foi fornecido, use o formato Employees_ID_avatar.png
+  if ($userId !== null) {
+    $avatarName = 'Employees_' . $userId . '_avatar.png';
+  } else {
+    // Caso contrário, mantém o formato original para compatibilidade
+    $avatarName = $prefix . '_' . uniqid() . '.png';
+  }
+
   $defaultAvatarSource = IMAGES_DIR . DEFAULT_AVATAR;
   $destPath = UPLOADS_DIR . $avatarName;
 
