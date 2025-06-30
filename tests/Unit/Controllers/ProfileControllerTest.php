@@ -5,9 +5,7 @@ namespace Tests\Unit\Controllers;
 use App\Controllers\ProfileController;
 use App\Models\Employee;
 use App\Models\Role;
-use App\Services\ProfileAvatar;
 use Lib\Authentication\Auth;
-use Tests\TestCase;
 
 /**
  * Testes unitários para o controlador ProfileController
@@ -271,5 +269,104 @@ class ProfileControllerTest extends ControllerTestCase
         ob_end_clean(); // Limpar o buffer sem armazenar a saída
 
         $this->assertStringContainsString('profile', $controller->redirectUrl);
+    }
+
+    /**
+     * Testa se a remoção de avatar funciona corretamente
+     */
+    public function testRemoveAvatarSuccessfully(): void
+    {
+        // Usar o Employee real criado no setup
+        $employee = $this->mockEmployee;
+        $this->assertNotNull($employee, 'O mock de Employee deve existir');
+
+        // Configurar a sessão para usar o funcionário real
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $_SESSION['employee']['id'] = $employee->id;
+
+        // Primeiro, definir um avatar para o funcionário
+        $avatarName = 'Employees_' . $employee->id . '_avatar.jpg';
+        $this->assertTrue(
+            $employee->setAvatarName($avatarName),
+            'Deve ser possível definir um nome de avatar'
+        );
+
+        // Verificar se o avatar foi definido
+        $updatedEmployee = Employee::findById($employee->id);
+        $this->assertEquals(
+            $avatarName,
+            $updatedEmployee->getAvatarName(),
+            'O nome do avatar deve ser atualizado no banco de dados'
+        );
+
+        // Criar uma instância do controller com redirecionamento simulado
+        $controller = new class extends ProfileController {
+            public string $redirectUrl = '';
+
+            public function __construct()
+            {
+                // Não chamar o construtor pai para evitar redirecionamentos
+            }
+
+            public function redirectTo(string $url): void
+            {
+                $this->redirectUrl = $url;
+            }
+        };
+
+        // Executar o método de remoção
+        $controller->removeAvatar();
+
+        // Verificar se houve redirecionamento para o perfil
+        $this->assertStringContainsString('profile', $controller->redirectUrl);
+
+        // Verificar que o avatar foi removido do banco de dados
+        $employeeAfterRemoval = Employee::findById($employee->id);
+        $this->assertNull(
+            $employeeAfterRemoval->getAvatarName(),
+            'O nome do avatar deve ser removido após a remoção'
+        );
+    }
+
+    /**
+     * Testa o comportamento quando não há usuário autenticado na remoção de avatar
+     */
+    public function testRemoveAvatarWithNoUser(): void
+    {
+        // Garantir que não há usuário na sessão
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        unset($_SESSION['employee']);
+
+        // Verificar que não há usuário logado
+        $this->assertFalse(Auth::check(), 'Não deve haver usuário logado para este teste');
+
+        // Criar controller com redirecionamento simulado
+        $controller = new class extends ProfileController {
+            public string $redirectUrl = '';
+
+            public function __construct()
+            {
+                // Não chamar o construtor pai para evitar redirecionamentos
+            }
+
+            public function redirectTo(string $url): void
+            {
+                $this->redirectUrl = $url;
+                echo "Redirected to: $url";
+            }
+        };
+
+        // Executar o método em teste capturando a saída
+        ob_start();
+        $controller->removeAvatar();
+        $output = ob_get_clean();
+
+        // Verificar se houve redirecionamento para a página de login
+        $this->assertStringContainsString('login', $controller->redirectUrl);
+        $this->assertStringContainsString('Redirected to:', $output);
     }
 }
