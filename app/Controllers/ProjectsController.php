@@ -271,51 +271,32 @@ class ProjectsController extends Controller
     public function destroy(Request $request): void
     {
         try {
-            // Debug: Log da requisição recebida
-            error_log('ProjectsController::destroy - Método chamado');
-            error_log('Request params: ' . print_r($request->getParams(), true));
-
             // Obtém o ID do projeto a partir dos parâmetros da requisição
             $id = (int) ($request->getParam('id'));
-            error_log('ID do projeto para destruir: ' . $id);
 
             if (!$id) {
-                error_log('ID do projeto não fornecido ou inválido');
                 FlashMessage::danger('ID do projeto não fornecido');
                 $this->redirectTo(route('projects.index'));
                 return;
             }
 
             $project = Project::findById($id);
-            error_log('Projeto encontrado: ' . ($project ? 'Sim' : 'Não'));
 
             if (!$project) {
-                error_log('Projeto não encontrado para ID: ' . $id);
                 FlashMessage::danger(self::PROJECT_NOT_FOUND);
                 $this->redirectTo(route('projects.index'));
                 return;
             }
 
-            // Log do status anterior
-            error_log('Status anterior do projeto: ' . $project->status);
-
-            // Deletar o projeto e seus relacionamentos
-            error_log('Iniciando exclusão do projeto e relacionamentos do banco de dados');
-
             if ($project->destroyWithRelationships()) {
-                error_log('Projeto e relacionamentos deletados com sucesso do banco de dados');
                 FlashMessage::success('Projeto excluído com sucesso!');
             } else {
-                error_log('Falha ao deletar o projeto e relacionamentos do banco de dados');
                 FlashMessage::danger('Falha ao excluir o projeto');
             }
         } catch (\Exception $e) {
-            error_log('Exceção em ProjectsController::destroy: ' . $e->getMessage());
-            error_log('Stack trace: ' . $e->getTraceAsString());
             FlashMessage::danger($e->getMessage());
         }
 
-        error_log('Redirecionando para projects.index');
         $this->redirectTo(route('projects.index'));
     }
 

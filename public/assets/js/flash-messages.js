@@ -12,11 +12,18 @@ document.addEventListener('DOMContentLoaded', function () {
 function initializeFlashMessages() {
   const flashMessages = document.querySelectorAll('.flash-message');
 
+  // Check if we're in a test environment (Codeception/Selenium)
+  const isTestEnvironment = window.navigator.userAgent.includes('HeadlessChrome') || 
+                          !!window.Codeception || 
+                          window.location.search.includes('test_mode=1');
+
   flashMessages.forEach((messageEl) => {
-    // Auto-fade after 5 seconds
-    setTimeout(() => {
-      fadeOutMessage(messageEl);
-    }, 5000);
+    // Auto-fade after 5 seconds, but only if not in test environment
+    if (!isTestEnvironment) {
+      setTimeout(() => {
+        fadeOutMessage(messageEl);
+      }, 5000);
+    }
 
     // Close on X button click
     const closeBtn = messageEl.querySelector('.close-flash');

@@ -1,0 +1,75 @@
+/**
+ * Avatar upload styles
+ * Estilos para o componente de upload de avatar
+ */
+
+/* Animação de rotação para o spinner de carregamento */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Classe para elementos com animação de rotação */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Estilização do avatar */
+.avatar-image {
+  width: 11rem;
+  height: 11rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  margin-right: 0.75rem;
+  cursor: pointer;
+}
+
+/* Overlay de carregamento */
+.avatar-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Spinner de carregamento */
+.avatar-spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+}
+
+/* Estilo para mensagens de erro de avatar */
+#avatar-error-message {
+  font-size: 0.875rem;
+  max-width: 400px;
+  margin: 0.5rem auto;
+  animation: fadeIn 0.3s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

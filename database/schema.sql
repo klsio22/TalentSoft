@@ -31,6 +31,7 @@ CREATE TABLE
     zipcode VARCHAR(10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     notes TEXT,
+    avatar_name VARCHAR(255),
     FOREIGN KEY (role_id) REFERENCES Roles (id)
   );
 
@@ -87,6 +88,7 @@ CREATE TABLE
     FOREIGN KEY (employee_id) REFERENCES Employees (id),
     FOREIGN KEY (project_id) REFERENCES Projects (id)
   );
+
 
 -- Tabela de notificações para funcionários
 DROP TABLE IF EXISTS Notifications;
