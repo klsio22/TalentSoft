@@ -177,14 +177,8 @@ use Core\Constants\Constants;
   <!-- Paginação -->
 
   <?php
-  // Verificar se o objeto de paginação tem o método renderPagesNavigation
-  if (method_exists($employees, 'renderPagesNavigation')) {
-      $employees->renderPagesNavigation();
-  } else {
-      // Fallback para incluir a parcial de paginação diretamente
-      $paginator = $employees; // Define $paginator para compatibilidade com a parcial
+      $paginator = $employees;
       include Constants::rootPath()->join('app/views/paginator/_pages.phtml');
-  }
   ?>
 
   <?php else: ?>
