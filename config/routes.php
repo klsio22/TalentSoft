@@ -65,6 +65,9 @@ Route::middleware('admin-hr')->group(function () {
         '/employees/{id}/projects',
         [EmployeeProjectsController::class, 'employeeProjects']
     )->name('employee-projects.employee');
+
+    // Ajax routes for fetching employee projects
+    Route::get('/ajax/employee/{id}/projects', [AjaxController::class, 'getEmployeeProjects'])->name('ajax.employee.projects');
 });
 
 // Routes for authenticated users (any role)
@@ -79,10 +82,6 @@ Route::middleware('auth')->group(function () {
   // User projects route
     Route::get('/my-projects', [EmployeeProjectsController::class, 'userProjects'])->name('projects.user');
     Route::get('/projects/{id}', [ProjectsController::class, 'show'])->name('projects.show');
-
-  // Ajax routes for fetching employee projects
-    Route::get('/ajax/employee/{id}/projects', [AjaxController::class, 'getEmployeeProjects'])->name('ajax.employee.projects');
-
 
   // Rotas de aprovações removidas - não serão mais utilizadas
   // A validação de acesso agora é baseada no status do funcionário

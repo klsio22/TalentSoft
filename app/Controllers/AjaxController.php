@@ -30,8 +30,8 @@ class AjaxController extends Controller
             $this->sendJsonResponse(['error' => 'Funcionário não encontrado'], 404);
         }
 
-        // Buscar projetos
-        $projects = $this->queryEmployeeProjects($employeeId);
+        // Buscar projetos usando o framework ORM
+        $projects = $this->getEmployeeProjectsUsingORM($employee);
 
         // Formatar resposta
         $response = [
@@ -62,48 +62,36 @@ class AjaxController extends Controller
     }
 
     /**
-     * Busca projetos do funcionário via SQL
+     * Busca projetos do funcionário usando o framework ORM
+     *
+     * @param Employee $employee Instância do funcionário
+     * @return array<int, array<string, mixed>> Lista formatada de projetos
      */
-    private function queryEmployeeProjects(int $employeeId): array
+    private function getEmployeeProjectsUsingORM(Employee $employee): array
     {
         try {
-            $pdo = \Core\Database\Database::getDatabaseConn();
+            // Usar o relacionamento BelongsToMany para buscar os projetos
+            $projectsRelation = $employee->projects();
+            $projects = $projectsRelation->get();
 
-            $sql = "
-                SELECT
-                    p.id as id,
-                    p.name as name,
-                    p.description as description,
-                    p.status as status,
-                    ep.role as role
-                FROM
-                    Projects p
-                INNER JOIN Employee_Projects ep ON p.id = ep.project_id
-                WHERE
-                    ep.employee_id = :employee_id
-                ORDER BY p.name ASC
-            ";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindValue(':employee_id', $employeeId, \PDO::PARAM_INT);
-            $stmt->execute();
-
-            $projects = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-            // Formatar dados
+            // Formatar dados para a resposta
             $formattedProjects = [];
             foreach ($projects as $project) {
+                // Buscar o papel do funcionário neste projeto específico
+                $role = $employee->getRoleForProject($project->id);
+
                 $formattedProjects[] = [
-                    'id' => $project['id'],
-                    'name' => $project['name'],
-                    'description' => $project['description'] ?? 'Sem descrição',
-                    'status' => $project['status'] ?? 'Ativo',
-                    'role' => $project['role'] ?? 'Membro da equipe'
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'description' => $project->description ?? 'Sem descrição',
+                    'status' => $project->status ?? 'Ativo',
+                    'role' => $role ?? 'Membro da equipe'
                 ];
             }
 
             return $formattedProjects;
         } catch (\Exception $e) {
+            // Em caso de erro, retornar array vazio
             return [];
         }
     }
