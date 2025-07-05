@@ -82,10 +82,7 @@ use Core\Constants\Constants;
       </div>
     </div>
     <div class="flex items-end">
-      <button type="submit"
-        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg flex items-center justify-center font-semibold transition duration-300 transform hover:scale-105 shadow-lg">
-        <i class="fas fa-search mr-2"></i> Filtrar
-      </button>
+      <button type="submit" </button>
     </div>
   </form>
 </div> <!-- Lista de funcionários -->
@@ -126,6 +123,10 @@ use Core\Constants\Constants;
               <div class="text-sm font-medium text-gray-900">
                 <?= htmlspecialchars($employee->name) ?>
               </div>
+              <button type="button" class="show-projects-btn ml-2 text-blue-500 hover:text-blue-700 focus:outline-none"
+                data-employee-id="<?= $employee->id ?>" title="Ver projetos do funcionário">
+                <i class="fas fa-info-circle"></i>
+              </button>
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -172,14 +173,42 @@ use Core\Constants\Constants;
         <?php endforeach; ?>
       </tbody>
     </table>
+
+    <!-- Modal para exibir projetos -->
+    <div id="projectsModal"
+      class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-gray-900/70">
+      <div class="relative bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6 border border-gray-200">
+        <div class="flex items-center justify-between mb-4 border-b pb-3">
+          <h3 class="text-lg font-bold text-gray-800" id="modal-employee-name">Projetos do Funcionário</h3>
+          <button type="button" class="close-modal text-gray-500 hover:text-gray-700 focus:outline-none">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="relative">
+          <div id="projects-loader" class="py-10 flex justify-center">
+            <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div id="projects-content" class="text-sm">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+          </div>
+        </div>
+
+        <div class="mt-6 text-right border-t pt-3">
+          <button type="button"
+            class="close-modal px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inclusão do script inline -->
   </div>
 
   <!-- Paginação -->
 
-  <?php
-      $paginator = $employees;
-      include Constants::rootPath()->join('app/views/paginator/_pages.phtml');
-  ?>
+
 
   <?php else: ?>
   <div class="text-center py-16">
@@ -228,4 +257,10 @@ use Core\Constants\Constants;
   </div>
 </div>
 
+<?php
+      $paginator = $employees;
+      include Constants::rootPath()->join('app/views/paginator/_pages.phtml');
+?>
+
 <!-- Page-specific scripts are loaded via layout -->
+<script src="/assets/js/ajax-request.js"></script>

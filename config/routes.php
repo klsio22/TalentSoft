@@ -10,6 +10,7 @@ use App\Controllers\HRController;
 use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
 use App\Controllers\UserController;
+use App\Controllers\AjaxController;
 use Core\Router\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('root');
@@ -22,10 +23,7 @@ Route::get('/admin', [AdminController::class, 'home'])->name('admin.home');
 Route::get('/hr', [HRController::class, 'home'])->name('hr.home');
 Route::get('/user', [UserController::class, 'home'])->name('user.home');
 
-// Profile routes - available for all authenticated users
-Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-Route::post('/profile/upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.upload-avatar');
-Route::post('/profile/remove-avatar', [ProfileController::class, 'removeAvatar'])->name('profile.remove-avatar');
+
 
 // O middleware de autenticação é definido no sistema core
 // Comportamento adicional de verificação de status implementado em AuthMiddleware.php
@@ -72,10 +70,19 @@ Route::middleware('admin-hr')->group(function () {
 // Routes for authenticated users (any role)
 Route::middleware('auth')->group(function () {
 
+  // Profile routes - available for all authenticated users
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::post('/profile/upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.upload-avatar');
+    Route::post('/profile/remove-avatar', [ProfileController::class, 'removeAvatar'])->name('profile.remove-avatar');
+
 
   // User projects route
     Route::get('/my-projects', [EmployeeProjectsController::class, 'userProjects'])->name('projects.user');
     Route::get('/projects/{id}', [ProjectsController::class, 'show'])->name('projects.show');
+
+  // Ajax routes for fetching employee projects
+    Route::get('/ajax/employee/{id}/projects', [AjaxController::class, 'getEmployeeProjects'])->name('ajax.employee.projects');
+
 
   // Rotas de aprovações removidas - não serão mais utilizadas
   // A validação de acesso agora é baseada no status do funcionário
