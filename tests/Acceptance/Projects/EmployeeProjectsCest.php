@@ -511,7 +511,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
             $tester->comment('Link para ver projetos do funcionário não encontrado, pulando teste');
         }
     }
-    
+
     /**
      * Teste específico para a requisição AJAX que busca projetos de um funcionário
      */
@@ -529,7 +529,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
 
         if ($employeesCount == 0) {
             // Criar um funcionário se não existir nenhum
-            $employeeName = $this->createTestEmployee($tester);
+            $this->createTestEmployee($tester);
             // Retornar à listagem de funcionários
             $tester->amOnPage(self::EMPLOYEES_INDEX_URL);
             $tester->wait(1);
@@ -542,12 +542,12 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
 
         if (!$showProjectsBtnExists) {
             $tester->comment('Botão para mostrar projetos não encontrado. Verificando outras possibilidades...');
-            
+
             // Verificar outras maneiras de mostrar projetos de funcionário
             $anyProjectsLinkExists = $tester->executeJS('
                 return document.querySelector("a[href*=\'projects\']") !== null;
             ');
-            
+
             if (!$anyProjectsLinkExists) {
                 $tester->comment('Nenhum link de projetos encontrado. Pulando teste AJAX.');
                 return;
@@ -556,7 +556,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
 
         // Testar o modal e requisição AJAX
         $tester->comment('Testando requisição AJAX para buscar projetos...');
-        
+
         // Obter o primeiro ID de funcionário disponível
         $employeeId = $tester->executeJS('
             const btn = document.querySelector(".show-projects-btn");
@@ -566,7 +566,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
             const anyRow = document.querySelector("table tbody tr");
             return anyRow ? anyRow.dataset.employeeId || "1" : "1";
         ');
-        
+
         // Simular o clique no botão que mostra os projetos ou fazer a requisição diretamente
         $tester->executeJS('
             // Tentar clicar no botão primeiro
@@ -579,25 +579,25 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
             // Se não encontrar o botão, simular a requisição Ajax diretamente
             return "Botão não encontrado, simulando requisição";
         ');
-        
+
         $tester->wait(2);
-        
+
         // Verificar se o modal foi aberto ou fazer a verificação direta da requisição
         $modalOpened = $tester->executeJS('
             return document.querySelector("#projectsModal:not(.hidden)") !== null;
         ');
-        
+
         if ($modalOpened) {
             $tester->comment('Modal de projetos aberto com sucesso');
-            
+
             // Verificar se o conteúdo foi carregado
             $loaderHidden = $tester->executeJS('
                 return document.querySelector("#projects-loader.hidden") !== null;
             ');
-            
+
             if ($loaderHidden) {
                 $tester->comment('Loader escondido, conteúdo carregado');
-                
+
                 // Verificar o conteúdo recebido
                 $contentLoaded = $tester->executeJS('
                     const content = document.querySelector("#projects-content");
@@ -613,12 +613,12 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
                     
                     return "Conteúdo desconhecido";
                 ');
-                
+
                 $tester->comment("Resultado da requisição AJAX: " . $contentLoaded);
             } else {
                 $tester->comment('Loader ainda visível, possível problema na requisição');
             }
-            
+
             // Testar fechamento do modal
             $tester->executeJS('
                 const closeBtn = document.querySelector(".close-modal");
@@ -628,7 +628,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
         } else {
             // Fazer requisição AJAX direta para testar a API
             $tester->comment('Testando API diretamente via JavaScript');
-            
+
             // Realizar requisição AJAX direta e validar resposta
             $apiTestResult = $tester->executeJS('
                 return new Promise((resolve) => {
@@ -658,7 +658,7 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
                     xhr.send();
                 });
             ');
-            
+
             $tester->comment('Resposta da API: ' . $apiTestResult);
         }
     }
