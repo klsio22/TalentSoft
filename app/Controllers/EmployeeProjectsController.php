@@ -241,4 +241,111 @@ class EmployeeProjectsController extends Controller
     {
         return EmployeeProject::getEmployeeProjectRoles($projectId);
     }
+
+
+
+    /**
+     * Retorna os projetos associados a um funcionário em formato JSON
+     *
+     * @param Request $request Objeto de request contendo o ID do funcionário
+     * @return void
+     */
+    public function getEmployeeProjects(Request $request): void
+    {
+        try {
+            // Extrair ID do funcionário do parâmetro da rota
+            $employeeId = (int) $request->getParam('id');
+
+            // Validar ID
+            if ($employeeId <= 0) {
+                $this->sendJsonResponse(['error' => 'ID do funcionário inválido'], 400);
+                return;
+            }
+
+            // Buscar funcionário
+            $employee = Employee::findById($employeeId);
+            if (!$employee) {
+                $this->sendJsonResponse(['error' => 'Funcionário não encontrado'], 404);
+                return;
+            }
+
+            // Verificar se o usuário tem permissão para visualizar projetos
+            if (!Auth::isAdmin() && !Auth::isHR()) {
+                $this->sendJsonResponse(['error' => 'Acesso negado'], 403);
+                return;
+            }
+
+            // Buscar projetos do funcionário
+            $projects = $this->getFormattedEmployeeProjects($employee);
+
+            // Formatar resposta
+            $response = [
+                'success' => true,
+                'employee' => $employee->name,
+                'employee_id' => $employee->id,
+                'projects' => $projects,
+                'project_count' => count($projects)
+            ];
+
+            $this->sendJsonResponse($response);
+        } catch (\Exception $e) {
+            $this->sendJsonResponse([
+                'error' => 'Erro interno do servidor',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Busca e formata os projetos do funcionário
+     *
+     * @param Employee $employee Instância do funcionário
+     * @return array<int, array<string, mixed>> Lista formatada de projetos
+     */
+    private function getFormattedEmployeeProjects(Employee $employee): array
+    {
+        try {
+            // Usar o método estático do modelo Project para buscar projetos
+            $projects = Project::getEmployeeProjects($employee->id);
+
+            // Formatar dados para a resposta
+            $formattedProjects = [];
+            foreach ($projects as $project) {
+                // Buscar o papel do funcionário neste projeto específico
+                $role = $employee->getRoleForProject($project->id);
+
+                $formattedProjects[] = [
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'description' => $project->description ?? 'Sem descrição',
+                    'status' => $project->status ?? 'Ativo',
+                    'role' => $role ?? 'Membro da equipe'
+                ];
+            }
+
+            return $formattedProjects;
+        } catch (\Exception $e) {
+            // Em caso de erro, retornar array vazio
+            return [];
+        }
+    }
+
+    /**
+     * Envia resposta JSON
+     *
+     * @param array<string, mixed> $data
+     * @param int $statusCode
+     * @return void
+     */
+    private function sendJsonResponse(array $data, int $statusCode = 200): void
+    {
+        if (!headers_sent()) {
+            http_response_code($statusCode);
+            header('Content-Type: application/json; charset=utf-8');
+        }
+
+        echo json_encode($data);
+        exit;
+    }
 }

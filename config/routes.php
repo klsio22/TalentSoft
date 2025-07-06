@@ -40,6 +40,9 @@ Route::middleware('admin-hr')->group(function () {
     Route::post('/employees/destroy', [EmployeesController::class, 'destroy'])->name('employees.destroy');
     Route::get('/employee', [EmployeesController::class, 'index'])->name('employee.redirect');
 
+  // route for fetching employee projects
+    Route::get('/employee/{id}/projects', [EmployeeProjectsController::class, 'getEmployeeProjects'])->name('employee.projects');
+
   // Project routes
     Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');
     Route::get('/projects/create', [ProjectsController::class, 'create'])->name('projects.create');
@@ -65,9 +68,6 @@ Route::middleware('admin-hr')->group(function () {
         '/employees/{id}/projects',
         [EmployeeProjectsController::class, 'employeeProjects']
     )->name('employee-projects.employee');
-
-    // Ajax routes for fetching employee projects
-    Route::get('/ajax/employee/{id}/projects', [AjaxController::class, 'getEmployeeProjects'])->name('ajax.employee.projects');
 });
 
 // Routes for authenticated users (any role)

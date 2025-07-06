@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
       projectsContent.classList.add('hidden');
 
       // Buscar os projetos via AJAX
-      fetch(`/ajax/employee/${employeeId}/projects`, {
+      fetch(`/employee/${employeeId}/projects`, {
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
           Accept: 'application/json',

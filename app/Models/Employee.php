@@ -108,7 +108,7 @@ class Employee extends Model implements HasAvatar
     /**
      * Retorna todos os projetos associados a este funcionário
      *
-     * @return BelongsToMany|array Os projetos associados ao funcionário
+     * @return BelongsToMany Os projetos associados ao funcionário
      */
     public function projects(): BelongsToMany
     {
