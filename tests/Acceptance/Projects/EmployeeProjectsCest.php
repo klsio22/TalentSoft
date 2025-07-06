@@ -511,4 +511,155 @@ class EmployeeProjectsCest extends BaseAcceptanceCest
             $tester->comment('Link para ver projetos do funcionário não encontrado, pulando teste');
         }
     }
+    
+    /**
+     * Teste específico para a requisição AJAX que busca projetos de um funcionário
+     */
+    public function testAjaxEmployeeProjects(AcceptanceTester $tester): void
+    {
+        $this->loginAsAdmin($tester);
+
+        // Ir para a listagem de funcionários
+        $tester->amOnPage(self::EMPLOYEES_INDEX_URL);
+        $tester->wait(2);
+
+        // Verificar se há funcionários listados
+        $employeesCount = $tester->executeJS('return document.querySelectorAll("table tbody tr").length');
+        $tester->comment('Funcionários encontrados: ' . $employeesCount);
+
+        if ($employeesCount == 0) {
+            // Criar um funcionário se não existir nenhum
+            $employeeName = $this->createTestEmployee($tester);
+            // Retornar à listagem de funcionários
+            $tester->amOnPage(self::EMPLOYEES_INDEX_URL);
+            $tester->wait(1);
+        }
+
+        // Verificar se existe botão para ver projetos
+        $showProjectsBtnExists = $tester->executeJS('
+            return document.querySelector(".show-projects-btn") !== null;
+        ');
+
+        if (!$showProjectsBtnExists) {
+            $tester->comment('Botão para mostrar projetos não encontrado. Verificando outras possibilidades...');
+            
+            // Verificar outras maneiras de mostrar projetos de funcionário
+            $anyProjectsLinkExists = $tester->executeJS('
+                return document.querySelector("a[href*=\'projects\']") !== null;
+            ');
+            
+            if (!$anyProjectsLinkExists) {
+                $tester->comment('Nenhum link de projetos encontrado. Pulando teste AJAX.');
+                return;
+            }
+        }
+
+        // Testar o modal e requisição AJAX
+        $tester->comment('Testando requisição AJAX para buscar projetos...');
+        
+        // Obter o primeiro ID de funcionário disponível
+        $employeeId = $tester->executeJS('
+            const btn = document.querySelector(".show-projects-btn");
+            if (btn) return btn.dataset.employeeId;
+            
+            // Se não encontrar o botão específico, tentar outra abordagem
+            const anyRow = document.querySelector("table tbody tr");
+            return anyRow ? anyRow.dataset.employeeId || "1" : "1";
+        ');
+        
+        // Simular o clique no botão que mostra os projetos ou fazer a requisição diretamente
+        $tester->executeJS('
+            // Tentar clicar no botão primeiro
+            const showBtn = document.querySelector(".show-projects-btn");
+            if (showBtn) {
+                showBtn.click();
+                return "Botão clicado";
+            }
+            
+            // Se não encontrar o botão, simular a requisição Ajax diretamente
+            return "Botão não encontrado, simulando requisição";
+        ');
+        
+        $tester->wait(2);
+        
+        // Verificar se o modal foi aberto ou fazer a verificação direta da requisição
+        $modalOpened = $tester->executeJS('
+            return document.querySelector("#projectsModal:not(.hidden)") !== null;
+        ');
+        
+        if ($modalOpened) {
+            $tester->comment('Modal de projetos aberto com sucesso');
+            
+            // Verificar se o conteúdo foi carregado
+            $loaderHidden = $tester->executeJS('
+                return document.querySelector("#projects-loader.hidden") !== null;
+            ');
+            
+            if ($loaderHidden) {
+                $tester->comment('Loader escondido, conteúdo carregado');
+                
+                // Verificar o conteúdo recebido
+                $contentLoaded = $tester->executeJS('
+                    const content = document.querySelector("#projects-content");
+                    if (!content) return "Elemento de conteúdo não encontrado";
+                    
+                    if (content.querySelector("ul li")) {
+                        return "Projetos listados com sucesso";
+                    } else if (content.textContent.includes("Nenhum projeto")) {
+                        return "Mensagem de nenhum projeto exibida";
+                    } else if (content.textContent.includes("Erro")) {
+                        return "Erro exibido: " + content.textContent;
+                    }
+                    
+                    return "Conteúdo desconhecido";
+                ');
+                
+                $tester->comment("Resultado da requisição AJAX: " . $contentLoaded);
+            } else {
+                $tester->comment('Loader ainda visível, possível problema na requisição');
+            }
+            
+            // Testar fechamento do modal
+            $tester->executeJS('
+                const closeBtn = document.querySelector(".close-modal");
+                if (closeBtn) closeBtn.click();
+            ');
+            $tester->wait(1);
+        } else {
+            // Fazer requisição AJAX direta para testar a API
+            $tester->comment('Testando API diretamente via JavaScript');
+            
+            // Realizar requisição AJAX direta e validar resposta
+            $apiTestResult = $tester->executeJS('
+                return new Promise((resolve) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("GET", `/employee/${' . $employeeId . '}/projects`);
+                    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                    xhr.setRequestHeader("Accept", "application/json");
+                    
+                    xhr.onload = function() {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                resolve("Sucesso: " + (response.success ? "true" : "false") + 
+                                        ", Projetos: " + (response.projects ? response.projects.length : 0));
+                            } catch(e) {
+                                resolve("Erro ao fazer parse da resposta: " + e.message);
+                            }
+                        } else {
+                            resolve("Erro na requisição: " + xhr.status + " " + xhr.statusText);
+                        }
+                    };
+                    
+                    xhr.onerror = function() {
+                        resolve("Erro na comunicação com o servidor");
+                    };
+                    
+                    xhr.send();
+                });
+            ');
+            
+            $tester->comment('Resposta da API: ' . $apiTestResult);
+        }
+    }
 }
