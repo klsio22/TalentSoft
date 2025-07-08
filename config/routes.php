@@ -10,6 +10,7 @@ use App\Controllers\HRController;
 use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
 use App\Controllers\UserController;
+use App\Controllers\AjaxController;
 use Core\Router\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('root');
@@ -22,10 +23,7 @@ Route::get('/admin', [AdminController::class, 'home'])->name('admin.home');
 Route::get('/hr', [HRController::class, 'home'])->name('hr.home');
 Route::get('/user', [UserController::class, 'home'])->name('user.home');
 
-// Profile routes - available for all authenticated users
-Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-Route::post('/profile/upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.upload-avatar');
-Route::post('/profile/remove-avatar', [ProfileController::class, 'removeAvatar'])->name('profile.remove-avatar');
+
 
 // O middleware de autenticação é definido no sistema core
 // Comportamento adicional de verificação de status implementado em AuthMiddleware.php
@@ -41,6 +39,9 @@ Route::middleware('admin-hr')->group(function () {
     Route::post('/employees/update', [EmployeesController::class, 'update'])->name('employees.update');
     Route::post('/employees/destroy', [EmployeesController::class, 'destroy'])->name('employees.destroy');
     Route::get('/employee', [EmployeesController::class, 'index'])->name('employee.redirect');
+
+  // route for fetching employee projects
+    Route::get('/employee/{id}/projects', [EmployeeProjectsController::class, 'getEmployeeProjects'])->name('employee.projects');
 
   // Project routes
     Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');
@@ -71,6 +72,11 @@ Route::middleware('admin-hr')->group(function () {
 
 // Routes for authenticated users (any role)
 Route::middleware('auth')->group(function () {
+
+  // Profile routes - available for all authenticated users
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::post('/profile/upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.upload-avatar');
+    Route::post('/profile/remove-avatar', [ProfileController::class, 'removeAvatar'])->name('profile.remove-avatar');
 
 
   // User projects route

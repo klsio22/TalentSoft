@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * Constante para formato de data e hora
+ */
+const DATETIME_FORMAT = 'Y-m-d H:i:s';
+
+/**
  * Função para gerar um CPF válido
  * Implementa o algoritmo de validação do CPF brasileiro
  *
@@ -64,6 +69,7 @@ function createAdminUser($roleId)
       'state' => 'PR',
       'zipcode' => '80000-000',
       'notes' => 'Administrador do sistema',
+      'created_at' => (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format(DATETIME_FORMAT),
     ]);
     $admin->save();
 
@@ -117,6 +123,7 @@ function createHRUser($roleId)
       'state' => 'PR',
       'zipcode' => '80000-000',
       'notes' => 'Usuário de RH',
+      'created_at' => (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format(DATETIME_FORMAT),
     ]);
     $hr->save();
 
@@ -188,7 +195,8 @@ function createRegularUsers($usuarios, $roleId, $enderecos, $salarios)
         'city' => $usuario['city'],
         'state' => $usuario['state'],
         'zipcode' => $zipcode,
-        'notes' => 'Usuário criado automaticamente para testes'
+        'notes' => 'Usuário criado automaticamente para testes',
+        'created_at' => (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format(DATETIME_FORMAT),
       ]);
       $employee->save();
 

@@ -1,60 +1,50 @@
 <!-- Header Section -->
 <div class="glass-effect rounded-2xl shadow-xl p-8 mb-8">
-
   <!-- Imagem de cabeçalho removida -->
 
   <div class="text-center">
     <?php if (\Lib\FlashMessage::hasMessages()): ?>
-    <?php $messages = \Lib\FlashMessage::get(); ?>
-
-    <?php if (isset($messages['danger'])): ?>
-    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
-      <p class="font-bold">Erro</p>
-      <p>
-        <?= htmlspecialchars($messages['danger']) ?>
-      </p>
-    </div>
-    <?php endif; ?>
-
-    <?php if (isset($messages['success'])): ?>
-    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
-      <p class="font-bold">Sucesso!</p>
-      <p>
-        <?= htmlspecialchars($messages['success']) ?>
-      </p>
-    </div>
-    <?php endif; ?>
-
-    <?php if (isset($messages['warning'])): ?>
-    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
-      <p class="font-bold">Alerta</p>
-      <p>
-        <?= htmlspecialchars($messages['warning']) ?>
-      </p>
-    </div>
-    <?php endif; ?>
-
-    <?php if (isset($messages['info'])): ?>
-    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" role="alert">
-      <p class="font-bold">Informação</p>
-      <p>
-        <?= htmlspecialchars($messages['info']) ?>
-      </p>
-    </div>
-    <?php endif; ?>
+      <?php $messages = \Lib\FlashMessage::get(); ?>
+      
+      <?php if (isset($messages['danger'])): ?>
+      <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+        <p class="font-bold">Erro</p>
+        <p><?= htmlspecialchars($messages['danger']) ?></p>
+      </div>
+      <?php endif; ?>
+      
+      <?php if (isset($messages['success'])): ?>
+      <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+        <p class="font-bold">Sucesso!</p>
+        <p><?= htmlspecialchars($messages['success']) ?></p>
+      </div>
+      <?php endif; ?>
+      
+      <?php if (isset($messages['warning'])): ?>
+      <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+        <p class="font-bold">Alerta</p>
+        <p><?= htmlspecialchars($messages['warning']) ?></p>
+      </div>
+      <?php endif; ?>
+      
+      <?php if (isset($messages['info'])): ?>
+      <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" role="alert">
+        <p class="font-bold">Informação</p>
+        <p><?= htmlspecialchars($messages['info']) ?></p>
+      </div>
+      <?php endif; ?>
     <?php endif; ?>
 
     <span class="text-gray-500 mb-8">Clique na imagem abaixo para realizar o upload</span>
     <div class="mb-6">
       <?php
       // Usar o método avatar() do modelo diretamente
-      $profileAvatar = $user->avatar();
-      $hasAvatar = $user->getAvatarName() !== null;
-      if ($hasAvatar): ?>
+      $profileAvatar = $user->avatar(); $hasAvatar = $user->getAvatarName() !==
+      null; if ($hasAvatar): ?>
       <div class="relative inline-block avatar-container">
         <img src="<?= $profileAvatar->path() ?>" alt="Foto de perfil"
           class="w-44 h-44 rounded-full object-cover cursor-pointer" id="avatar-image"
-          title="Clique para alterar a foto">
+          title="Clique para alterar a foto" />
         <form action="<?= route('profile.remove-avatar') ?>" method="post" class="absolute -bottom-2 -right-2">
           <button type="submit" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-md"
             title="Remover foto">
@@ -75,17 +65,19 @@
       <form action="<?= route('profile.upload-avatar') ?>" method="post" enctype="multipart/form-data" class="hidden"
         id="avatar-form">
         <input type="file" id="avatar" name="avatar"
-          accept="image/jpeg, image/png, image/gif, image/svg+xml, image/webp" class="hidden">
+          accept="image/jpeg, image/png, image/gif, image/svg+xml, image/webp" class="hidden" />
       </form>
 
-      <link rel="stylesheet" href="/assets/css/avatar.css">
+      <link rel="stylesheet" href="/assets/css/avatar.css" />
       <script src="/assets/js/avatar-upload.js"></script>
     </div>
 
     <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
       Meu Perfil
     </h1>
-    <p class="text-gray-600">Visualize e gerencie suas informações pessoais e profissionais</p>
+    <p class="text-gray-600">
+      Visualize e gerencie suas informações pessoais e profissionais
+    </p>
   </div>
 </div>
 
@@ -102,7 +94,9 @@
 
     <div class="space-y-6">
       <div>
-        <div class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo</div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">
+          Nome Completo
+        </div>
         <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
           <div class="flex items-center">
             <i class="fas fa-user text-blue-600 mr-3 flex-shrink-0"></i>
@@ -141,7 +135,9 @@
       </div>
 
       <div>
-        <div class="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento</div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">
+          Data de Nascimento
+        </div>
         <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
           <div class="flex items-center">
             <i class="fas fa-calendar-alt text-blue-600 mr-3 flex-shrink-0"></i>
@@ -158,7 +154,9 @@
       </div>
 
       <div>
-        <div class="block text-sm font-semibold text-gray-700 mb-2">Endereço</div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">
+          Endereço
+        </div>
         <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
           <div class="flex items-start">
             <i class="fas fa-map-marker-alt text-blue-600 mr-3 mt-1 flex-shrink-0"></i>
@@ -180,12 +178,11 @@
               <?php if ($user->address): ?>
               <?= htmlspecialchars($user->address) ?>
               <?php if ($user->city || $user->state): ?>
-              <br>
+              <br />
               <?= htmlspecialchars($user->city ?? '') ?> -
               <?= htmlspecialchars($user->state ?? '') ?>
               <?php endif; ?>
-              <?php if ($user->zipcode): ?>
-              <br>CEP:
+              <?php if ($user->zipcode): ?> <br />CEP:
               <?= htmlspecialchars($user->zipcode) ?>
               <?php endif; ?>
               <?php else: ?>
@@ -241,14 +238,15 @@
       </div>
 
       <div>
-        <div class="block text-sm font-semibold text-gray-700 mb-2">Salário</div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">
+          Salário
+        </div>
         <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
           <div class="flex items-center">
             <i class="fas fa-dollar-sign text-blue-600 mr-3 flex-shrink-0"></i>
             <span class="text-gray-900 font-medium truncate"
               title="<?php if (isset($user->salary) && $user->salary > 0): echo 'R$ ' . number_format($user->salary, 2, ',', '.'); else: echo 'Não informado'; endif; ?>">
-              <?php if (isset($user->salary) && $user->salary > 0): ?>
-              R$
+              <?php if (isset($user->salary) && $user->salary > 0): ?> R$
               <?= number_format($user->salary, 2, ',', '.') ?>
               <?php else: ?>
               Não informado
@@ -259,7 +257,9 @@
       </div>
 
       <div>
-        <div class="block text-sm font-semibold text-gray-700 mb-2">Nível de Acesso</div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">
+          Nível de Acesso
+        </div>
         <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
           <div class="flex items-center">
             <i class="fas fa-shield-alt text-blue-600 mr-3 flex-shrink-0"></i>
@@ -268,19 +268,12 @@
                         $roleIcon = 'user';
                         $roleLabel = 'Funcionário';
 
-                        if ($user->role()) {
-                            $roleName = strtolower($user->role()->name);
-                            if ($roleName === 'admin') {
-                                $roleColor = 'bg-red-100 text-red-800';
-                                $roleIcon = 'crown';
-                                $roleLabel = 'Administrador';
-                            } elseif ($roleName === 'hr') {
-                                $roleColor = 'bg-yellow-100 text-yellow-800';
-                                $roleIcon = 'user-tie';
-                                $roleLabel = 'Recursos Humanos';
-                            }
-                        }
-                        ?>
+                        if ($user->role()) { $roleName =
+            strtolower($user->role()->name); if ($roleName === 'admin') {
+            $roleColor = 'bg-red-100 text-red-800'; $roleIcon = 'crown';
+            $roleLabel = 'Administrador'; } elseif ($roleName === 'hr') {
+            $roleColor = 'bg-yellow-100 text-yellow-800'; $roleIcon =
+            'user-tie'; $roleLabel = 'Recursos Humanos'; } } ?>
             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?= $roleColor ?> truncate"
               title="<?= $roleLabel ?>">
               <i class="fas fa-<?= $roleIcon ?> mr-2"></i>
@@ -291,7 +284,9 @@
       </div>
 
       <div>
-        <div class="block text-sm font-semibold text-gray-700 mb-2">Data de Contratação</div>
+        <div class="block text-sm font-semibold text-gray-700 mb-2">
+          Data de Contratação
+        </div>
         <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
           <div class="flex items-center">
             <i class="fas fa-calendar-check text-blue-600 mr-3 flex-shrink-0"></i>
@@ -338,7 +333,9 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div>
-      <div class="block text-sm font-semibold text-gray-700 mb-2">Cadastrado em</div>
+      <div class="block text-sm font-semibold text-gray-700 mb-2">
+        Cadastrado em
+      </div>
       <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
         <div class="flex items-center">
           <i class="fas fa-calendar-plus text-blue-600 mr-3 flex-shrink-0"></i>
@@ -355,7 +352,9 @@
     </div>
 
     <div>
-      <div class="block text-sm font-semibold text-gray-700 mb-2">Última atualização</div>
+      <div class="block text-sm font-semibold text-gray-700 mb-2">
+        Última atualização
+      </div>
       <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 px-4 py-3 rounded-lg">
         <div class="flex items-center">
           <i class="fas fa-sync-alt text-blue-600 mr-3 flex-shrink-0"></i>
@@ -388,8 +387,8 @@
         Informação Importante
       </h3>
       <p class="text-blue-800">
-        Para alterar suas informações pessoais ou profissionais, entre em contato com o departamento de Recursos
-        Humanos.
+        Para alterar suas informações pessoais ou profissionais, entre em
+        contato com o departamento de Recursos Humanos.
       </p>
     </div>
   </div>

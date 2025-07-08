@@ -90,29 +90,6 @@ CREATE TABLE
   );
 
 
--- Tabela de notificações para funcionários
-DROP TABLE IF EXISTS Notifications;
-
-CREATE TABLE
-  Notifications (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    employee_id INT NOT NULL,
-    type ENUM (
-      'Registration',
-      'Termination',
-      'Project',
-      'Approval'
-    ) NOT NULL,
-    message TEXT NOT NULL,
-    sent_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM ('Read', 'Unread') DEFAULT 'Unread',
-    FOREIGN KEY (employee_id) REFERENCES Employees (id)
-  );
-
--- Tabela de aprovações foi removida
--- O controle de acesso agora é feito através do campo status na tabela Employees
--- status ENUM ('Active', 'Inactive') DEFAULT 'Active'
-
 -- Inserir papéis padrão
 INSERT INTO
   Roles (name, description)
