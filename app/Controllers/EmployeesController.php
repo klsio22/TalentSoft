@@ -48,14 +48,14 @@ class EmployeesController extends Controller
         $status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_SPECIAL_CHARS);
         $perPage = 10;
 
-        // Buscar todos os funcionários
-        $allEmployees = Employee::all();
-
-        // Usar o modelo Employee para filtrar os funcionários
-        $filteredEmployees = Employee::filterEmployees($allEmployees, $search, $roleId, $status);
-
-        // Criar um objeto de paginação através do modelo
-        $employees = Employee::createPaginator($filteredEmployees, $page, $perPage);
+        // Usar o método do modelo Employee para paginação com filtros
+        $employees = Employee::paginateWithFilters(
+            page: $page,
+            perPage: $perPage,
+            search: $search,
+            roleId: $roleId,
+            status: $status
+        );
 
         $roles = Role::all();
         $title = 'Lista de Funcionários';
@@ -65,6 +65,7 @@ class EmployeesController extends Controller
 
         $this->render('employees/index', compact('employees', 'title', 'roles', 'queryParams'));
     }
+
 
     /**
      * Prepara os parâmetros de consulta para URLs de paginação

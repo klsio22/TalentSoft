@@ -46,6 +46,49 @@ class Employee extends Model implements HasAvatar
     'avatar_name'
     ];
 
+    /**
+     * Pagina os funcionários com os filtros fornecidos
+     *
+     * @param int $page Número da página atual
+     * @param int $perPage Itens por página
+     * @param string|null $search Termo de busca para filtrar por nome
+     * @param int|null $roleId ID do cargo para filtrar
+     * @param string|null $status Status para filtrar
+     * @return \Lib\Paginator Objeto de paginação com os resultados filtrados
+     */
+    public static function paginateWithFilters(
+        int $page = 1,
+        int $perPage = 10,
+        ?string $search = null,
+        ?int $roleId = null,
+        ?string $status = null
+    ): \Lib\Paginator {
+
+
+        // Adicionar condições baseadas nos filtros
+        if (!empty($search)) {
+            $conditions['name LIKE'] = "%{$search}%";
+        }
+
+        if ($roleId !== null) {
+            $conditions['role_id'] = $roleId;
+        }
+
+        if (!empty($status)) {
+            $conditions['status'] = $status;
+        }
+
+        // Criar o Paginator com as condições
+        return new \Lib\Paginator(
+            class: static::class,
+            page: $page,
+            per_page: $perPage,
+            table: static::$table,
+            attributes: static::$columns,
+            route: 'employees.index'
+        );
+    }
+
   /**
    * Get the employee's role for a specific project
    *
@@ -175,6 +218,8 @@ class Employee extends Model implements HasAvatar
         return strtolower($role->name) === 'hr';
     }
 
+
+
     public function isUser(): bool
     {
         $role = $this->role();
@@ -203,18 +248,7 @@ class Employee extends Model implements HasAvatar
         return EmployeeFilter::filter($allEmployees, $search, $roleId, $status);
     }
 
-  /**
-   * Cria um objeto de paginação a partir de uma lista de funcionários
-   *
-   * @param array<int, Employee> $employees Lista de funcionários
-   * @param int $page Número da página atual
-   * @param int $perPage Itens por página
-   * @return object Objeto de paginação
-   */
-    public static function createPaginator(array $employees, int $page, int $perPage): object
-    {
-        return EmployeePaginator::paginate($employees, $page, $perPage);
-    }
+
 
   /**
    * Filtra funcionários disponíveis para atribuição a um projeto
