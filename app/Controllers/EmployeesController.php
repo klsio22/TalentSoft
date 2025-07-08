@@ -50,11 +50,11 @@ class EmployeesController extends Controller
 
         // Usar o método do modelo Employee para paginação com filtros
         $employees = Employee::paginateWithFilters(
-            page: $page,
-            perPage: $perPage,
-            search: $search,
-            roleId: $roleId,
-            status: $status
+            $page,
+            $perPage,
+            $search,
+            $roleId,
+            $status
         );
 
         $roles = Role::all();
