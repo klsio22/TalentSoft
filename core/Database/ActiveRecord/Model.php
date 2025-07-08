@@ -242,19 +242,33 @@ abstract class Model
     /**
      * Deleta o modelo e seus relacionamentos especificados
      * Este método permite especificar as tabelas de relacionamento que devem ser limpas antes da exclusão
+     * Também detecta automaticamente tabelas dependentes via chaves estrangeiras
      *
      * @param array<string, string> $relationships Array associativo onde a chave é a tabela de relacionamento
      *                                              e o valor é o nome da coluna de chave estrangeira
      *                                              Exemplo: ['Employee_Projects' => 'project_id']
+     * @param bool $detectDependencies Se verdadeiro, detecta automaticamente tabelas dependentes
      * @return bool True se a exclusão foi bem-sucedida, false caso contrário
      */
-    public function destroyWithRelationships(array $relationships = []): bool
+    public function destroyWithRelationships(array $relationships = [], bool $detectDependencies = true): bool
     {
         try {
             $pdo = Database::getDatabaseConn();
 
             // Iniciar transação para garantir consistência
             $pdo->beginTransaction();
+            
+            // Se detectDependencies for verdadeiro, buscar tabelas dependentes
+            if ($detectDependencies) {
+                $dependentTables = $this->findDependentTables();
+                
+                // Adicionar tabelas dependentes aos relacionamentos
+                foreach ($dependentTables as $table => $column) {
+                    if (!isset($relationships[$table])) {
+                        $relationships[$table] = $column;
+                    }
+                }
+            }
 
             // Deletar relacionamentos especificados
             foreach ($relationships as $relationshipTable => $foreignKeyColumn) {
@@ -288,7 +302,44 @@ abstract class Model
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
+            // Registrar erro para facilitar depuração
+            error_log("Erro ao remover entidade: " . $e->getMessage());
             return false;
+        }
+    }
+    
+    /**
+     * Encontra tabelas que possuem chaves estrangeiras referenciando esta tabela
+     * 
+     * @return array<string, string> Array associativo com tabelas dependentes e suas colunas de chave estrangeira
+     */
+    protected function findDependentTables(): array
+    {
+        $dependentTables = [];
+        $pdo = Database::getDatabaseConn();
+        $table = static::$table;
+        
+        try {
+            // Consulta para buscar tabelas que referenciam a tabela atual no MySQL
+            $sql = "SELECT TABLE_NAME, COLUMN_NAME 
+                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+                    WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
+                    AND REFERENCED_TABLE_NAME = :table
+                    AND REFERENCED_COLUMN_NAME = 'id'";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':table', $table);
+            $stmt->execute();
+            
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $dependentTables[$row['TABLE_NAME']] = $row['COLUMN_NAME'];
+            }
+            
+            return $dependentTables;
+            
+        } catch (\PDOException $e) {
+            // Em caso de erro, retorna array vazio
+            return [];
         }
     }
 

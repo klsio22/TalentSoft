@@ -267,12 +267,9 @@ class EmployeesController extends Controller
         }
 
         // Remover credenciais primeiro (restrição de chave estrangeira)
-        $credential = $employee->credential();
-        if ($credential) {
-            $credential->destroy();
-        }
-
-        if ($employee->destroy()) {
+        // Usar o método destroyWithRelationships que detecta e remove automaticamente todas as dependências
+        // incluindo credenciais, notificações e quaisquer outras tabelas relacionadas
+        if ($employee->destroyWithRelationships()) {
             FlashMessage::success(self::EMPLOYEE_DELETED);
         } else {
             FlashMessage::danger('Erro ao excluir funcionário');
