@@ -26,4 +26,9 @@ html
 /storage
 /public/uploads/avatars
 /public/uploads
+
+# Ignore GitHub instructions
 .github/instructions
+
+# Ignore Windsurf
+.windsurf
