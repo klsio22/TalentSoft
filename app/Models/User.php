@@ -108,14 +108,9 @@ class User extends Model implements HasAvatar
                 'avatar_name' => $avatarName
             ]);
 
-            // Verifica explicitamente se o avatar foi atualizado
-            // Se o rowCount for 0 mas o valor estiver atualizado na instância,
-            // consideramos sucesso
-            if (!$result && $this->avatar_name === $avatarName) {
-                return true;
-            }
-
-            return $result;
+            // Considera sucesso se o valor estiver atualizado na instância,
+            // mesmo que rowCount seja 0
+            return $result || $this->avatar_name === $avatarName;
         } catch (\Exception $e) {
             // Log do erro ou tratamento adequado
             return false;
