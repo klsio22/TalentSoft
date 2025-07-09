@@ -1,19 +1,49 @@
 /**
- * Constantes para classes e strings reutilizáveis
+ * ==========================================
+ * CONSTANTES E CONFIGURAÇÕES
+ * ==========================================
+ */
+
+/**
+ * URL base para a API de projetos de funcionários
+ * @const {string}
+ */
+const API_URL_BASE = '/employee/';
+
+/**
+ * Tempo de expiração do cache em milissegundos (5 minutos)
+ * @const {number}
+ */
+const CACHE_EXPIRATION_TIME = 5 * 60 * 1000;
+
+/**
+ * Classes CSS reutilizáveis
+ * @const {Object}
  */
 const CSS_CLASSES = {
   HIDDEN: 'hidden',
 };
 
+/**
+ * Strings reutilizáveis para internacionalização e consistência
+ * @const {Object}
+ */
 const STRINGS = {
   EMPLOYEE_PROJECTS: 'Projetos de ',
   ACTIVE_STATUS: 'Active',
   ACTIVE_TRANSLATED: 'Ativo',
-  NO_DESCRIPTION: 'Sem descrição',
+  NO_DESCRIPTION: 'Sem descrição disponível',
+  EMPLOYEE_NOT_AVAILABLE: 'Nome não disponível',
+  PROJECT_COUNT: 'Total de projetos:',
+  EMPLOYEE_LABEL: 'Funcionário:',
+  ROLE_LABEL: 'Função:',
+  PROJECT_NO_NAME: 'Projeto sem nome',
 };
 
 /**
- * Funções utilitárias para manipulação do DOM
+ * ==========================================
+ * UTILITÁRIOS DE MANIPULAÇÃO DO DOM
+ * ==========================================
  */
 
 /**
@@ -55,74 +85,7 @@ function hideLoader(loader, content) {
 }
 
 /**
- * Templates HTML pré-definidos para evitar aninhamento excessivo
- * e melhorar a manutenção do código
- * @type {Object}
- */
-const PROJECT_TEMPLATES = {
-  /**
-   * Template para item de projeto individual
-   * @param {string} name - Nome do projeto
-   * @param {string} statusClass - Classes CSS para o status
-   * @param {string} formattedStatus - Texto do status formatado
-   * @param {string} description - Descrição do projeto
-   * @param {string} roleHtml - HTML da função do funcionário
-   * @returns {string} HTML do item de projeto
-   */
-  projectItem: (name, statusClass, formattedStatus, description, roleHtml) => `
-    <li class="bg-white/60 p-3 rounded-lg border border-gray-100">
-      <div class="flex items-center justify-between">
-        <span class="font-semibold text-gray-800">${name}</span>
-        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
-          ${formattedStatus}
-        </span>
-      </div>
-      <p class="text-gray-600 mt-1 text-sm">${
-        description || STRINGS.NO_DESCRIPTION
-      }</p>
-      ${roleHtml}
-    </li>
-  `,
-
-  /**
-   * Template para quando não há projetos para mostrar
-   */
-  emptyState: `
-    <div class="flex flex-col items-center justify-center py-8 text-center">
-      <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-        <i class="fas fa-briefcase text-blue-500 text-xl"></i>
-      </div>
-      <h4 class="text-gray-800 font-medium mb-1">Nenhum projeto encontrado</h4>
-      <p class="text-gray-500 text-sm">Este funcionário não está associado a nenhum projeto.</p>
-    </div>
-  `,
-
-  /**
-   * Template para exibição de erros
-   * @param {string} errorMessage - Mensagem de erro
-   * @param {string|number} employeeId - ID do funcionário
-   * @returns {string} HTML da mensagem de erro
-   */
-  errorState: (errorMessage, employeeId) => `
-    <div class="flex flex-col items-center justify-center py-8 text-center">
-      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-        <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
-      </div>
-      <h4 class="text-gray-800 font-medium mb-1">Erro ao carregar projetos</h4>
-      <p class="text-red-600 text-sm">${errorMessage}</p>
-      <p class="text-gray-500 text-xs mt-2">ID do funcionário: ${employeeId}</p>
-      <button type="button" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" 
-              onclick="location.reload()">
-        Tentar novamente
-      </button>
-    </div>
-  `,
-
-  /**
-   * Templates para marcadores da lista de projetos
-   */
-  listStart: '<ul class="space-y-3">',
-  listEnd: '</ul>',
+  PROJECT_NO_NAME: 'Projeto sem nome'
 };
 
 /**
@@ -167,35 +130,96 @@ function prepareRoleHtml(role) {
 }
 
 /**
- * Cria o HTML da lista de projetos
+ * Cria elementos de projeto a partir do template e dados
  * @param {Array} projects - Array de objetos com dados dos projetos
- * @returns {string} HTML da lista de projetos formatada
+ * @param {HTMLElement} projectsContent - Elemento onde os projetos serão inseridos
  */
-function createProjectsList(projects) {
-  if (!projects || !Array.isArray(projects)) {
-    console.error('Dados de projetos inválidos:', projects);
-    return PROJECT_TEMPLATES.emptyState;
+function createProjectsList(projects, projectsContent) {
+  if (!projects || !Array.isArray(projects) || projects.length === 0) {
+    console.error('Dados de projetos inválidos ou vazios:', projects);
+    // Usa o template de estado vazio
+    const emptyTemplate = document.querySelector('#empty-projects-template');
+    if (emptyTemplate) {
+      projectsContent.appendChild(emptyTemplate.content.cloneNode(true));
+    }
+    return;
   }
 
-  let html = PROJECT_TEMPLATES.listStart;
+  // Usa o template principal de projetos
+  const projectTemplate = document.querySelector('#project-template');
+  if (!projectTemplate) {
+    console.error('Template de projetos não encontrado');
+    return;
+  }
 
-  // Usar for-of em vez de for com índice (melhor prática)
-  for (const project of projects) {
-    const statusClass = getStatusClass(project.status);
-    const formattedStatus = formatStatus(project.status);
-    const roleHtml = prepareRoleHtml(project.role);
+  // Clona o template principal
+  const content = projectTemplate.content.cloneNode(true);
 
-    html += PROJECT_TEMPLATES.projectItem(
-      project.name || 'Projeto sem nome',
-      statusClass,
-      formattedStatus,
-      project.description,
-      roleHtml,
+  // Obtém a lista de projetos do template
+  const projectsList = content.querySelector('#projects-list');
+
+  // Para cada projeto, cria um item usando o template de item
+  projects.forEach((project) => {
+    // Obtém o template de item de projeto
+    const projectItemTemplate = document.querySelector(
+      '#project-item-template',
     );
-  }
+    if (!projectItemTemplate) {
+      console.error('Template de item de projeto não encontrado');
+      return;
+    }
 
-  html += PROJECT_TEMPLATES.listEnd;
-  return html;
+    // Clona o template de item
+    const projectItem = projectItemTemplate.content.cloneNode(true);
+    const projectLi = projectItem.querySelector('li');
+
+    // Nome do projeto
+    const nameElement = projectItem.querySelector('[data-project-name]');
+    if (nameElement) {
+      nameElement.textContent = project.name || STRINGS.PROJECT_NO_NAME;
+    }
+
+    // Status do projeto
+    const statusElement = projectItem.querySelector('[data-project-status]');
+    if (statusElement) {
+      statusElement.className = `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mb-2 ${getStatusClass(
+        project.status,
+      )}`;
+    }
+
+    const statusTextElement = projectItem.querySelector('[data-status-text]');
+    if (statusTextElement) {
+      statusTextElement.textContent = formatStatus(project.status);
+    }
+
+    // Descrição do projeto
+    const descriptionElement = projectItem.querySelector(
+      '[data-project-description]',
+    );
+    if (descriptionElement) {
+      descriptionElement.textContent =
+        project.description || STRINGS.NO_DESCRIPTION;
+    }
+
+    // Função no projeto
+    const roleElement = projectItem.querySelector('[data-project-role]');
+    if (roleElement) {
+      if (project.role) {
+        const roleTextElement = projectItem.querySelector('[data-role-text]');
+        if (roleTextElement) {
+          roleTextElement.textContent = project.role;
+        }
+      } else {
+        roleElement.style.display = 'none';
+      }
+    }
+
+    // Adiciona o item à lista de projetos
+    projectsList.appendChild(projectLi);
+  });
+
+  // Adiciona o conteúdo ao elemento
+  projectsContent.appendChild(content);
 }
 
 /**
@@ -207,7 +231,7 @@ function createProjectsList(projects) {
  * @param {Response} response - O objeto de resposta HTTP
  * @returns {Promise<never>} Uma promessa rejeitada com detalhes do erro
  */
-function processErrorResponse(response) {
+async function processErrorResponse(response) {
   return response.text().then((text) => {
     console.error('Erro na resposta:', text);
     throw new Error(`Erro ${response.status}: ${text}`);
@@ -215,28 +239,62 @@ function processErrorResponse(response) {
 }
 
 /**
- * Renderiza o conteúdo da resposta no DOM
+ * Renderiza o conteúdo da resposta no DOM usando templates HTML
  * @param {Object} data - Os dados da resposta da API
  * @param {HTMLElement} projectsContent - O elemento onde renderizar o conteúdo
  */
 function renderResponseContent(data, projectsContent) {
   try {
+    // Limpa o conteúdo atual
+    projectsContent.innerHTML = '';
+
+    // Verifica se há projetos para exibir
     if (
       data.projects &&
       Array.isArray(data.projects) &&
       data.projects.length > 0
     ) {
-      projectsContent.innerHTML = createProjectsList(data.projects);
+      // Usa a função createProjectsList para criar e preencher os templates
+      createProjectsList(data.projects, projectsContent);
+
+      // Atualiza os dados do funcionário e contador de projetos no template principal
+      const employeeNameElement = projectsContent.querySelector(
+        '#employee-name',
+      );
+      if (employeeNameElement) {
+        employeeNameElement.textContent = `${STRINGS.EMPLOYEE_LABEL} ${
+          data.employee || STRINGS.EMPLOYEE_NOT_AVAILABLE
+        }`;
+      }
+
+      const projectCountElement = projectsContent.querySelector(
+        '#project-count',
+      );
+      if (projectCountElement) {
+        projectCountElement.textContent = `${STRINGS.PROJECT_COUNT} ${
+          data.project_count || data.projects.length
+        }`;
+      }
     } else {
-      projectsContent.innerHTML = PROJECT_TEMPLATES.emptyState;
+      // Exibe o template de estado vazio
+      const emptyTemplate = document.querySelector('#empty-projects-template');
+      if (emptyTemplate) {
+        projectsContent.appendChild(emptyTemplate.content.cloneNode(true));
+      }
     }
   } catch (error) {
     console.error('Erro ao renderizar conteúdo:', error);
-    projectsContent.innerHTML = `
-      <div class="p-4 text-center text-red-600">
-        <p>Ocorreu um erro ao processar os dados. Por favor, tente novamente.</p>
-      </div>
-    `;
+    // Exibe o template de erro
+    const errorTemplate = document.querySelector('#error-template');
+    if (errorTemplate) {
+      projectsContent.appendChild(errorTemplate.content.cloneNode(true));
+    } else {
+      projectsContent.innerHTML = `
+        <div class="p-4 text-center text-red-600">
+          <p>Ocorreu um erro ao processar os dados. Por favor, tente novamente.</p>
+        </div>
+      `;
+    }
   }
 }
 
@@ -261,27 +319,36 @@ function handleSuccessResponse(data, projectsLoader, projectsContent) {
 function handleErrorCase(error, employeeId, projectsLoader, projectsContent) {
   console.error('Erro:', error);
   hideLoader(projectsLoader, projectsContent);
-  projectsContent.innerHTML = PROJECT_TEMPLATES.errorState(
-    error.message || 'Erro desconhecido ao carregar projetos',
-    employeeId,
-  );
+
+  // Usa o template de erro do PHP
+  const errorTemplate = document.querySelector('#error-template');
+  if (errorTemplate) {
+    const errorContent = errorTemplate.content.cloneNode(true);
+
+    // Preenche os dados de erro no template
+    const errorMessage = errorContent.querySelector('[data-error-message]');
+    if (errorMessage) {
+      errorMessage.textContent =
+        error.message || 'Erro desconhecido ao carregar projetos';
+    }
+
+    const employeeIdElement = errorContent.querySelector('[data-employee-id]');
+    if (employeeIdElement) {
+      employeeIdElement.textContent = employeeId;
+    }
+
+    // Limpa o conteúdo anterior e adiciona o template de erro
+    projectsContent.innerHTML = '';
+    projectsContent.appendChild(errorContent);
+  } else {
+    // Fallback caso o template não seja encontrado
+    projectsContent.innerHTML = `
+      <div class="p-4 text-center text-red-600">
+        <p>Ocorreu um erro ao processar os dados. Por favor, tente novamente.</p>
+      </div>
+    `;
+  }
 }
-
-/**
- * Cache para armazenar temporariamente as respostas de projetos por ID de funcionário
- * Isso evita requisições repetidas para os mesmos dados em curtos períodos de tempo
- */
-const projectsCache = new Map();
-
-/**
- * Tempo de expiração do cache em milissegundos (5 minutos)
- */
-const CACHE_EXPIRATION_TIME = 5 * 60 * 1000;
-
-/**
- * URL base para a API de projetos de funcionários
- */
-const API_URL_BASE = '/employee/';
 
 /**
  * Função principal para buscar projetos de um funcionário
@@ -292,21 +359,11 @@ const API_URL_BASE = '/employee/';
  * @param {HTMLElement} projectsContent - Elemento onde o conteúdo será renderizado
  * @returns {Promise} Promessa que resolve quando os dados são carregados
  */
-function fetchEmployeeProjects(employeeId, projectsLoader, projectsContent) {
-  // Verificar cache primeiro
-  const now = Date.now();
-  const cachedData = projectsCache.get(employeeId);
-
-  if (cachedData && now - cachedData.timestamp < CACHE_EXPIRATION_TIME) {
-    console.log('Usando dados do cache para funcionário:', employeeId);
-    // Usar dados em cache
-    setTimeout(() => {
-      handleSuccessResponse(cachedData.data, projectsLoader, projectsContent);
-    }, 300); // Pequeno delay para melhor experiência do usuário
-    return Promise.resolve(cachedData.data);
-  }
-
-  // Se não estiver em cache ou expirado, fazer requisição
+async function fetchEmployeeProjects(
+  employeeId,
+  projectsLoader,
+  projectsContent,
+) {
   return fetch(`${API_URL_BASE}${employeeId}/projects`, {
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
@@ -321,12 +378,6 @@ function fetchEmployeeProjects(employeeId, projectsLoader, projectsContent) {
       return response.ok ? response.json() : processErrorResponse(response);
     })
     .then((data) => {
-      // Armazenar no cache
-      projectsCache.set(employeeId, {
-        data,
-        timestamp: Date.now(),
-      });
-
       handleSuccessResponse(data, projectsLoader, projectsContent);
       return data;
     })
