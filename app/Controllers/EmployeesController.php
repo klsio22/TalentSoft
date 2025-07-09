@@ -23,7 +23,7 @@ class EmployeesController extends Controller
     private const ACCESS_DENIED = 'Acesso negado';
     private const EMPLOYEE_CREATED = 'Funcionário cadastrado com sucesso!';
     private const EMPLOYEE_UPDATED = 'Funcionário atualizado com sucesso!';
-    private const EMPLOYEE_DELETED = 'Funcionário removido com sucesso!';
+    private const EMPLOYEE_DEACTIVATED = 'Funcionário desativado com sucesso!';
     private const CREDENTIAL_ERROR = 'Erro ao salvar credenciais do usuário';
 
     private const DATETIME_FORMAT = 'Y-m-d H:i:s';
@@ -45,17 +45,18 @@ class EmployeesController extends Controller
         $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
         $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
         $roleId = filter_input(INPUT_GET, 'role', FILTER_VALIDATE_INT);
-        $status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_SPECIAL_CHARS);
+        // Padrão: mostrar apenas funcionários ativos
+        $status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_SPECIAL_CHARS) ?: 'Active';
         $perPage = 10;
 
-        // Buscar todos os funcionários
-        $allEmployees = Employee::all();
-
-        // Usar o modelo Employee para filtrar os funcionários
-        $filteredEmployees = Employee::filterEmployees($allEmployees, $search, $roleId, $status);
-
-        // Criar um objeto de paginação através do modelo
-        $employees = Employee::createPaginator($filteredEmployees, $page, $perPage);
+        // Usar o método do modelo Employee para paginação com filtros
+        $employees = Employee::paginateWithFilters(
+            $page,
+            $perPage,
+            $search,
+            $roleId,
+            $status
+        );
 
         $roles = Role::all();
         $title = 'Lista de Funcionários';
@@ -238,7 +239,7 @@ class EmployeesController extends Controller
     }
 
     /**
-     * Remove um funcionário do banco de dados
+     * Desativa um funcionário no sistema (soft delete)
      */
     public function destroy(Request $request): void
     {
@@ -258,23 +259,18 @@ class EmployeesController extends Controller
             return;
         }
 
-        // Não permitir excluir o próprio usuário logado
+        // Não permitir desativar o próprio usuário logado
         if ($employee->id === Auth::user()->id) {
-            FlashMessage::danger('Não é possível excluir seu próprio usuário');
+            FlashMessage::danger('Não é possível desativar seu próprio usuário');
             $this->redirectTo(route('employees.index'));
             return;
         }
 
-        // Remover credenciais primeiro (restrição de chave estrangeira)
-        $credential = $employee->credential();
-        if ($credential) {
-            $credential->destroy();
-        }
-
-        if ($employee->destroy()) {
-            FlashMessage::success(self::EMPLOYEE_DELETED);
+        // Desativar o funcionário usando o método específico do modelo
+        if ($employee->deactivate()) {
+            FlashMessage::success(self::EMPLOYEE_DEACTIVATED);
         } else {
-            FlashMessage::danger('Erro ao excluir funcionário');
+            FlashMessage::danger('Erro ao desativar funcionário');
         }
 
         $this->redirectTo(route('employees.index'));

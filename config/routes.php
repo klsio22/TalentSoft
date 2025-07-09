@@ -10,7 +10,6 @@ use App\Controllers\HRController;
 use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
 use App\Controllers\UserController;
-use App\Controllers\AjaxController;
 use Core\Router\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('root');

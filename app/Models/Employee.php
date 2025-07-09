@@ -204,29 +204,22 @@ class Employee extends Model implements HasAvatar
     }
 
   /**
-   * Cria um objeto de paginação a partir de uma lista de funcionários
-   *
-   * @param array<int, Employee> $employees Lista de funcionários
-   * @param int $page Número da página atual
-   * @param int $perPage Itens por página
-   * @return object Objeto de paginação
-   */
-    public static function createPaginator(array $employees, int $page, int $perPage): object
-    {
-        return EmployeePaginator::paginate($employees, $page, $perPage);
-    }
-
-  /**
    * Filtra funcionários disponíveis para atribuição a um projeto
-   * (funcionários que ainda não foram atribuídos ao projeto)
+   * (funcionários que ainda não foram atribuídos ao projeto e estão ativos)
    *
    * @param array<int, object> $allEmployees Todos os funcionários
    * @param array<int, object> $projectEmployees Funcionários já atribuídos ao projeto
-   * @return array<int, object> Funcionários disponíveis
+   * @return array<int, object> Funcionários disponíveis e ativos
    */
     public static function filterAvailableEmployees(array $allEmployees, array $projectEmployees): array
     {
         return array_filter($allEmployees, function ($employee) use ($projectEmployees) {
+            // Verificar se o funcionário está ativo
+            if ($employee->status !== 'Active') {
+                return false;
+            }
+
+            // Verificar se o funcionário já está atribuído ao projeto
             foreach ($projectEmployees as $projectEmployee) {
                 if ($projectEmployee->id === $employee->id) {
                     return false;
@@ -287,5 +280,49 @@ class Employee extends Model implements HasAvatar
             // Log do erro ou tratamento adequado
             return false;
         }
+    }
+
+    public static function paginateWithFilters(
+        int $page = 1,
+        int $perPage = 10,
+        ?string $search = null,
+        ?int $roleId = null,
+        ?string $status = null
+    ): \Lib\Paginator {
+
+
+    // Adicionar condições baseadas nos filtros
+        if (!empty($search)) {
+            $conditions['name LIKE'] = "%{$search}%";
+        }
+
+        if ($roleId !== null) {
+            $conditions['role_id'] = $roleId;
+        }
+
+        if (!empty($status)) {
+            $conditions['status'] = $status;
+        }
+
+    // Criar o Paginator com as condições
+        return new \Lib\Paginator(
+            class: static::class,
+            page: $page,
+            per_page: $perPage,
+            table: static::$table,
+            attributes: static::$columns,
+            route: 'employees.index'
+        );
+    }
+
+  /**
+   * Desativa o funcionário no sistema (soft delete)
+   * Define o status como 'Inactive' sem remover do banco de dados
+   *
+   * @return bool True se a desativação foi bem-sucedida, false caso contrário
+   */
+    public function deactivate(): bool
+    {
+        return $this->update(['status' => 'Inactive']);
     }
 }
