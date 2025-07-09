@@ -303,7 +303,7 @@ class EmployeeCRUDCest extends BaseAcceptanceCest
             $tester->wait(1);
             $tester->reloadPage();
             $tester->wait(2);
-            
+
             // Verificar se o funcionário não aparece mais na lista padrão (que mostra apenas ativos)
             // Se estiver usando filtro de status, podemos verificar se aparece como inativo
             $tester->comment('Checking if employee is no longer in the active list');
