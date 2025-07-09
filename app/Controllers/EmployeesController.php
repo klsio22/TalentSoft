@@ -23,7 +23,7 @@ class EmployeesController extends Controller
     private const ACCESS_DENIED = 'Acesso negado';
     private const EMPLOYEE_CREATED = 'Funcionário cadastrado com sucesso!';
     private const EMPLOYEE_UPDATED = 'Funcionário atualizado com sucesso!';
-    private const EMPLOYEE_DELETED = 'Funcionário removido com sucesso!';
+    private const EMPLOYEE_DEACTIVATED = 'Funcionário desativado com sucesso!';
     private const CREDENTIAL_ERROR = 'Erro ao salvar credenciais do usuário';
 
     private const DATETIME_FORMAT = 'Y-m-d H:i:s';
@@ -45,7 +45,7 @@ class EmployeesController extends Controller
         $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
         $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
         $roleId = filter_input(INPUT_GET, 'role', FILTER_VALIDATE_INT);
-        $status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_SPECIAL_CHARS);
+        $status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_SPECIAL_CHARS) ?: 'Active'; // Padrão: mostrar apenas funcionários ativos
         $perPage = 10;
 
         // Usar o método do modelo Employee para paginação com filtros
@@ -65,7 +65,6 @@ class EmployeesController extends Controller
 
         $this->render('employees/index', compact('employees', 'title', 'roles', 'queryParams'));
     }
-
 
     /**
      * Prepara os parâmetros de consulta para URLs de paginação
@@ -239,7 +238,7 @@ class EmployeesController extends Controller
     }
 
     /**
-     * Remove um funcionário do banco de dados
+     * Desativa um funcionário no sistema (soft delete)
      */
     public function destroy(Request $request): void
     {
@@ -259,19 +258,18 @@ class EmployeesController extends Controller
             return;
         }
 
-        // Não permitir excluir o próprio usuário logado
+        // Não permitir desativar o próprio usuário logado
         if ($employee->id === Auth::user()->id) {
-            FlashMessage::danger('Não é possível excluir seu próprio usuário');
+            FlashMessage::danger('Não é possível desativar seu próprio usuário');
             $this->redirectTo(route('employees.index'));
             return;
         }
 
-        // Usar o método destroyWithAssociations que remove explicitamente todas as associações
-        // incluindo Employee_Projects, UserCredentials e Notifications
-        if ($employee->destroyWithAssociations()) {
-            FlashMessage::success(self::EMPLOYEE_DELETED);
+        // Desativar o funcionário usando o método específico do modelo
+        if ($employee->deactivate()) {
+            FlashMessage::success(self::EMPLOYEE_DEACTIVATED);
         } else {
-            FlashMessage::danger('Erro ao excluir funcionário');
+            FlashMessage::danger('Erro ao desativar funcionário');
         }
 
         $this->redirectTo(route('employees.index'));

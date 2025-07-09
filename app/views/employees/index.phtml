@@ -171,8 +171,8 @@ use Core\Constants\Constants;
               <button type="button"
                 class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200 delete-btn"
                 data-employee-id="<?= $employee->id ?>" data-employee-name="<?= htmlspecialchars($employee->name) ?>"
-                title="Excluir">
-                <i class="fas fa-trash text-sm"></i>
+                title="Desativar">
+                <i class="fas fa-user-slash text-sm"></i>
               </button>
             </div>
           </td>
@@ -286,7 +286,7 @@ use Core\Constants\Constants;
   <?php endif; ?>
 </div>
 
-<!-- Modal de confirmação de exclusão -->
+<!-- Modal de confirmação de desativação -->
 <div id="deleteModal"
   class="hidden fixed inset-0 bg-gray-900/80 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
   <div class="bg-white p-8 w-96 shadow-2xl rounded-2xl mx-4 border border-gray-200">
@@ -294,10 +294,10 @@ use Core\Constants\Constants;
       <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 ">
         <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
       </div>
-      <h3 class="text-xl font-semibold text-gray-800 mb-2">Confirmar Exclusão</h3>
-      <p class="text-gray-600 mb-2">Tem certeza que deseja excluir o funcionário</p>
+      <h3 class="text-xl font-semibold text-gray-800 mb-2">Confirmar Desativação</h3>
+      <p class="text-gray-600 mb-2">Tem certeza que deseja desativar o funcionário</p>
       <p class="font-semibold text-gray-800 mb-4" id="employeeName"></p>
-      <p class="text-red-600 text-sm mb-6">Esta ação não pode ser desfeita!</p>
+      <p class="text-gray-600 text-sm mb-6">O funcionário não será excluído do sistema, apenas desativado.</p>
 
       <div class="flex gap-3 justify-center">
         <button type="button" onclick="closeDeleteModal()"
@@ -308,7 +308,7 @@ use Core\Constants\Constants;
           <input type="hidden" name="id" id="employeeId">
           <button type="submit"
             class="px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-200 font-medium shadow-lg">
-            <i class="fas fa-trash mr-2"></i>Excluir
+            <i class="fas fa-user-slash mr-2"></i>Desativar
           </button>
         </form>
       </div>

@@ -248,25 +248,25 @@ abstract class Model
      *                                              Exemplo: ['Employee_Projects' => 'project_id']
      * @return bool True se a exclusão foi bem-sucedida, false caso contrário
      */
-    public function destroyWithRelationships(array $options = []): bool
+    public function destroyWithRelationships(array $relationships = []): bool
     {
         try {
             $pdo = Database::getDatabaseConn();
+
+            // Iniciar transação para garantir consistência
             $pdo->beginTransaction();
 
-            // Detectar tabelas dependentes usando metadados do banco
-            $dependentTables = $this->findDependentTables();
-
-            // Remover registros dependentes
-            foreach ($dependentTables as $table => $column) {
-                $sql = "DELETE FROM {$table} WHERE {$column} = :id";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindValue(':id', $this->id);
-                $stmt->execute();
+            // Deletar relacionamentos especificados
+            foreach ($relationships as $relationshipTable => $foreignKeyColumn) {
+                $sqlRelationship = "DELETE FROM {$relationshipTable} WHERE {$foreignKeyColumn} = :id";
+                $stmtRelationship = $pdo->prepare($sqlRelationship);
+                $stmtRelationship->bindValue(':id', $this->id);
+                $stmtRelationship->execute();
             }
 
-            // Remover o registro principal
-            $sql = "DELETE FROM " . static::$table . " WHERE id = :id";
+            // Deletar o modelo principal usando o método destroy existente
+            $table = static::$table;
+            $sql = "DELETE FROM {$table} WHERE id = :id";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
@@ -274,161 +274,22 @@ abstract class Model
             $deleted = ($stmt->rowCount() > 0);
 
             if ($deleted) {
+                // Confirmar transação
                 $pdo->commit();
-                return true;
             } else {
+                // Reverter se não conseguiu deletar o modelo principal
                 $pdo->rollBack();
-                return false;
             }
-        } catch (\Exception $e) {
+
+            return $deleted;
+
+        } catch (\PDOException $e) {
+            // Reverter transação em caso de erro
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            error_log("Erro ao remover registro e dependências: " . $e->getMessage());
             return false;
         }
-    }
-
-    /**
-     * Encontra todas as tabelas que dependem desta entidade através de chaves estrangeiras
-     *
-     * @return array<string, string> Array associativo com [tabela => coluna]
-     */
-    /**
-     * Encontra todas as tabelas que dependem desta entidade através de chaves estrangeiras
-     * Método centralizado que evita uso direto de SQL nos modelos filhos
-     *
-     * @return array<string, string> Array associativo com [tabela => coluna]
-     */
-    protected function findDependentTables(): array
-    {
-        try {
-            $tableName = static::$table;
-            $schema = $this->getDatabaseSchema();
-            $dependentTables = $this->extractDependentTablesFromSchema($schema, $tableName);
-            return $dependentTables;
-        } catch (\Exception $e) {
-            error_log("Erro ao buscar tabelas dependentes: " . $e->getMessage());
-            return [];
-        }
-    }
-
-    /**
-     * Obtém o schema do banco de dados para análise de dependências
-     * Método interno que centraliza a consulta SQL ao schema do banco de dados
-     *
-     * @return array<array<string, mixed>> Registros do schema
-     */
-    private function getDatabaseSchema(): array
-    {
-        $pdo = Database::getDatabaseConn();
-        $sql = "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
-               FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-               WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
-               AND REFERENCED_COLUMN_NAME IS NOT NULL";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Extrai tabelas dependentes a partir dos dados do schema
-     *
-     * @param array<array<string, mixed>> $schema Registros do schema
-     * @param string $tableName Nome da tabela a ser analisada
-     * @return array<string, string> Array associativo com [tabela => coluna]
-     */
-    private function extractDependentTablesFromSchema(array $schema, string $tableName): array
-    {
-        $dependentTables = [];
-        foreach ($schema as $row) {
-            if ($row['REFERENCED_TABLE_NAME'] === $tableName &&
-                $row['REFERENCED_COLUMN_NAME'] === 'id') {
-                $dependentTables[$row['TABLE_NAME']] = $row['COLUMN_NAME'];
-            }
-        }
-        return $dependentTables;
-    }
-
-    /**
-     * Remove a entidade e todas as suas associações explicitamente especificadas e detectadas
-     * Método genérico para remover com segurança uma entidade e suas associações
-     *
-     * @param array<string, string> $explicitAssociations Associações explícitas no formato ['table_name' => 'fk_column']
-     * @return bool True se a remoção foi bem-sucedida, false caso contrário
-     */
-    public function destroyWithAssociations(array $explicitAssociations = []): bool
-    {
-        try {
-            $pdo = Database::getDatabaseConn();
-            $pdo->beginTransaction();
-
-            // 1. Remover as associações explícitas especificadas
-            foreach ($explicitAssociations as $table => $column) {
-                $this->deleteFromTable($pdo, $table, $column);
-            }
-
-            // 2. Usar o método findDependentTables para detectar e remover outras dependências
-            // que não estejam listadas explicitamente acima
-            $otherDependencies = $this->findDependentTables();
-            foreach ($otherDependencies as $table => $column) {
-                // Pular tabelas que já tratamos explicitamente
-                if (array_key_exists($table, $explicitAssociations)) {
-                    continue;
-                }
-
-                $this->deleteFromTable($pdo, $table, $column);
-            }
-
-            // 3. Finalmente, remover a entidade principal
-            $deleted = $this->deleteEntity($pdo);
-
-            if ($deleted) {
-                $pdo->commit();
-                return true;
-            } else {
-                $pdo->rollBack();
-                return false;
-            }
-        } catch (\Exception $e) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            error_log("Erro ao remover entidade e associações: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Método auxiliar para excluir registros de uma tabela com base em uma coluna de chave estrangeira
-     *
-     * @param PDO $pdo Conexão PDO ativa
-     * @param string $table Nome da tabela
-     * @param string $column Nome da coluna de chave estrangeira
-     * @return void
-     */
-    private function deleteFromTable(PDO $pdo, string $table, string $column): void
-    {
-        $sql = "DELETE FROM {$table} WHERE {$column} = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
-    }
-
-    /**
-     * Método auxiliar para excluir a entidade principal
-     *
-     * @param PDO $pdo Conexão PDO ativa
-     * @return bool True se a exclusão foi bem-sucedida, false caso contrário
-     */
-    private function deleteEntity(PDO $pdo): bool
-    {
-        $sql = "DELETE FROM " . static::$table . " WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
-        return ($stmt->rowCount() > 0);
     }
 
     public static function findById(int $id): static|null

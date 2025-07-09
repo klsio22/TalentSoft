@@ -120,28 +120,6 @@ class Employee extends Model implements HasAvatar
         );
     }
 
-    /**
-     * Remove o funcionário e todas as suas associações de forma segura
-     * Utiliza o método genérico do Model base para evitar SQL direto
-     *
-     * @param array<string, string> $explicitAssociations Associações explícitas no formato ['table_name' => 'fk_column']
-     * @return bool True se a exclusão foi bem-sucedida, false caso contrário
-     */
-    public function destroyWithAssociations(array $explicitAssociations = []): bool
-    {
-        // Definir associações explícitas conhecidas para garantir ordem de remoção
-        $defaultAssociations = [
-            'Employee_Projects' => 'employee_id',
-            'UserCredentials' => 'employee_id',
-        ];
-
-        // Mesclar associações explícitas fornecidas com as padrões
-        $mergedAssociations = array_merge($defaultAssociations, $explicitAssociations);
-
-        // Usar método genérico do Model base
-        return parent::destroyWithAssociations($mergedAssociations);
-    }
-
 
 
   /**
@@ -225,18 +203,23 @@ class Employee extends Model implements HasAvatar
         return EmployeeFilter::filter($allEmployees, $search, $roleId, $status);
     }
 
-
   /**
    * Filtra funcionários disponíveis para atribuição a um projeto
-   * (funcionários que ainda não foram atribuídos ao projeto)
+   * (funcionários que ainda não foram atribuídos ao projeto e estão ativos)
    *
    * @param array<int, object> $allEmployees Todos os funcionários
    * @param array<int, object> $projectEmployees Funcionários já atribuídos ao projeto
-   * @return array<int, object> Funcionários disponíveis
+   * @return array<int, object> Funcionários disponíveis e ativos
    */
     public static function filterAvailableEmployees(array $allEmployees, array $projectEmployees): array
     {
         return array_filter($allEmployees, function ($employee) use ($projectEmployees) {
+            // Verificar se o funcionário está ativo
+            if ($employee->status !== 'Active') {
+                return false;
+            }
+            
+            // Verificar se o funcionário já está atribuído ao projeto
             foreach ($projectEmployees as $projectEmployee) {
                 if ($projectEmployee->id === $employee->id) {
                     return false;
@@ -299,47 +282,47 @@ class Employee extends Model implements HasAvatar
         }
     }
 
-
-      /**
-     * Pagina os funcionários com os filtros fornecidos
-     *
-     * @param int $page Número da página atual
-     * @param int $perPage Itens por página
-     * @param string|null $search Termo de busca para filtrar por nome
-     * @param int|null $roleId ID do cargo para filtrar
-     * @param string|null $status Status para filtrar
-     * @return \Lib\Paginator Objeto de paginação com os resultados filtrados
-     */
     public static function paginateWithFilters(
-        int $page = 1,
-        int $perPage = 10,
-        ?string $search = null,
-        ?int $roleId = null,
-        ?string $status = null
-    ): \Lib\Paginator {
+      int $page = 1,
+      int $perPage = 10,
+      ?string $search = null,
+      ?int $roleId = null,
+      ?string $status = null
+  ): \Lib\Paginator {
 
 
-      // Adicionar condições baseadas nos filtros
-        if (!empty($search)) {
-            $conditions['name LIKE'] = "%{$search}%";
-        }
+    // Adicionar condições baseadas nos filtros
+      if (!empty($search)) {
+          $conditions['name LIKE'] = "%{$search}%";
+      }
 
-        if ($roleId !== null) {
-            $conditions['role_id'] = $roleId;
-        }
+      if ($roleId !== null) {
+          $conditions['role_id'] = $roleId;
+      }
 
-        if (!empty($status)) {
-            $conditions['status'] = $status;
-        }
+      if (!empty($status)) {
+          $conditions['status'] = $status;
+      }
 
-      // Criar o Paginator com as condições
-        return new \Lib\Paginator(
-            class: static::class,
-            page: $page,
-            per_page: $perPage,
-            table: static::$table,
-            attributes: static::$columns,
-            route: 'employees.index'
-        );
-    }
+    // Criar o Paginator com as condições
+      return new \Lib\Paginator(
+          class: static::class,
+          page: $page,
+          per_page: $perPage,
+          table: static::$table,
+          attributes: static::$columns,
+          route: 'employees.index'
+      );
+  }
+
+  /**
+   * Desativa o funcionário no sistema (soft delete)
+   * Define o status como 'Inactive' sem remover do banco de dados
+   *
+   * @return bool True se a desativação foi bem-sucedida, false caso contrário
+   */
+  public function deactivate(): bool
+  {
+      return $this->update(['status' => 'Inactive']);
+  }
 }
