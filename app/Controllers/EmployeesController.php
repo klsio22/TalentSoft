@@ -45,7 +45,8 @@ class EmployeesController extends Controller
         $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
         $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
         $roleId = filter_input(INPUT_GET, 'role', FILTER_VALIDATE_INT);
-        $status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_SPECIAL_CHARS) ?: 'Active'; // Padrão: mostrar apenas funcionários ativos
+        // Padrão: mostrar apenas funcionários ativos
+        $status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_SPECIAL_CHARS) ?: 'Active';
         $perPage = 10;
 
         // Usar o método do modelo Employee para paginação com filtros

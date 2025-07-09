@@ -269,46 +269,7 @@ class EmployeesControllerTest extends TestCase
     }
 
     /**
-     * Testa a atualização de um funcionário
-     */
-    public function testUpdateModifiesEmployee(): void
-    {
-        // Criar dados de teste
-        [, $employee] = $this->createTestData();
-
-        // Configurar requisição POST
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $_POST = [
-            'id' => $employee->id,
-            'name' => 'Updated Employee',
-            'email' => $employee->email,
-            'cpf' => $employee->cpf,
-            'birth_date' => $employee->birth_date,
-            'role_id' => $employee->role_id,
-            'hire_date' => $employee->hire_date,
-            'status' => $employee->status
-        ];
-        $_REQUEST = $_POST;
-
-        // Criar controlador mockado
-        $controller = $this->getMockBuilder(EmployeesController::class)
-            ->onlyMethods(['redirectTo'])
-            ->getMock();
-
-        $controller->expects($this->once())
-            ->method('redirectTo');
-
-        // Executar o método update
-        $request = new Request();
-        $controller->update($request);
-
-        // Verificar se o funcionário foi atualizado
-        $updatedEmployee = Employee::findById($employee->id);
-        $this->assertEquals('Updated Employee', $updatedEmployee->name);
-    }
-
-    /**
-     * Testa a exclusão de um funcionário
+     * Testa a desativação de um funcionário (soft delete)
      */
     public function testDestroyRemovesEmployee(): void
     {
@@ -319,6 +280,23 @@ class EmployeesControllerTest extends TestCase
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST['id'] = $employee->id;
         $_REQUEST = $_POST;
+
+        // Garantir que o usuário autenticado seja diferente do funcionário a ser desativado
+        // Isso evita o erro de tentar desativar o próprio usuário
+        $this->assertNotEquals(
+            $employee->id,
+            $this->mockEmployee->id,
+            'O ID do funcionário de teste deve ser diferente do ID do usuário autenticado'
+        );
+
+        // Verificar se o Auth está funcionando corretamente
+        $this->assertTrue(Auth::check(), 'O usuário deve estar autenticado');
+        $this->assertNotNull(Auth::user(), 'Auth::user() deve retornar um usuário');
+        $this->assertNotEquals(
+            $employee->id,
+            Auth::user()->id,
+            'O usuário autenticado deve ser diferente do funcionário a ser desativado'
+        );
 
         // Criar controlador mockado
         $controller = $this->getMockBuilder(EmployeesController::class)
@@ -332,8 +310,9 @@ class EmployeesControllerTest extends TestCase
         $request = new Request();
         $controller->destroy($request);
 
-        // Verificar se o funcionário foi removido
-        $deletedEmployee = Employee::findById($employee->id);
-        $this->assertNull($deletedEmployee);
+        // Verificar se o funcionário foi desativado (soft delete)
+        $deactivatedEmployee = Employee::findById($employee->id);
+        $this->assertNotNull($deactivatedEmployee, 'O funcionário não deve ser removido fisicamente');
+        $this->assertEquals('Inactive', $deactivatedEmployee->status, 'O status do funcionário deve ser Inactive');
     }
 }

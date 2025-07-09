@@ -218,7 +218,7 @@ class Employee extends Model implements HasAvatar
             if ($employee->status !== 'Active') {
                 return false;
             }
-            
+
             // Verificar se o funcionário já está atribuído ao projeto
             foreach ($projectEmployees as $projectEmployee) {
                 if ($projectEmployee->id === $employee->id) {
@@ -283,37 +283,37 @@ class Employee extends Model implements HasAvatar
     }
 
     public static function paginateWithFilters(
-      int $page = 1,
-      int $perPage = 10,
-      ?string $search = null,
-      ?int $roleId = null,
-      ?string $status = null
-  ): \Lib\Paginator {
+        int $page = 1,
+        int $perPage = 10,
+        ?string $search = null,
+        ?int $roleId = null,
+        ?string $status = null
+    ): \Lib\Paginator {
 
 
     // Adicionar condições baseadas nos filtros
-      if (!empty($search)) {
-          $conditions['name LIKE'] = "%{$search}%";
-      }
+        if (!empty($search)) {
+            $conditions['name LIKE'] = "%{$search}%";
+        }
 
-      if ($roleId !== null) {
-          $conditions['role_id'] = $roleId;
-      }
+        if ($roleId !== null) {
+            $conditions['role_id'] = $roleId;
+        }
 
-      if (!empty($status)) {
-          $conditions['status'] = $status;
-      }
+        if (!empty($status)) {
+            $conditions['status'] = $status;
+        }
 
     // Criar o Paginator com as condições
-      return new \Lib\Paginator(
-          class: static::class,
-          page: $page,
-          per_page: $perPage,
-          table: static::$table,
-          attributes: static::$columns,
-          route: 'employees.index'
-      );
-  }
+        return new \Lib\Paginator(
+            class: static::class,
+            page: $page,
+            per_page: $perPage,
+            table: static::$table,
+            attributes: static::$columns,
+            route: 'employees.index'
+        );
+    }
 
   /**
    * Desativa o funcionário no sistema (soft delete)
@@ -321,8 +321,8 @@ class Employee extends Model implements HasAvatar
    *
    * @return bool True se a desativação foi bem-sucedida, false caso contrário
    */
-  public function deactivate(): bool
-  {
-      return $this->update(['status' => 'Inactive']);
-  }
+    public function deactivate(): bool
+    {
+        return $this->update(['status' => 'Inactive']);
+    }
 }
