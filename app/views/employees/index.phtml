@@ -192,6 +192,60 @@ use Core\Constants\Constants;
           <div id="projects-content" class="text-sm">
             <!-- O conteúdo será preenchido pelo JavaScript -->
           </div>
+          
+          <!-- Templates HTML para projetos (fora do div que é limpo) -->
+          <template id="project-template">
+            <div class="mb-3 font-medium text-gray-800" id="employee-name"></div>
+            <div class="mb-4 text-sm text-gray-600" id="project-count"></div>
+            
+            <ul class="space-y-3" id="projects-list">
+              <!-- Os itens de projeto serão inseridos aqui dinamicamente -->
+            </ul>
+          </template>
+          
+          <!-- Template para cada item de projeto -->
+          <template id="project-item-template">
+            <ul class="hidden">
+              <li class="border border-gray-200 rounded-lg p-3 bg-white/50">
+                <div class="font-medium text-gray-800 mb-1" data-project-name></div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mb-2" data-project-status>
+                  <i class="fas fa-circle mr-1 text-xs"></i>
+                  <span data-status-text></span>
+                </span>
+                <div class="text-gray-600 text-sm mb-2" data-project-description></div>
+                <div class="text-xs text-gray-500" data-project-role>
+                  <span class="font-medium">Função:</span> <span data-role-text></span>
+                </div>
+              </li>
+            </ul>
+          </template>
+          
+          <!-- Template para estado vazio (sem projetos) -->
+          <template id="empty-projects-template">
+            <div class="text-center py-6">
+              <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-clipboard-list text-gray-400 text-xl"></i>
+              </div>
+              <h3 class="text-lg font-medium text-gray-800 mb-1">Nenhum projeto encontrado</h3>
+              <p class="text-gray-600 text-sm">Este funcionário não está associado a nenhum projeto.</p>
+            </div>
+          </template>
+          
+          <!-- Template para erro -->
+          <template id="error-template">
+            <div class="flex flex-col items-center justify-center py-8 text-center">
+              <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+              </div>
+              <h4 class="text-gray-800 font-medium mb-1">Erro ao carregar projetos</h4>
+              <p class="text-red-600 text-sm" data-error-message>Ocorreu um erro ao processar os dados.</p>
+              <p class="text-gray-500 text-xs mt-2">ID do funcionário: <span data-employee-id></span></p>
+              <button type="button" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      onclick="location.reload()">
+                Tentar novamente
+              </button>
+            </div>
+          </template>
         </div>
 
         <div class="mt-6 text-right border-t pt-3">
